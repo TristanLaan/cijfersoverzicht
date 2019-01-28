@@ -121,7 +121,7 @@ $cijfers = getCijfers($vakken);
                 $kleur++;
 
                 /* Door alle cijfers loopen */
-                for ($j = 0; $j < count($cijfers[$i]); $j++) {
+                for ($j = 0; $j < count($cijfers[$i]) - 2; $j++) {
                     /* Voor de zekerheid controleren of cijfer voor het juiste vak is */
                     if ($cijfers[$i][$j]["vaknr"] == $vakken[$i]["vaknr"]) {
                         /* Totale weging en totale som cijfers opslaan */
@@ -169,7 +169,7 @@ $cijfers = getCijfers($vakken);
             } else { //berekeningen moeten ook gedaan worden voor vakken die niet getoond worden
                 $cijfers[$i]["som"] = 0;
                 $cijfers[$i]["weging"] = 0;
-                for ($j = 0; $j < count($cijfers[$i]); $j++) {
+                for ($j = 0; $j < count($cijfers[$i]) - 2; $j++) {
                     if ($cijfers[$i][$j]["vaknr"] == $vakken[$i]["vaknr"]) {
                         if ($cijfers[$i][$j]["cijfer"] != NULL) {
                             if ($cijfers[$i][$j]["weging"] != NULL) {
@@ -215,7 +215,7 @@ $cijfers = getCijfers($vakken);
             <tr>
                 <td><?php echo $vakken[$i]["vaknaam"]; ?></td>
                 <td><?php echo $vakken[$i]["jaar"]; ?></td>
-                <td><?php if ($vakken[$i]["periode"] !== 0) {
+                <td><?php if ($vakken[$i]["periode"] != "0") {
                     echo $vakken[$i]["periode"];
                     } ?></td>
                 <td><?php if ($cijfers[$i]["weging"] != 0) {
@@ -269,7 +269,7 @@ $cijfers = getCijfers($vakken);
         for ($i = 0; $i < count($vakken); $i++) {
             if ($vakken[$i]["toon"] == 0) {
                 $kleur++;
-                for ($j = 0; $j < count($cijfers[$i]); $j++) {
+                for ($j = 0; $j < count($cijfers[$i]) - 2; $j++) {
                     if ($cijfers[$i][$j]["vaknr"] == $vakken[$i]["vaknr"]) {
                         ?>
                         <tr>
