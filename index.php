@@ -215,7 +215,9 @@ $cijfers = getCijfers($vakken);
             <tr>
                 <td><?php echo $vakken[$i]["vaknaam"]; ?></td>
                 <td><?php echo $vakken[$i]["jaar"]; ?></td>
-                <td><?php echo $vakken[$i]["periode"]; ?></td>
+                <td><?php if ($vakken[$i]["periode"] !== 0) {
+                    echo $vakken[$i]["periode"];
+                    } ?></td>
                 <td><?php if ($cijfers[$i]["weging"] != 0) {
                         echo round($cijfers[$i]["som"] / $cijfers[$i]["weging"]) / 100;
                     } ?></td>
