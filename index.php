@@ -231,7 +231,7 @@ $cijfers = getCijfers($vakken);
                         ?>
                         <abbr style="text-decoration: none;" title="voorlopig">
                             <?php
-                            echo round($cijfers[$i]["som"] / 10000) / 100;
+                            echo round(max(100,$cijfers[$i]["som"] / 10000)) / 100;
                             }
                             ?></abbr></td>
                 <td><?php echo $vakken[$i]["studiepunten"]; ?></td>
