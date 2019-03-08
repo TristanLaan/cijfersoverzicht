@@ -1,4 +1,5 @@
 <?php
+require_once "connect.php";
 if (session_status() == PHP_SESSION_NONE) { //controleren of sessie al is gestart
     session_start(); //sessie starten
 }
@@ -10,7 +11,7 @@ if(!isset($_SESSION['user'])) { //uitvoeren als er op loguit is gedrukt
 if(isset($_POST['login'])) //uitvoeren als er op inloggen is gedrukt
 {
     $password = $_POST['password']; //wachtwoord beveiligen met md5 en tegen sql-injectie
-    if($password == "ziecijfers") {
+    if($password == $userpass) {
         $_SESSION['user'] = "ingelogd";
     } else {
         $error = 1;
@@ -21,7 +22,7 @@ if(isset($_POST['login'])) //uitvoeren als er op inloggen is gedrukt
 if($_SESSION['user']==null) //weergeven als niet is ingelogd
 {
 	?>
-<html>
+<html lang="nl">
 <head>
 	<title>Login om cijfers te zien</title>
 	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">

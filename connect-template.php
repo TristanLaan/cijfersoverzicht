@@ -5,4 +5,7 @@
     $database = "cijfers";
     $charset = "UTF8MB4";
     $title = "Cijfers";
+
+    $adminpass = "";
+    $userpass = "";
 ?>
