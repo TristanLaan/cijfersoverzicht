@@ -22,6 +22,7 @@ $server = "localhost";
     $database = "cijfers";
     $charset = "UTF8MB4";
     $title = "Cijfers";
+    $session = "user";
 
     $adminpass = "";
     $userpass = "";

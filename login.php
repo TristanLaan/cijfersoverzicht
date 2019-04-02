@@ -21,22 +21,22 @@ if (session_status() == PHP_SESSION_NONE) { //controleren of sessie al is gestar
     session_start(); //sessie starten
 }
 
-if(!isset($_SESSION['user'])) { //uitvoeren als er op loguit is gedrukt
-	$_SESSION['user'] = null; //sessie leegmaken
+if(!isset($_SESSION[$session])) { //uitvoeren als er op loguit is gedrukt
+	$_SESSION[$session] = null; //sessie leegmaken
 }
 
 if(isset($_POST['login'])) //uitvoeren als er op inloggen is gedrukt
 {
     $password = $_POST['password']; //wachtwoord beveiligen met md5 en tegen sql-injectie
     if($password == $userpass) {
-        $_SESSION['user'] = "ingelogd";
+        $_SESSION[$session] = "ingelogd";
     } else {
         $error = 1;
     }
 }
 
 
-if($_SESSION['user']==null) //weergeven als niet is ingelogd
+if($_SESSION[$session]==null) //weergeven als niet is ingelogd
 {
 	?>
 <html lang="nl">
