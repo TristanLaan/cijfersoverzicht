@@ -66,6 +66,13 @@ if($_SESSION['user']==null) //weergeven als niet is ingelogd
       </form>
     </div>
 	</div>
+    <footer style="position: fixed; bottom: 0; right: 0;">
+        <div style="float: right">
+            <a href="LICENSE" style="margin: 0 5px; color: #0645AD">Licence</a>
+            <a href="https://github.com/TristanLaan/cijfersoverzicht" style="margin: 0 5px; color: #0645AD">Source</a>
+            <p style="display: inline; margin: 0 5px;">&copy;Tristan Laan 2018-<?php echo $datum->format("Y"); ?></p>
+        </div>
+    </footer>
 </body>
 </html>
 	<?php

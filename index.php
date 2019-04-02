@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with cijfersoverzicht.  If not, see <https://www.gnu.org/licenses/>
  */
+$datum = new DateTime();
 
 /*Wachtwoord vragen voor bezoeken website */
 include "login.php";
@@ -337,5 +338,13 @@ $cijfers = getCijfers($vakken);
     ?>
     -->
     */ ?>
+
+<footer>
+    <div style="float: right">
+        <a href="LICENSE" style="margin: 0 5px; color: #0645AD">Licence</a>
+        <a href="https://github.com/TristanLaan/cijfersoverzicht" style="margin: 0 5px; color: #0645AD">Source</a>
+        <p style="display: inline; margin: 0 5px;">&copy;Tristan Laan 2018-<?php echo $datum->format("Y"); ?></p>
+    </div>
+</footer>
 </body>
 </html>
