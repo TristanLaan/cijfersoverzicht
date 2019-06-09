@@ -21,71 +21,74 @@ if (session_status() == PHP_SESSION_NONE) { //controleren of sessie al is gestar
     session_start(); //sessie starten
 }
 
-if(!isset($_SESSION[$session])) { //uitvoeren als er op loguit is gedrukt
-	$_SESSION[$session] = null; //sessie leegmaken
+if (!isset($_SESSION[$session])) { //uitvoeren als er op loguit is gedrukt
+    $_SESSION[$session] = null; //sessie leegmaken
 }
 
-if($_SESSION[$session]==null) //weergeven als niet is ingelogd
+if ($_SESSION[$session] == null) //weergeven als niet is ingelogd
 {
-	?>
-<html lang="nl">
-<head>
-	<title>Login om cijfers te zien</title>
-	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <script>
-        function loginsite() {
-            const pass = document.getElementById("password").value;
-            const xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function () {
-                if (this.readyState === 4 && this.status === 200) {
-                    console.debug("ajax response: " + this.responseText);
-                    const errorvak = document.getElementById("error");
-                    const errorcode = parseInt(this.responseText);
-                    const errortext = document.getElementById("errortext");
-                    switch (errorcode) {
-                        case 0:
-                            window.location.reload(true);
-                            console.debug("logged in");
-                            break;
-                        case 1:
-                            errorvak.style.display = "block";
-                            errortext.innerText = "Wachtwoord onjuist";
-                            break;
-                        default:
-                            errorvak.style.display = "block";
-                            errortext.innerText = "Onbekende fout";
-                            break;
+    ?>
+    <html lang="nl">
+    <head>
+        <title>Login om cijfers te zien</title>
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        <script>
+            function loginsite() {
+                const pass = document.getElementById("password").value;
+                const xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState === 4 && this.status === 200) {
+                        console.debug("ajax response: " + this.responseText);
+                        const errorvak = document.getElementById("error");
+                        const errorcode = parseInt(this.responseText);
+                        const errortext = document.getElementById("errortext");
+                        switch (errorcode) {
+                            case 0:
+                                window.location.reload(true);
+                                console.debug("logged in");
+                                break;
+                            case 1:
+                                errorvak.style.display = "block";
+                                errortext.innerText = "Wachtwoord onjuist";
+                                break;
+                            default:
+                                errorvak.style.display = "block";
+                                errortext.innerText = "Onbekende fout";
+                                break;
+                        }
                     }
-                }
-            };
-            xhttp.open("POST", "login_ajax.php", true);
-            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xhttp.send("password=" + pass);
-        }
-    </script>
-</head>
-<body>
-	<div class = "w3-display-middle">
-  <?php if(isset($error)) { //weergeven als inloggen is mislukt ?>
-    <div style="display: none" id="error" class="w3-panel w3-red w3-card w3-display-container">
-      <span onclick="this.parentElement.style.display='none'" class="w3-button w3-small w3-display-topright">×</span>
-      <p id="errortext"></p>
+                };
+                xhttp.open("POST", "login_ajax.php", true);
+                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhttp.send("password=" + pass);
+            }
+        </script>
+    </head>
+    <body>
+    <div class="w3-display-middle">
+        <div style="display: none" id="error" class="w3-panel w3-red w3-card w3-display-container">
+            <span onclick="this.parentElement.style.display='none'"
+                  class="w3-button w3-small w3-display-topright">×</span>
+            <p id="errortext"></p>
+        </div>
+
+        <div class="w3-card-4">
+            <div class="w3-container w3-light-grey">
+                <h2>Log in:</h2>
+            </div>
+            <form method="post" action="javascript:void(0)" onsubmit="loginsite()">
+                <div class="w3-container">
+                    <p><input class="w3-input" id="password" type="password" name="password" placeholder="wachtwoord"
+                              required></p>
+                </div>
+                <div class="w3-bar">
+                    <button type="submit" name="login"
+                            class="knophalf w3-bar-item2 w3-button w3-block w3-dark-grey w3-border-right">Login
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-  <?php } ?>
-    <div class = "w3-card-4">
-  	   <div class="w3-container w3-light-grey">
-         <h2>Log in:</h2>
-       </div>
-  		<form method="post" action="javascript:void(0)" onsubmit="loginsite()">
-  		  <div class="w3-container">
-  			   <p><input class="w3-input" id="password" type="password" name="password" placeholder="wachtwoord" required></p>
-  			</div>
-  			<div class="w3-bar">
-  			   <button type="submit" name="login" class="knophalf w3-bar-item2 w3-button w3-block w3-dark-grey w3-border-right">Login</button>
-  		  </div>
-      </form>
-    </div>
-	</div>
     <footer style="position: fixed; bottom: 0; right: 0;">
         <div style="float: right">
             <a href="LICENSE" style="margin: 0 5px; color: #0645AD">Licence</a>
@@ -93,16 +96,15 @@ if($_SESSION[$session]==null) //weergeven als niet is ingelogd
             <p style="display: inline; margin: 0 5px;">&copy;Tristan Laan 2018-<?php echo $datum->format("Y"); ?></p>
         </div>
     </footer>
-</body>
-</html>
-	<?php
-	exit();
-}
-else {
-	if(strpos($_SERVER["SCRIPT_NAME"],"login.php") !== FALSE) {//controleren of huidige pagina login.php ?>
-		<script type="text/javascript">
-			window.location = "index.php";
-		</script>
-	<?php }
+    </body>
+    </html>
+    <?php
+    exit();
+} else {
+    if (strpos($_SERVER["SCRIPT_NAME"], "login.php") !== FALSE) {//controleren of huidige pagina login.php ?>
+        <script type="text/javascript">
+            window.location = "index.php";
+        </script>
+    <?php }
 }
 ?>
