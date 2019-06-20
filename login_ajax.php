@@ -28,8 +28,8 @@ if (!isset($_SESSION[$session])) { //uitvoeren als er op loguit is gedrukt
 
 if (isset($_POST['password'])) //uitvoeren als er op inloggen is gedrukt
 {
-    $password = $_POST['password'];
-    if ($password == $userpass) {
+    $user_password = $_POST['password'];
+    if ($user_password == $userpass) {
         $_SESSION[$session] = "ingelogd";
         echo "0";
     } else {
