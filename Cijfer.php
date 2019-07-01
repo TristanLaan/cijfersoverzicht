@@ -37,7 +37,7 @@ class Cijfer {
      * @param DateTime $datum
      * @param float $cijfer
      */
-    public function __construct(int $cijfernummer, Vak $vak, string $naam, float $weging = NULL, DateTime $datum = NULL, float $cijfer = NULL) {
+    public function __construct($cijfernummer, $vak, $naam, $weging, $datum, $cijfer) {
         $this->cijfernummer = $cijfernummer;
         $this->vak = $vak;
         $this->naam = $naam;
@@ -46,7 +46,7 @@ class Cijfer {
         $this->cijfer = $cijfer;
     }
 
-    public static function getCijferFromArray(array $cijfer, Vak $vak = NULL) {
+    public static function getCijferFromArray($cijfer, $vak) {
         $cijfernummer = $cijfer["cijfernr"];
         if ($vak == NULL) {
             $internal_vak = Vak::getVak($cijfer["vaknr"]);
@@ -71,7 +71,7 @@ class Cijfer {
         return new Cijfer($cijfernummer, $internal_vak, $naam, $weging, $datum, $getal);
     }
 
-    public static function getCijfer(int $cijfernummer) {
+    public static function getCijfer($cijfernummer) {
         $database = verbindDatabase();
 
         if ($database === NULL) {
@@ -102,7 +102,7 @@ class Cijfer {
      * @param Cijfer[] $cijfers
      * @return float
      */
-    private static function berekenGemiddeldeCijfer(array $cijfers = NULL) {
+    private static function berekenGemiddeldeCijfer($cijfers) {
         if ($cijfers === NULL) {
             return NULL;
         }
@@ -131,7 +131,7 @@ class Cijfer {
      * @param Cijfer[] $cijfers
      * @return float
      */
-    private static function berekenEindcijfer(array $cijfers = NULL) {
+    private static function berekenEindcijfer($cijfers) {
         if ($cijfers === NULL) {
             return NULL;
         }
