@@ -18,82 +18,62 @@
 $datum = new DateTime();
 
 /*Wachtwoord vragen voor bezoeken website */
-include "login.php";
-include "connect.php";
+require_once "login.php";
+require_once "connect.php";
+require_once "Vak.php";
+require_once "Cijfer.php";
 
-function verbindDatabase() {
-    try {
-        global $server, $password, $username, $database, $charset;
-        $connectie = new PDO("mysql:host=$server;dbname=$database;charset=$charset", $username, $password);
-    } catch (PDOException $ex) {
-        echo "<p>Er is een probleem met de database, neem contact op met de beheerder.</p><p>Error informatie:</p><pre>verbindDatabase:\n";
-        echo $ex->getMessage() . "</pre>";
-        return NULL;
-    }
+$cijfers = Cijfer::getAllCijfers();
 
-    return $connectie;
-}
+function toonCijfers(array $cijfers, bool $show) {
+    $kleur = 0; //kleur bijhouden van vakken kolom tabel
 
-function getVakken() {
-    $database = verbindDatabase();
+    foreach ($cijfers as $vakArray) {
+        $vak = $vakArray["vak"];
+        $cijfersArray = $vakArray["cijfers"];
+        /* @var Vak $vak
+         * @var Cijfer[] $cijfersArray
+         */
+        if ($vak !== NULL && $vak->toon === $show && $cijfersArray !== NULL) {
+            /* Berekeningen voor berekenen gemmiddelde cijfers enz. */
+            $kleur++;
 
-    if ($database === NULL) {
-        exit(1);
-    }
+            /* Door alle cijfers loopen */
+            $aantalCijfers = sizeof($cijfersArray);
+            $first = true;
+            foreach ($cijfersArray as $cijfer) {
+                ?>
 
-    $sql = $database->prepare("SELECT * FROM Vakken");
+                <tr>
+                    <?php if ($first) { //eerste keer moet vak ook geprint worden
+                        echo '<td style="background-color: #';
+                        if ($kleur % 2) { //juiste achtergrondkleur selecteren
+                            echo "fff";
+                        } else {
+                            echo "f1f1f1";
+                        }
+                        echo '; border-right: 1px solid #ddd; " rowspan="' . $aantalCijfers . '">'
+                            . $vak->naam . '</td>';
+                        $first = false;
+                    }
+                    ?>
+                    <td style="padding-left: 16px;"><?php echo $cijfer->naam; ?></td>
+                    <td><?php if ($cijfer->datum != NULL) {
+                            echo $cijfer->datum->format("Y-m-d");
+                        } ?></td>
+                    <td><?php if ($cijfer->weging != NULL) {
+                            echo $cijfer->weging . "%";
+                        } ?></td>
+                    <td><?php if ($cijfer->cijfer != NULL) {
+                            echo $cijfer->cijfer;
+                        } ?></td>
+                </tr>
 
-    if (!$sql->execute()) {
-        echo "<p>Er is een probleem met de database, neem contact op met de beheerder.</p><p>Error informatie:</p><pre>getVakken:\n";
-        var_dump($sql->errorInfo());
-        echo "</pre>";
-    }
-
-    $vakken = $sql->fetchAll(PDO::FETCH_ASSOC);
-    $database = NULL;
-    return $vakken;
-}
-
-function getCijfers(array $vakken) {
-    $aantalVakken = count($vakken);
-    $database = verbindDatabase();
-
-    if ($database === NULL) {
-        exit(1);
-    }
-
-    for ($i = 0; $i < $aantalVakken; $i++) {
-        /* Haal cijfers met deadline eerst op */
-        $sql = $database->prepare("SELECT * FROM Cijfers WHERE (Cijfers.vaknr = '" . ($i + 1)
-            . "' AND Cijfers.datum IS NOT NULL) ORDER BY vaknr ASC, datum ASC, cijfernr ASC");
-        if (!$sql->execute()) {
-            echo "<p>Er is een probleem met de database, neem contact op met de beheerder.</p><p>Error informatie:</p><pre>getCijfers (vak: "
-                . $vakken[$i]["vaknaam"] . ") met datum:\n";
-            var_dump($sql->errorInfo());
-            echo "</pre>";
+                <?php
+            }
         }
-
-        $cijferszonderdatum = $sql->fetchAll(PDO::FETCH_ASSOC);
-
-        /* Haal cijfers zonder deadline op */
-        $sql = $database->prepare("SELECT * FROM Cijfers WHERE (Cijfers.vaknr = '" . ($i + 1)
-            . "' AND Cijfers.datum IS NULL) ORDER BY vaknr ASC, datum ASC, cijfernr ASC");
-        if (!$sql->execute()) {
-            echo "<p>Er is een probleem met de database, neem contact op met de beheerder.</p><p>Error informatie:</p><pre>getCijfers (vak: "
-                . $vakken[$i]["vaknaam"] . ") zonder datum:\n";
-            var_dump($sql->errorInfo());
-            echo "</pre>";
-        }
-
-        $cijfersmetdatum = $sql->fetchAll(PDO::FETCH_ASSOC);
-        $cijfers[$i] = array_merge($cijferszonderdatum, $cijfersmetdatum);
     }
-
-    return $cijfers;
 }
-
-$vakken = getVakken();
-$cijfers = getCijfers($vakken);
 
 ?>
 
@@ -129,80 +109,7 @@ $cijfers = getCijfers($vakken);
 
         <?php
         /* Alle huidige cijfers tonen */
-        $kleur = 0; //kleur bijhouden van vakken kolom tabel
-
-        for ($i = 0; $i < count($vakken); $i++) {
-            if ($vakken[$i]["toon"] == 1) {
-                /* Berekeningen voor berekenen gemmiddelde cijfers enz. */
-                $cijfers[$i]["som"] = 0;
-                $cijfers[$i]["weging"] = 0;
-                $kleur++;
-
-                /* Door alle cijfers loopen */
-                for ($j = 0; $j < count($cijfers[$i]) - 2; $j++) {
-                    /* Voor de zekerheid controleren of cijfer voor het juiste vak is */
-                    if ($cijfers[$i][$j]["vaknr"] == $vakken[$i]["vaknr"]) {
-                        /* Totale weging en totale som cijfers opslaan */
-                        if ($cijfers[$i][$j]["cijfer"] != NULL) {
-                            if ($cijfers[$i][$j]["weging"] != NULL) {
-                                $cijfers[$i]["weging"] += $cijfers[$i][$j]["weging"];
-                                $weging = $cijfers[$i][$j]["weging"];
-                            } else {
-                                $weging = 0;
-                            }
-                            $cijfers[$i]["som"] += $cijfers[$i][$j]["cijfer"] * $weging;
-                        }
-
-                        /* Daadwerkelijk tonen cijfers */
-                        ?>
-
-                        <tr>
-                            <?php if ($j == 0) { //eerste keer moet vak ook geprint worden
-                                echo '<td style="background-color: #';
-                                if ($kleur % 2) { //juiste achtergrondkleur selecteren
-                                    echo "fff";
-                                } else {
-                                    echo "f1f1f1";
-                                }
-                                $lengte = count($cijfers[$i]) - 2;
-                                echo '; border-right: 1px solid #ddd; " rowspan="' . $lengte . '">'
-                                    . $vakken[$i]["vaknaam"] . '</td>';
-                            }
-                            ?>
-                            <td style="padding-left: 16px;"><?php echo $cijfers[$i][$j]["cijfertitel"]; ?></td>
-                            <td><?php if ($cijfers[$i][$j]["datum"] != NULL) {
-                                    echo $cijfers[$i][$j]["datum"];
-                                } ?></td>
-                            <td><?php if ($cijfers[$i][$j]["weging"] != NULL) {
-                                    echo ($cijfers[$i][$j]["weging"] / 100) . "%";
-                                } ?></td>
-                            <td><?php if ($cijfers[$i][$j]["cijfer"] != NULL) {
-                                    echo($cijfers[$i][$j]["cijfer"] / 100);
-                                } ?></td>
-                        </tr>
-
-                        <?php
-                    }
-                }
-            } else { //berekeningen moeten ook gedaan worden voor vakken die niet getoond worden
-                $cijfers[$i]["som"] = 0;
-                $cijfers[$i]["weging"] = 0;
-                for ($j = 0; $j < count($cijfers[$i]) - 2; $j++) {
-                    if ($cijfers[$i][$j]["vaknr"] == $vakken[$i]["vaknr"]) {
-                        if ($cijfers[$i][$j]["cijfer"] != NULL) {
-                            if ($cijfers[$i][$j]["weging"] != NULL) {
-                                $cijfers[$i]["weging"] += $cijfers[$i][$j]["weging"];
-                                $weging = $cijfers[$i][$j]["weging"];
-                            } else {
-                                $weging = 0;
-                            }
-
-                            $cijfers[$i]["som"] += $cijfers[$i][$j]["cijfer"] * $weging;
-                        }
-                    }
-                }
-            }
-        }
+        toonCijfers($cijfers, true);
         ?>
 
     </table>
@@ -225,35 +132,38 @@ $cijfers = getCijfers($vakken);
         <?php
         /* Vakken tonen */
         $studiepunten = 0;
-        for ($i = 0; $i < count($vakken); $i++) {
-            if ($vakken[$i]["gehaald"]) {
-                $studiepunten += $vakken[$i]["studiepunten"];
+        foreach ($cijfers as $vakArray) {
+            $vak = $vakArray["vak"];
+            $gemiddelde = $vakArray["gemiddelde"];
+            $totaal = $vakArray["totaal"];
+            if ($vak->gehaald) {
+                $studiepunten += $vak->studiepunten;
             }
             ?>
             <tr>
-                <td><?php echo $vakken[$i]["vaknaam"]; ?></td>
-                <td><?php echo $vakken[$i]["jaar"]; ?></td>
-                <td><?php if ($vakken[$i]["periode"] != "0") {
-                    echo $vakken[$i]["periode"];
+                <td><?php echo $vak->naam; ?></td>
+                <td><?php echo $vak->jaar; ?></td>
+                <td><?php if ($vak->periode) {
+                    echo $vak->periode;
                     } ?></td>
-                <td><?php if ($cijfers[$i]["weging"] != 0) {
-                        echo round($cijfers[$i]["som"] / $cijfers[$i]["weging"]) / 100;
+                <td><?php if ($gemiddelde !== NULL) {
+                        echo $gemiddelde;
                     } ?></td>
                 <td><?php
-                    if ($vakken[$i]["eindcijfer"] != NULL) {
+                    if ($vak->eindcijfer !== NULL) {
                     ?>
                     <abbr style="text-decoration: none;" title="definitief">
                         <?php
-                        echo $vakken[$i]["eindcijfer"] / 100;
-                        } elseif ($cijfers[$i]["weging"] != 0) {
+                        echo $vak->eindcijfer;
+                        } elseif ($totaal !== NULL) {
                         ?>
                         <abbr style="text-decoration: none;" title="voorlopig">
                             <?php
-                            echo round(max(100,$cijfers[$i]["som"] / 10000)) / 100;
+                            echo $totaal;
                             }
                             ?></abbr></td>
-                <td><?php echo $vakken[$i]["studiepunten"]; ?></td>
-                <td><?php echo $vakken[$i]["gehaald"] ? "ja" : "nee"; ?></td>
+                <td><?php echo $vak->studiepunten; ?></td>
+                <td><?php echo $vak->gehaald ? "ja" : "nee"; ?></td>
             </tr>
             <?php
         }
@@ -282,43 +192,8 @@ $cijfers = getCijfers($vakken);
         </tr>
         </thead>
         <?php
-        /* Cijfers met niet tonen tonen */
-        $kleur = 0;
-        for ($i = 0; $i < count($vakken); $i++) {
-            if ($vakken[$i]["toon"] == 0) {
-                $kleur++;
-                for ($j = 0; $j < count($cijfers[$i]) - 2; $j++) {
-                    if ($cijfers[$i][$j]["vaknr"] == $vakken[$i]["vaknr"]) {
-                        ?>
-                        <tr>
-                            <?php if ($j == 0) {
-                                echo '<td style="background-color: #';
-                                if ($kleur % 2) {
-                                    echo "fff";
-                                } else {
-                                    echo "f1f1f1";
-                                }
-                                $lengte = count($cijfers[$i]) - 2;
-                                echo '; border-right: 1px solid #ddd;" rowspan="' . $lengte . '">'
-                                    . $vakken[$i]["vaknaam"] . '</td>';
-                            }
-                            ?>
-                            <td style="padding-left: 16px;"><?php echo $cijfers[$i][$j]["cijfertitel"]; ?></td>
-                            <td><?php if ($cijfers[$i][$j]["datum"] != NULL) {
-                                    echo $cijfers[$i][$j]["datum"];
-                                } ?></td>
-                            <td><?php if ($cijfers[$i][$j]["weging"] != NULL) {
-                                    echo ($cijfers[$i][$j]["weging"] / 100) . "%";
-                                } ?></td>
-                            <td><?php if ($cijfers[$i][$j]["cijfer"] != NULL) {
-                                    echo($cijfers[$i][$j]["cijfer"] / 100);
-                                } ?></td>
-                        </tr>
-                        <?php
-                    }
-                }
-            }
-        }
+        /* Alle oude cijfers tonen */
+        toonCijfers($cijfers, false);
         ?>
     </table>
 
