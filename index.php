@@ -78,13 +78,13 @@ function toonCijfers(array $cijfers, bool $show) {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="nl">
 <head>
     <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title><?php echo $title; ?></title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
     <style>
         html {
             overflow-x: auto;
@@ -109,7 +109,9 @@ function toonCijfers(array $cijfers, bool $show) {
 
         <?php
         /* Alle huidige cijfers tonen */
-        toonCijfers($cijfers, true);
+        if ($cijfers !== NULL) {
+            toonCijfers($cijfers, true);
+        }
         ?>
 
     </table>
@@ -132,41 +134,44 @@ function toonCijfers(array $cijfers, bool $show) {
         <?php
         /* Vakken tonen */
         $studiepunten = 0;
-        foreach ($cijfers as $vakArray) {
-            $vak = $vakArray["vak"];
-            $gemiddelde = $vakArray["gemiddelde"];
-            $totaal = $vakArray["totaal"];
-            if ($vak->gehaald) {
-                $studiepunten += $vak->studiepunten;
-            }
-            ?>
-            <tr>
-                <td><?php echo $vak->naam; ?></td>
-                <td><?php echo $vak->jaar; ?></td>
-                <td><?php if ($vak->periode) {
-                    echo $vak->periode;
-                    } ?></td>
-                <td><?php if ($gemiddelde !== NULL) {
-                        echo $gemiddelde;
-                    } ?></td>
-                <td><?php
-                    if ($vak->eindcijfer !== NULL) {
-                    ?>
-                    <abbr style="text-decoration: none;" title="definitief">
-                        <?php
-                        echo $vak->eindcijfer;
-                        } elseif ($totaal !== NULL) {
+        if ($cijfers !== NULL) {
+            foreach ($cijfers as $vakArray) {
+                $vak = $vakArray["vak"];
+                $gemiddelde = $vakArray["gemiddelde"];
+                $totaal = $vakArray["totaal"];
+                if ($vak->gehaald) {
+                    $studiepunten += $vak->studiepunten;
+                }
+                ?>
+                <tr>
+                    <td><?php echo $vak->naam; ?></td>
+                    <td><?php echo $vak->jaar; ?></td>
+                    <td><?php if ($vak->periode) {
+                        echo $vak->periode;
+                        } ?></td>
+                    <td><?php if ($gemiddelde !== NULL) {
+                            echo $gemiddelde;
+                        } ?></td>
+                    <td><?php
+                        if ($vak->eindcijfer !== NULL) {
                         ?>
-                        <abbr style="text-decoration: none;" title="voorlopig">
+                        <abbr style="text-decoration: none;" title="definitief">
                             <?php
-                            echo $totaal;
-                            }
-                            ?></abbr></td>
-                <td><?php echo $vak->studiepunten; ?></td>
-                <td><?php echo $vak->gehaald ? "ja" : "nee"; ?></td>
-            </tr>
-            <?php
+                            echo $vak->eindcijfer;
+                            } elseif ($totaal !== NULL) {
+                            ?>
+                            <abbr style="text-decoration: none;" title="voorlopig">
+                                <?php
+                                echo $totaal;
+                                }
+                                ?></abbr></td>
+                    <td><?php echo $vak->studiepunten; ?></td>
+                    <td><?php echo $vak->gehaald ? "ja" : "nee"; ?></td>
+                </tr>
+                <?php
+            }
         }
+
         if ($studiepunten >= 42) {
             $bsa = "ja";
         } else {
@@ -193,7 +198,9 @@ function toonCijfers(array $cijfers, bool $show) {
         </thead>
         <?php
         /* Alle oude cijfers tonen */
-        toonCijfers($cijfers, false);
+        if ($cijfers !== NULL) {
+            toonCijfers($cijfers, false);
+        }
         ?>
     </table>
 
