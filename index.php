@@ -25,7 +25,7 @@ require_once "Cijfer.php";
 
 $cijfers = Cijfer::getAllCijfers();
 
-function toonCijfers($cijfers, $show) {
+function toonCijfers(array $cijfers, bool $show) {
     $kleur = 0; //kleur bijhouden van vakken kolom tabel
 
     foreach ($cijfers as $vakArray) {

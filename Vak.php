@@ -42,7 +42,8 @@ class Vak {
      * @param $eindcijfer
      * @param $toon
      */
-    public function __construct($vaknummer, $naam, $jaar, $studiepunten, $gehaald, $toon, $eindcijfer, $periode) {
+    public function __construct(int $vaknummer, string $naam, int $jaar, int $studiepunten, bool $gehaald,
+                                bool $toon, float $eindcijfer = NULL, int $periode = NULL) {
         $this->vaknummer = $vaknummer;
         $this->naam = $naam;
         $this->jaar = $jaar;
@@ -53,7 +54,7 @@ class Vak {
         $this->toon = $toon;
     }
 
-    public static function getVakFromArray($vak) {
+    public static function getVakFromArray(array $vak) {
         $vaknummer = $vak["vaknr"];
         $naam = $vak["vaknaam"];
         $jaar = $vak["jaar"];
@@ -66,7 +67,7 @@ class Vak {
         return new Vak($vaknummer, $naam, $jaar, $studiepunten, $gehaald, $toon, $eindcijfer, $periode);
     }
 
-    public static function getVak($vaknummer) {
+    public static function getVak(int $vaknummer) {
         $database = verbindDatabase();
 
         if ($database === NULL) {
@@ -124,7 +125,7 @@ class Vak {
     }
 
     /** @noinspection PhpUnusedPrivateMethodInspection */
-    private static function compareCijfers($cijfer1, $cijfer2) {
+    private static function compareCijfers(Cijfer $cijfer1, Cijfer $cijfer2) {
         if ($cijfer1 == NULL) {
             if ($cijfer2 == NULL) {
                 return 0;
@@ -152,7 +153,7 @@ class Vak {
         return $cijfer1->datum > $cijfer2->datum;
     }
 
-    private static function sortCijfers($cijfers) {
+    private static function sortCijfers(array $cijfers) {
         usort($cijfers, "self::compareCijfers");
         return $cijfers;
     }
