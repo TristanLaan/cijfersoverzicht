@@ -15,65 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with cijfersoverzicht.  If not, see <https://www.gnu.org/licenses/>
  */
-$datum = new DateTime();
-
 /*Wachtwoord vragen voor bezoeken website */
 require_once "login.php";
 require_once "connect.php";
 require_once "Vak.php";
 require_once "Cijfer.php";
+require_once "toonCijfers.php";
 
+$datum = new DateTime();
 $cijfers = Cijfer::getAllCijfers();
-
-function toonCijfers(array $cijfers, bool $show) {
-    $kleur = 0; //kleur bijhouden van vakken kolom tabel
-
-    foreach ($cijfers as $vakArray) {
-        $vak = $vakArray["vak"];
-        $cijfersArray = $vakArray["cijfers"];
-        /* @var Vak $vak
-         * @var Cijfer[] $cijfersArray
-         */
-        if ($vak !== NULL && $vak->toon === $show && $cijfersArray !== NULL) {
-            /* Berekeningen voor berekenen gemmiddelde cijfers enz. */
-            $kleur++;
-
-            /* Door alle cijfers loopen */
-            $aantalCijfers = sizeof($cijfersArray);
-            $first = true;
-            foreach ($cijfersArray as $cijfer) {
-                ?>
-
-                <tr>
-                    <?php if ($first) { //eerste keer moet vak ook geprint worden
-                        echo '<td style="background-color: #';
-                        if ($kleur % 2) { //juiste achtergrondkleur selecteren
-                            echo "fff";
-                        } else {
-                            echo "f1f1f1";
-                        }
-                        echo '; border-right: 1px solid #ddd; " rowspan="' . $aantalCijfers . '">'
-                            . $vak->naam . '</td>';
-                        $first = false;
-                    }
-                    ?>
-                    <td style="padding-left: 16px;"><?php echo $cijfer->naam; ?></td>
-                    <td><?php if ($cijfer->datum != NULL) {
-                            echo $cijfer->datum->format("Y-m-d");
-                        } ?></td>
-                    <td><?php if ($cijfer->weging != NULL) {
-                            echo $cijfer->weging . "%";
-                        } ?></td>
-                    <td><?php if ($cijfer->cijfer != NULL) {
-                            echo $cijfer->cijfer;
-                        } ?></td>
-                </tr>
-
-                <?php
-            }
-        }
-    }
-}
 
 ?>
 
@@ -225,7 +175,7 @@ function toonCijfers(array $cijfers, bool $show) {
     <div style="float: right">
         <a href="LICENSE" style="margin: 0 5px; color: #0645AD">Licence</a>
         <a href="https://github.com/TristanLaan/cijfersoverzicht" style="margin: 0 5px; color: #0645AD">Source</a>
-        <p style="display: inline; margin: 0 5px;">&copy;Tristan Laan 2018-<?php echo $datum->format("Y"); ?></p>
+        <p style="display: inline; margin: 0 5px;">&copy;Tristan Laan 2018-<?php $datum = new DateTime(); echo $datum->format("Y"); ?></p>
     </div>
 </footer>
 </body>

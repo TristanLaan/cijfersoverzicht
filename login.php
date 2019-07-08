@@ -17,6 +17,7 @@
  */
 
 require_once "connect.php";
+$datum = new DateTime();
 if (session_status() == PHP_SESSION_NONE) { //controleren of sessie al is gestart
     session_start(); //sessie starten
 }
