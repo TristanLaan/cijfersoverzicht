@@ -16,6 +16,7 @@
  * along with cijfersoverzicht.  If not, see <https://www.gnu.org/licenses/>
  */
 
+require_once "connect.php";
 require_once "Vak.php";
 require_once "verbindDatabase.php";
 
@@ -37,7 +38,8 @@ class Cijfer {
      * @param DateTime $datum
      * @param float $cijfer
      */
-    public function __construct(int $cijfernummer, Vak $vak, string $naam, float $weging = NULL, DateTime $datum = NULL, float $cijfer = NULL) {
+    public function __construct(int $cijfernummer, Vak $vak, string $naam, float $weging = NULL,
+                                DateTime $datum = NULL, float $cijfer = NULL) {
         $this->cijfernummer = $cijfernummer;
         $this->vak = $vak;
         $this->naam = $naam;
@@ -54,8 +56,8 @@ class Cijfer {
             $internal_vak = $vak;
         }
         $naam = $cijfer["cijfertitel"];
-        $weging = empty($cijfer["weging"]) ? NULL : $cijfer["weging"] / 100;
-        $getal = empty($cijfer["cijfer"]) ? NULL : $cijfer["cijfer"] / 100;
+        $weging = $cijfer["weging"] === NULL ? NULL : $cijfer["weging"] / 100;
+        $getal = $cijfer["cijfer"] === NULL ? NULL : $cijfer["cijfer"] / 100;
         $datum = $cijfer["datum"];
 
         try {
