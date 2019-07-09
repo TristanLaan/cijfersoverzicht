@@ -15,26 +15,27 @@
  * You should have received a copy of the GNU General Public License
  * along with cijfersoverzicht.  If not, see <https://www.gnu.org/licenses/>
  */
-/*Wachtwoord vragen voor bezoeken website */
 require_once "login.php";
 require_once "connect.php";
 require_once "Vak.php";
 require_once "Cijfer.php";
 require_once "toonCijfers.php";
+require_once "footer.php";
+require_once "print_copyright.php";
 
 $datum = new DateTime();
 $cijfers = Cijfer::getAllCijfers();
 
 ?>
-
 <!DOCTYPE html>
 <html lang="nl">
+<?php htmlcopyright(); ?>
 <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <title><?php echo $title; ?></title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"/>
     <style>
         html {
             overflow-x: auto;
@@ -97,7 +98,7 @@ $cijfers = Cijfer::getAllCijfers();
                     <td><?php echo $vak->naam; ?></td>
                     <td><?php echo $vak->jaar; ?></td>
                     <td><?php if ($vak->periode) {
-                        echo $vak->periode;
+                            echo $vak->periode;
                         } ?></td>
                     <td><?php if ($gemiddelde !== NULL) {
                             echo $gemiddelde;
@@ -171,12 +172,6 @@ $cijfers = Cijfer::getAllCijfers();
     -->
     */ ?>
 
-<footer>
-    <div style="float: right">
-        <a href="LICENSE" style="margin: 0 5px; color: #0645AD">Licence</a>
-        <a href="https://github.com/TristanLaan/cijfersoverzicht" style="margin: 0 5px; color: #0645AD">Source</a>
-        <p style="display: inline; margin: 0 5px;">&copy;Tristan Laan 2018-<?php $datum = new DateTime(); echo $datum->format("Y"); ?></p>
-    </div>
-</footer>
+<?php footer(); ?>
 </body>
 </html>

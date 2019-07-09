@@ -19,7 +19,7 @@
 require_once "Cijfer.php";
 require_once "verbindDatabase.php";
 
-class Vak {
+class Vak implements JsonSerializable {
     var $vaknummer;
     var $naam;
     var $jaar;
@@ -54,6 +54,19 @@ class Vak {
         $this->toon = $toon;
     }
 
+    public function jsonSerialize() {
+        return [
+            'vaknummer' => $this->vaknummer,
+            'naam' => $this->naam,
+            'jaar' => $this->jaar,
+            'periode' => $this->periode,
+            'studiepunten' => $this->studiepunten,
+            'gehaald' => $this->gehaald,
+            'eindcijfer' => $this->eindcijfer,
+            'toon' => $this->toon
+        ];
+    }
+
     public static function getVakFromArray(array $vak) {
         $vaknummer = $vak["vaknr"];
         $naam = $vak["vaknaam"];
@@ -61,7 +74,7 @@ class Vak {
         $studiepunten = $vak["studiepunten"];
         $periode = $vak["periode"] == 0 ? NULL : $vak["periode"];
         $gehaald = $vak["gehaald"] == 1;
-        $eindcijfer = empty($vak["eindcijfer"]) ? NULL : $vak["eindcijfer"]/100;
+        $eindcijfer = $vak["eindcijfer"] === NULL ? NULL : $vak["eindcijfer"] / 100;
         $toon = $vak["toon"] == 1;
 
         return new Vak($vaknummer, $naam, $jaar, $studiepunten, $gehaald, $toon, $eindcijfer, $periode);
@@ -93,6 +106,15 @@ class Vak {
         return self::getVakFromArray($vak);
     }
 
+    public static function createVak(string $naam, int $jaar, int $studiepunten, bool $gehaald, bool $toon,
+                                     int $periode = NULL, float $eindcijfer = NULL) {
+        $nieuwVak = new Vak(-1, $naam, $jaar, $studiepunten, $gehaald, $toon, $eindcijfer, $periode);
+
+        $return = $nieuwVak->upload();
+
+        return [$return, $nieuwVak];
+    }
+
     public static function getAllVakken() {
         $database = verbindDatabase();
 
@@ -101,7 +123,7 @@ class Vak {
             return NULL;
         }
 
-        $sql = $database->prepare("SELECT * FROM Vakken ORDER BY jaar, periode");
+        $sql = $database->prepare("SELECT * FROM Vakken ORDER BY jaar DESC, periode ASC");
         if (!$sql->execute()) {
             error_log("Execute failed: " . implode($sql->errorInfo()));
             return NULL;
@@ -189,6 +211,165 @@ class Vak {
             $cijfers[$i] = $cijfer;
         }
 
-         return self::sortCijfers($cijfers);
+        return self::sortCijfers($cijfers);
+    }
+
+    public function upload() {
+        $database = verbindDatabase();
+
+        if ($database === NULL) {
+            error_log("Geen verbinding met database");
+            return 1;
+        }
+
+        if ($this->vaknummer > -1) {
+            $sql = $database->prepare("SELECT vaknr FROM Vakken WHERE vaknr = :nummer");
+            $sql->bindValue(':nummer', $this->vaknummer, PDO::PARAM_INT);
+
+            if (!$sql->execute()) {
+                error_log("Execute failed: " . implode($sql->errorInfo()));
+            }
+
+            if ($sql->rowCount() > 0) {
+                return 0;
+            }
+        }
+
+        $columns = "vaknaam, jaar, periode, studiepunten, gehaald, toon";
+        $values = ":titel, :jaar, :periode , :studiepunten, :gehaald, :toon";
+
+        if ($this->eindcijfer !== NULL) {
+            $columns .= ", eindcijfer";
+            $values .= ", :eindcijfer";
+        }
+
+        $sql = $database->prepare("INSERT INTO Vakken ($columns) VALUES($values)");
+        if (!$sql->bindValue(':titel', htmlspecialchars($this->naam), PDO::PARAM_STR)) {
+            return 2;
+        }
+
+        if (!$sql->bindValue(':jaar', $this->jaar, PDO::PARAM_INT)) {
+            return 3;
+        }
+
+        if (!$sql->bindValue(':periode', $this->periode === NULL ? 0 : $this->periode, PDO::PARAM_INT)) {
+            return 4;
+        }
+
+        if (!$sql->bindValue(':studiepunten', $this->studiepunten, PDO::PARAM_INT)) {
+            return 5;
+        }
+
+        if (!$sql->bindValue(':gehaald', $this->gehaald, PDO::PARAM_BOOL)) {
+            return 6;
+        }
+
+        if ($this->eindcijfer !== NULL) {
+            if (!$sql->bindValue(':eindcijfer', round($this->eindcijfer * 100), PDO::PARAM_INT)) {
+                return 7;
+            }
+        }
+
+        if (!$sql->bindValue(':toon', $this->toon, PDO::PARAM_BOOL)) {
+            return 8;
+        }
+
+        if (!$sql->execute()) {
+            error_log("Execute failed: " . implode($sql->errorInfo()));
+            return 9;
+        }
+
+        $sql = $database->prepare("SELECT * FROM Vakken ORDER BY vaknr DESC LIMIT 1");
+
+        if (!$sql->execute()) {
+            error_log("Execute failed: " . implode($sql->errorInfo()));
+            return 10;
+        }
+
+        $result = $sql->fetch(PDO::FETCH_ASSOC);
+        $database = NULL;
+
+        $this->vaknummer = (int)$result["vaknr"];
+        $this->naam = $result["vaknaam"];
+        $this->jaar = (int)$result["jaar"];
+        $this->periode = $result["periode"] == 0 ? NULL : (int)$result["periode"];
+        $this->studiepunten = (int)$result["studiepunten"];
+        $this->gehaald = $result["gehaald"] == 1;
+        $this->eindcijfer = $result["eindcijfer"] === NULL ? NULL : $result["eindcijfer"] / 100;
+        $this->toon = $result["toon"] == 1;
+
+        return 0;
+    }
+
+    public function update() {
+        $database = verbindDatabase();
+
+        if ($database === NULL) {
+            error_log("Geen verbinding met database");
+            return false;
+        }
+
+        $values = "vaknaam = :titel, jaar = :jaar, periode = :periode, studiepunten = :studiepunten," .
+            "gehaald = :gehaald, eindcijfer = :eindcijfer";
+
+        $sql = $database->prepare("UPDATE Vakken set $values WHERE vaknr = :vaknr");
+
+        if (!$sql->bindValue(':titel', htmlspecialchars($this->naam), PDO::PARAM_STR)) {
+            return 2;
+        }
+
+        if (!$sql->bindValue(':jaar', $this->jaar, PDO::PARAM_INT)) {
+            return 3;
+        }
+
+        if (!$sql->bindValue(':gehaald', $this->gehaald, PDO::PARAM_BOOL)) {
+            return 4;
+        }
+
+        if ($this->eindcijfer !== NULL) {
+            if (!$sql->bindValue(':eindcijfer', round($this->eindcijfer * 100), PDO::PARAM_INT)) {
+                return 5;
+            }
+        } else {
+            if (!$sql->bindValue(':eindcijfer', NULL, PDO::PARAM_NULL)) {
+                return 5;
+            }
+        }
+
+        if (!$sql->bindValue(':toon', $this->toon, PDO::PARAM_BOOL)) {
+            return 6;
+        }
+
+        if (!$sql->execute()) {
+            error_log("Execute failed: " . implode($sql->errorInfo()));
+            return 7;
+        }
+
+        $database = NULL;
+
+        return true;
+    }
+
+    public function verwijder() {
+        $database = verbindDatabase();
+
+        if ($database === NULL) {
+            error_log("Geen verbinding met database");
+            return false;
+        }
+
+        $sql = $database->prepare("DELETE FROM Vakken WHERE vaknr = :vak");
+        $sql->bindValue(':vak', $this->vaknummer);
+
+        if (!$sql->execute()) {
+            error_log("Execute failed: " . implode($sql->errorInfo()));
+            return false;
+        }
+
+        $this->vaknummer = -1;
+
+        $database = NULL;
+
+        return true;
     }
 }
