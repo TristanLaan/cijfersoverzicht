@@ -22,15 +22,15 @@ if (session_status() == PHP_SESSION_NONE) { //controleren of sessie al is gestar
     session_start(); //sessie starten
 }
 
-if (!isset($_SESSION[$session])) { //uitvoeren als er op loguit is gedrukt
-    $_SESSION[$session] = null; //sessie leegmaken
+if (!isset($_SESSION[$session . 'admin'])) { //uitvoeren als er op loguit is gedrukt
+    $_SESSION[$session . 'admin'] = null; //sessie leegmaken
 }
 
 if (isset($_POST['password'])) //uitvoeren als er op inloggen is gedrukt
 {
     $user_password = $_POST['password'];
-    if ($user_password == $userpass) {
-        $_SESSION[$session] = "ingelogd";
+    if ($user_password == $adminpass) {
+        $_SESSION[$session . 'admin'] = "ingelogd";
         echo "0";
     } else {
         echo "1";

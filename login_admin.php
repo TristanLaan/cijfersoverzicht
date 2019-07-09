@@ -17,19 +17,21 @@
  */
 
 require_once "connect.php";
-require_once "footer.php";
 require_once "print_copyright.php";
+require_once "footer.php";
+
 
 $datum = new DateTime();
+
 if (session_status() == PHP_SESSION_NONE) { //controleren of sessie al is gestart
     session_start(); //sessie starten
 }
 
-if (!isset($_SESSION[$session])) { //uitvoeren als er op loguit is gedrukt
-    $_SESSION[$session] = null; //sessie leegmaken
+if (!isset($_SESSION[$session . 'admin'])) { //uitvoeren als er op loguit is gedrukt
+    $_SESSION[$session . 'admin'] = null; //sessie leegmaken
 }
 
-if ($_SESSION[$session] == null) //weergeven als niet is ingelogd
+if ($_SESSION[$session . 'admin'] === null) //weergeven als niet is ingelogd
 {
     ?>
     <html lang="nl">
@@ -63,7 +65,7 @@ if ($_SESSION[$session] == null) //weergeven als niet is ingelogd
                         }
                     }
                 };
-                xhttp.open("POST", "login_ajax.php", true);
+                xhttp.open("POST", "login_admin_ajax.php", true);
                 xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
                 xhttp.send("password=" + pass);
             }
@@ -100,9 +102,9 @@ if ($_SESSION[$session] == null) //weergeven als niet is ingelogd
     <?php
     exit();
 } else {
-    if (strpos($_SERVER["SCRIPT_NAME"], "login.php") !== FALSE) {//controleren of huidige pagina login.php ?>
+    if (strpos($_SERVER["SCRIPT_NAME"], "login_admin.php") !== FALSE) {//controleren of huidige pagina login.php ?>
         <script type="text/javascript">
-            window.location = "index.php";
+            window.location = "admin.php";
         </script>
     <?php }
 }
