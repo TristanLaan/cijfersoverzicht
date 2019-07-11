@@ -22,11 +22,11 @@
 function footer(bool $sticky = false) { ?>
     <?php if (!$sticky) { ?>
         <hr><?php } ?>
-    <footer <?php if ($sticky) { ?>style="position: fixed; bottom: 0; right: 0;" <?php } ?>>
-        <div style="float: right">
+    <footer style=" width: 100%; <?php if ($sticky) { ?>position: fixed; bottom: 0; right: 0; <?php } ?>">
+        <div style="float: right; margin-bottom: 5px;">
             <a href="LICENSE" style="margin: 0 5px; color: #0645AD">Licence</a>
             <a href="https://github.com/TristanLaan/cijfersoverzicht" style="margin: 0 5px; color: #0645AD">Source</a>
-            <p style="display: inline; margin: 0 5px;">&copy;Tristan Laan 2018-<?php
+            <p style="display: inline; margin: 0px 5px;">&copy;Tristan Laan 2018-<?php
                 try {
                     $datum = new DateTime();
                     echo $datum->format("Y");

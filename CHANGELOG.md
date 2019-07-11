@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+### Changed
+- De footer neemt de hele breedte in en heeft een margin aan de onderkant
 
 ## [0.3.0] - 2019-07-09
 ### Added
