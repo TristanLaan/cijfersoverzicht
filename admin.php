@@ -26,6 +26,7 @@ $datum = new DateTime();
 /* @var Vak[] $vakken */
 $vakken = vak::getAllVakken();
 ?>
+<!DOCTYPE html>
 <html lang="nl">
 <?php htmlcopyright(); ?>
 <head>

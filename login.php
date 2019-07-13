@@ -32,6 +32,7 @@ if (!isset($_SESSION[$session])) { //uitvoeren als er op loguit is gedrukt
 if ($_SESSION[$session] == null) //weergeven als niet is ingelogd
 {
     ?>
+    <!DOCTYPE html>
     <html lang="nl">
     <?php htmlcopyright(); ?>
     <head>

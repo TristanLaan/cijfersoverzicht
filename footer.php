@@ -20,9 +20,11 @@
  * @param bool $sticky
  */
 function footer(bool $sticky = false) { ?>
-    <?php if (!$sticky) { ?>
-        <hr><?php } ?>
     <footer style=" width: 100%; <?php if ($sticky) { ?>position: fixed; bottom: 0; right: 0; <?php } ?>">
+        <?php
+        if (!$sticky) {
+            ?><hr><?php
+        } ?>
         <div style="float: right; margin-bottom: 5px;">
             <a href="LICENSE" style="margin: 0 5px; color: #0645AD">Licence</a>
             <a href="https://github.com/TristanLaan/cijfersoverzicht" style="margin: 0 5px; color: #0645AD">Source</a>

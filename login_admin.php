@@ -34,6 +34,7 @@ if (!isset($_SESSION[$session . 'admin'])) { //uitvoeren als er op loguit is ged
 if ($_SESSION[$session . 'admin'] === null) //weergeven als niet is ingelogd
 {
     ?>
+    <!DOCTYPE html>
     <html lang="nl">
     <?php htmlcopyright(); ?>
     <head>
