@@ -26,6 +26,26 @@ require_once "print_copyright.php";
 $datum = new DateTime();
 $cijfers = Cijfer::getAllCijfers();
 
+function gemiddeldeCijfer($vakArray) {
+    $som = 0;
+    $aantal = 0;
+    foreach ($vakArray as $vak) {
+        if ($vak["vak"]->eindcijfer !== NULL) {
+            $aantal++;
+            $som += $vak["vak"]->eindcijfer;
+        } elseif ($vak["totaal"] !== NULL) {
+            $aantal++;
+            $som += $vak["totaal"];
+        }
+    }
+
+    if ($aantal === 0) {
+        return NULL;
+    }
+
+    return round($som/$aantal, 2);
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="nl">
@@ -85,7 +105,9 @@ $cijfers = Cijfer::getAllCijfers();
         <?php
         /* Vakken tonen */
         $studiepunten = 0;
+        $gemiddeldeCijfer = NULL;
         if ($cijfers !== NULL) {
+            $gemiddeldeCijfer = gemiddeldeCijfer($cijfers);
             foreach ($cijfers as $vakArray) {
                 $vak = $vakArray["vak"];
                 $gemiddelde = $vakArray["gemiddelde"];
@@ -133,6 +155,7 @@ $cijfers = Cijfer::getAllCijfers();
 
     <p><b>Totaal aantal studiepunten:</b> <?php echo $studiepunten; ?></p>
     <p><b>BSA gehaald:</b> <?php echo $bsa; ?></p>
+    <p><b>Gemiddelde cijfer:</b> <?php echo $gemiddeldeCijfer; ?></p>
 
 
     <h2>Oude cijfers</h2>
