@@ -37,7 +37,6 @@ function parseCijferUpload(ajax) {
         case 0:
             console.debug("upload geslaagd");
             item = JSON.parse(ajax.substring(2));
-            dump(item);
             break;
         case -1:
             console.debug("Niet ingelogd");
