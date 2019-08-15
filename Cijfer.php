@@ -50,7 +50,7 @@ class Cijfer implements JsonSerializable {
     public function jsonSerialize() {
         return [
             'cijfernummer' => $this->cijfernummer,
-            'vak' => json_encode($this->vak),
+            'vak' => $this->vak,
             'naam' => $this->naam,
             'weging' => $this->weging,
             'datum' => $this->datum === NULL ? NULL : $this->datum->format("Y-m-d"),
