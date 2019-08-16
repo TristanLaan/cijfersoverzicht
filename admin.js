@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) Tristan Laan 2019.
  * This file is part of cijfersoverzicht.
  * cijfersoverzicht is free software: you can redistribute it and/or modify
@@ -31,12 +31,14 @@ function dump(obj, indent = 0) {
 
 function parseCijferUpload(ajax) {
     console.debug("ajax response: " + ajax);
-    const errorcode = parseInt(ajax.split('\n')[0]);
-    let item = null;
-    switch (errorcode) {
+    const response = JSON.parse(ajax);
+    console.debug(dump(response));
+    let item = response.object;
+
+    switch (response.returnwaarde) {
         case 0:
             console.debug("upload geslaagd");
-            item = JSON.parse(ajax.substring(2));
+            console.debug(dump(item));
             break;
         case -1:
             console.debug("Niet ingelogd");
@@ -75,11 +77,11 @@ function parseCijferUpload(ajax) {
             console.debug("Incorrecte cijfer");
             break;
         default:
-            console.debug("Onbekende fout: " + errorcode);
+            console.debug("Onbekende fout: " + response.returnwaarde);
             break;
     }
 
-    return {returncode: errorcode, item: item};
+    return {returncode: response.returnwaarde, item: item};
 }
 
 function logUploadCijfer() {
@@ -115,12 +117,12 @@ function uploadCijfer(vakid, naam, weging, datum, cijfer,
 
 function parseVakUpload(ajax) {
     console.debug("ajax response: " + ajax);
-    const errorcode = parseInt(ajax.split('\n')[0]);
-    let item = null;
-    switch (errorcode) {
+    const response = JSON.parse(ajax);
+    console.debug(dump(response));
+    let item = response.object;
+    switch (response.returnwaarde) {
         case 0:
             console.debug("upload geslaagd");
-            item = JSON.parse(ajax.substring(2));
             console.debug(item);
             break;
         case -1:
@@ -166,11 +168,11 @@ function parseVakUpload(ajax) {
             console.debug("Toon is incorrect");
             break;
         default:
-            console.debug("Onbekende fout: " + errorcode);
+            console.debug("Onbekende fout: " + response.returnwaarde);
             break;
     }
 
-    return {returncode: errorcode, item: item};
+    return {returncode: response.returnwaarde, item: item};
 }
 
 function logUploadVak() {

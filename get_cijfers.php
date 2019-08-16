@@ -24,8 +24,6 @@ if (session_status() == PHP_SESSION_NONE) { //controleren of sessie al is gestar
     session_start(); //sessie starten
 }
 
-header('Content-Type: application/json');
-
 $return["returnwaarde"] = 0;
 $return["object"] = NULL;
 
@@ -63,4 +61,12 @@ if ($_SESSION[$session] !== "ingelogd" && $_SESSION[$session . 'admin'] !== "ing
     }
 }
 
-echo json_encode($return);
+$return["md5"] = md5(json_encode($return));
+
+if (isset($_POST["md5"]) && $_POST["md5"] == "true") {
+    header('Content-Type: text/plain');
+    echo $return["md5"];
+} else {
+    header('Content-Type: application/json');
+    echo json_encode($return);
+}

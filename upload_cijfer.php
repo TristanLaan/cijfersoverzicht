@@ -20,86 +20,77 @@ require_once "connect.php";
 require_once "Vak.php";
 require_once "Cijfer.php";
 
-if (session_status() == PHP_SESSION_NONE) { //controleren of sessie al is gestart
-    session_start(); //sessie starten
-}
+function upload_cijfer() {
+    global $session;
 
-if (!isset($_SESSION[$session . 'admin'])) {
-    $_SESSION[$session . 'admin'] = NULL;
-}
-
-if ($_SESSION[$session . 'admin'] !== "ingelogd") {
-    echo "-1";
-    exit();
-}
-
-if (!isset($_POST['vakid'])) {
-    echo "-2";
-    exit();
-}
-
-if (!isset($_POST['naam']) || empty($_POST['naam']) || $_POST['naam'] === 'null') {
-    echo "-3";
-    exit();
-}
-
-$naam = $_POST['naam'];
-
-if (!isset($_POST['weging']) || $_POST['weging'] === "") {
-    $weging = NULL;
-} else {
-    $weging = $_POST['weging'];
-    if (!is_numeric($weging)) {
-        echo -7;
-        exit();
+    if (session_status() == PHP_SESSION_NONE) { //controleren of sessie al is gestart
+        session_start(); //sessie starten
     }
-}
 
-if (!isset($_POST['datum']) || $_POST['datum'] === "") {
-    $datum = NULL;
-} else {
-    try {
-        $datum = DateTime::createFromFormat("Y-m-d", $_POST['datum']);
-        if (!$datum) {
-            echo "-4";
-            exit();
+    if (!isset($_SESSION[$session . 'admin'])) {
+        $_SESSION[$session . 'admin'] = NULL;
+    }
+
+    if ($_SESSION[$session . 'admin'] !== "ingelogd") {
+        return [-1, NULL];
+    }
+
+    if (!isset($_POST['vakid'])) {
+        return [-2, NULL];
+    }
+
+    if (!isset($_POST['naam']) || empty($_POST['naam']) || $_POST['naam'] === 'null') {
+        return [-3, NULL];
+    }
+
+    $naam = $_POST['naam'];
+
+    if (!isset($_POST['weging']) || $_POST['weging'] === "") {
+        $weging = NULL;
+    } else {
+        $weging = $_POST['weging'];
+        if (!is_numeric($weging)) {
+            return [-7, NULL];
         }
-    } catch (Exception $e) {
-        error_log($e->getMessage());
-        echo "-4";
-        exit();
     }
-}
 
-if (!isset($_POST['cijfer']) || $_POST['cijfer'] === "") {
-    $cijfer = NULL;
-} else {
-    $cijfer = $_POST['cijfer'];
-    if (!is_numeric($cijfer)) {
-        echo -6;
-        exit();
+    if (!isset($_POST['datum']) || $_POST['datum'] === "") {
+        $datum = NULL;
+    } else {
+        try {
+            $datum = DateTime::createFromFormat("Y-m-d", $_POST['datum']);
+            if (!$datum) {
+                return [-4, NULL];
+            }
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            return [-4, NULL];
+        }
     }
+
+    if (!isset($_POST['cijfer']) || $_POST['cijfer'] === "") {
+        $cijfer = NULL;
+    } else {
+        $cijfer = $_POST['cijfer'];
+        if (!is_numeric($cijfer)) {
+            return [-6, NULL];
+        }
+    }
+
+    if (!is_numeric($_POST['vakid'])) {
+        $vak = NULL;
+    } else {
+        $vak = Vak::getVak($_POST['vakid']);
+    }
+
+    if ($vak === NULL) {
+        return [-5, NULL];
+    }
+
+    /* @var Cijfer $uploadedCijfer */
+    return Cijfer::createCijfer($vak, $naam, $weging, $datum, $cijfer);
 }
 
-if (!is_numeric($_POST['vakid'])) {
-    $vak = NULL;
-} else {
-    $vak = Vak::getVak($_POST['vakid']);
-}
-
-if ($vak === NULL) {
-    echo "-5";
-    exit();
-}
-
-/* @var Cijfer $uploadedCijfer */
-list($return, $uploadedCijfer) = Cijfer::createCijfer($vak, $naam, $weging, $datum, $cijfer);
-
-if ($return !== 0) {
-    echo $return;
-    exit();
-}
-
-echo "0\n";
-
-echo json_encode($uploadedCijfer);
+list($return["returnwaarde"], $return["object"]) = upload_cijfer();
+header('Content-Type: application/json');
+echo json_encode($return);

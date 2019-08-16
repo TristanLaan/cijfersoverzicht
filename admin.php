@@ -86,7 +86,7 @@ $vakken = vak::getAllVakken();
             vak.innerHTML = `<div class="w3-container w3-teal">
             <h3>Cijfer ${getal + 1}</h3>
         </div>
-        <form onsubmit="uploadCijferVak(${getal})" action="javascript:void(0)" class="w3-container w3-card-4">
+        <form onsubmit="uploadCijferVak(${getal})" action="javascript:void(0)" class="w3-container w3-card-4" style="margin-bottom: 15px;">
             <div class="errorvak"></div>
             <h4 style="margin-bottom: 0">Verplicht</h4>
             <p>
@@ -139,7 +139,7 @@ $vakken = vak::getAllVakken();
             vak.innerHTML = `<div class="w3-container w3-teal">
                     <h3>Vak ${getal + 1}</h3>
                 </div>
-                <form onsubmit="uploadVakVak(${getal})" action="javascript:void(0)" class="w3-container w3-card-4">
+                <form onsubmit="uploadVakVak(${getal})" action="javascript:void(0)" class="w3-container w3-card-4" style="margin-bottom: 15px;">
                     <div class="errorvak"></div>
                     <h4 style="margin-bottom: 0">Verplicht</h4>
                     <p>
