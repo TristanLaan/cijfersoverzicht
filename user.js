@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) Tristan Laan 2019.
  * This file is part of cijfersoverzicht.
  * cijfersoverzicht is free software: you can redistribute it and/or modify
@@ -80,7 +80,6 @@ function toon_cijfers(table, nieuw) {
             if (vak !== null && vak.toon === nieuw && cijfers_array !== null) {
                 kleur++;
                 let aantal_cijfers = cijfers_array.length;
-                console.debug(aantal_cijfers);
                 let first = true;
 
                 for (let cijfer of cijfers_array) {
@@ -100,7 +99,7 @@ function toon_cijfers(table, nieuw) {
                     <td>${(cijfer.datum !== null ? cijfer.datum : "")}</td>
                     <td>${(cijfer.weging !== null ? cijfer.weging + "%" : "")}</td>
                     <td>${(cijfer.cijfer !== null ? cijfer.cijfer : "")}</td>
-                </tr>`;
+                    </tr>`;
                 }
             }
         }

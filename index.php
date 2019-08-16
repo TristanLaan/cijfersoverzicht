@@ -53,6 +53,7 @@ $datum = new DateTime();
             <th>Cijfer</th>
         </tr>
         </thead>
+        <!-- Hier worden de huidige cijfers geplaatst door `user.js` -->
     </table>
 
     <h2>Vakken</h2>
@@ -69,11 +70,12 @@ $datum = new DateTime();
             <th>Gehaald</th>
         </tr>
         </thead>
+        <!-- Hier worden de vakken geplaatst door `user.js` -->
     </table>
 
-    <p id="studiepunten"><b>Totaal aantal studiepunten:</b></p>
-    <p id="bsa"><b>BSA gehaald:</b></p>
-    <p id="gemiddelde"><b>Gemiddelde cijfer:</b></p>
+    <p id="studiepunten"><b>Totaal aantal studiepunten:</b><!-- wordt ingevuld door `user.js` --></p>
+    <p id="bsa"><b>BSA gehaald:</b><!-- wordt ingevuld door `user.js` --></p>
+    <p id="gemiddelde"><b>Gemiddelde cijfer:</b><!-- wordt ingevuld door `user.js` --></p>
 
 
     <h2>Oude cijfers</h2>
@@ -88,9 +90,11 @@ $datum = new DateTime();
             <th>Cijfer</th>
         </tr>
         </thead>
+        <!-- Hier worden de oude cijfers geplaatst door `user.js` -->
     </table>
 
 </div>
+
 <br>
 <?php footer(); ?>
 </body>
