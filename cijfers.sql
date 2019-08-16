@@ -13,15 +13,6 @@
 -- You should have received a copy of the GNU General Public License
 -- along with cijfersoverzicht.  If not, see <https://www.gnu.org/licenses/>
 
--- phpMyAdmin SQL Dump
--- version 4.8.2
--- https://www.phpmyadmin.net/
---
--- Host: localhost
--- Gegenereerd op: 28 jan 2019 om 01:22
--- Serverversie: 5.5.57-MariaDB
--- PHP-versie: 5.6.38
-
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
 START TRANSACTION;
@@ -34,7 +25,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `cijfers_tristan_uva`
+-- Database: `cijfersoverzicht`
 --
 
 -- --------------------------------------------------------
