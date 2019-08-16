@@ -182,9 +182,9 @@ function toon_vakken() {
     }
 
     if (studiepunten >= 42) {
-        bsa_vak.innerHTML = "<b>BSA gehaald:</b>ja";
+        bsa_vak.innerHTML = "<b>BSA gehaald:</b> ja";
     } else {
-        bsa_vak.innerHTML = "<b>BSA gehaald:</b>nee";
+        bsa_vak.innerHTML = "<b>BSA gehaald:</b> nee";
     }
 
     studiepunten_vak.innerHTML = `<b>Totaal aantal studiepunten:</b> ${studiepunten}`;
