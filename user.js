@@ -226,11 +226,68 @@ function update_cijfers_scherm() {
         toon_huidige_cijfers();
         toon_oude_cijfers();
         toon_vakken();
+        maak_grafiek();
     }
+}
+
+function compare_dates(a, b) {
+    return b.x - a.x;
 }
 
 function herlaad_cijfers() {
     get_cijfers(check_update);
+}
+
+function maak_grafiek() {
+    if (cijfers.object === null) {
+        return;
+    }
+
+    let data_list = [];
+    let labels_list = [];
+
+    for (let vak_array of cijfers.object) {
+        if (vak_array.cijfers !== null) {
+            for (let cijfer of vak_array.cijfers) {
+                if (cijfer.datum !== null && cijfer.cijfer !== null) {
+                    let datum = new Date(cijfer.datum);
+                    data_list.push({x: datum, y: cijfer.cijfer});
+                    labels_list.push(datum.toLocaleString())
+                }
+            }
+        }
+    }
+
+    if (data_list === []) {
+        return;
+    }
+
+    data_list.sort(compare_dates);
+
+    let ctx = document.getElementById('myChart').getContext('2d');
+
+    let chart = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            labels: labels_list,
+            datasets: [{
+                label: "Cijfers",
+                data: data_list
+            }]
+        },
+        options: {
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    time: {
+                        displayFormats: {
+                            year: 'D MMM YYYY'
+                        }
+                    }
+                }]
+            }
+        }
+    });
 }
 
 get_cijfers(update_cijfers_scherm);
