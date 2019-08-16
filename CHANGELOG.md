@@ -6,9 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 ### Added
 - Het gemiddelde cijfer van alle vakken wordt nu weergeven
+- Cijfers en vakken worden nu los opgehaald via javascript/ajax op de homepage in
+  plaats van dat ze gelijk worden neergezet tijdens het ophalen van de pagina
+- Er wordt nu iedere 15s gecontroleerd of er nieuwe cijfers zijn
+- Alle ajax requests worden nu beantwoord met pure JSON en de header wordt ook op
+  application/json gezet ipv text/html
+- Er zijn duidelijkere instructies toegevoegd voor het installeren van de website
 
 ### Changed
 - De footer neemt de hele breedte in en heeft een margin aan de onderkant
+- Divs zitten niet meer aan elkaar vast op de admin pagina
+- Het Vak-object in Cijfer-objecten worden nu in correcte JSON verstuurd
+- Er zijn overbodige comments uit het sql-bestand verwijderd
 
 ## [0.3.0] - 2019-07-09
 ### Added
