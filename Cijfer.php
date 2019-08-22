@@ -177,7 +177,7 @@ class Cijfer implements JsonSerializable {
             return NULL;
         }
 
-        $sql = $database->prepare("SELECT * FROM Cijfers");
+        $sql = $database->prepare("SELECT * FROM Cijfers ORDER BY cijfernr");
         if (!$sql->execute()) {
             error_log("Execute failed: " . implode($sql->errorInfo()));
             return NULL;
