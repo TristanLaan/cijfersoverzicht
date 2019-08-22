@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+- Nieuwe cijfers maken wordt getoont als er nog geen vakken bestaan
+
 ## [0.4.0] - 2019-07-22
 ### Added
 - Het gemiddelde cijfer van alle vakken wordt nu weergeven

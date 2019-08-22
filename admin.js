@@ -580,6 +580,10 @@ function toonFout(foutmelding) {
 }
 
 function toonSelectieVakken(value = null) {
+    if (vakken.object === null) {
+        return "";
+    }
+
     let string = "";
 
     for (let vak of vakken.object) {
