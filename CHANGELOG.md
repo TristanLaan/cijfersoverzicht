@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+
+## [0.4.0] - 2019-07-22
 ### Added
 - Het gemiddelde cijfer van alle vakken wordt nu weergeven
 - Cijfers en vakken worden nu los opgehaald via javascript/ajax op de homepage
@@ -15,7 +17,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   website
 - Vakken worden op de admin pagina opgehaald via AJAX
 - Er is een tabel met cijfers toegevoegd op de admin pagina
+- Er is een tabel met vakken toegevoegd op de admin pagin
 - Cijfers kunnen nu worden gewijzigd, gedeeld en verwijderd worden
+- Vakken kunnen nu worden gewijzigd en verwijderd worden
 
 ### Changed
 - De footer neemt de hele breedte in en heeft een margin aan de onderkant
@@ -82,7 +86,8 @@ opgeschoont door het opsplitsen in functies
 - Een login pagina die een wachtwoord vereist voordat de website wordt bezocht
 - Een pagina waar alle cijfers te zien zijn
 
-[Unreleased]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.1.2...v0.2.0
 [0.1.2]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.1.1...v0.1.2

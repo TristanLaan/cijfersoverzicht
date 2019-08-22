@@ -306,13 +306,17 @@ class Vak implements JsonSerializable {
 
         if ($database === NULL) {
             error_log("Geen verbinding met database");
-            return false;
+            return 1;
         }
 
         $values = "vaknaam = :titel, jaar = :jaar, periode = :periode, studiepunten = :studiepunten," .
-            "gehaald = :gehaald, eindcijfer = :eindcijfer";
+            "gehaald = :gehaald, eindcijfer = :eindcijfer, toon = :toon";
 
         $sql = $database->prepare("UPDATE Vakken set $values WHERE vaknr = :vaknr");
+
+        if (!$sql->bindValue(':vaknr', $this->vaknummer, PDO::PARAM_INT)) {
+            return 10;
+        }
 
         if (!$sql->bindValue(':titel', htmlspecialchars($this->naam), PDO::PARAM_STR)) {
             return 2;
@@ -340,14 +344,28 @@ class Vak implements JsonSerializable {
             return 6;
         }
 
+        if ($this->periode !== NULL) {
+            if (!$sql->bindValue(':periode', $this->periode, PDO::PARAM_INT)) {
+                return 7;
+            }
+        } else {
+            if (!$sql->bindValue(':periode', 0, PDO::PARAM_INT)) {
+                return 7;
+            }
+        }
+
+        if (!$sql->bindValue(':studiepunten', $this->studiepunten, PDO::PARAM_INT)) {
+            return 8;
+        }
+
         if (!$sql->execute()) {
             error_log("Execute failed: " . implode($sql->errorInfo()));
-            return 7;
+            return 9;
         }
 
         $database = NULL;
 
-        return true;
+        return 0;
     }
 
     public function verwijder() {

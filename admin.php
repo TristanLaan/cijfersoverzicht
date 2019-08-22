@@ -45,7 +45,6 @@ require_once "print_copyright.php";
 
         .upload-button {
             width: 140px;
-            float: left;
             margin-right: 25px;
             margin-bottom: 10px;
         }
@@ -107,30 +106,61 @@ require_once "print_copyright.php";
 
 <div id="wijzig-cijfer-popup" class="popupscherm popup"></div>
 
+<div id="wijzig-vak-popup" class="popupscherm popup"></div>
+
 <div class="w3-container">
-    <h2>Cijfers wijzigen</h2>
-    <form action="javascript:void(0)">
+    <form style="width: 100%" action="javascript:void(0)">
+        <h2>Cijfers wijzigen</h2>
         <table id="cijfertabel" class="w3-table-all w3-hoverable" style="margin-bottom: 15px;">
             <thead>
             <tr class="w3-light-grey">
                 <th></th>
                 <th>No.</th>
-                <th>Vak</th>
                 <th>Titel</th>
+                <th>Vak</th>
                 <th>Datum</th>
                 <th>Weging</th>
                 <th>Cijfer</th>
             </tr>
             </thead>
-            <!-- Hier worden de huidige cijfers geplaatst door `admin.js` -->
+            <!-- Hier worden de cijfers geplaatst door `admin.js` -->
         </table>
-        <button type="button" class="w3-btn w3-padding w3-teal upload-button" onclick="wijzigCijferSelectie()">Wijzig &nbsp; ❯
-        </button>
-        <button type="button" class="w3-btn w3-padding w3-teal upload-button" onclick="deelCijferSelectie()">Deel &nbsp; ❯
-        </button>
-        <button type="button" class="w3-btn w3-padding w3-red upload-button" onclick="verwijderCijferSelectie()">Verwijder &nbsp; ❯
-        </button>
+        <div style="width: 100%;" id="cijfer-buttons">
+            <button type="button" class="w3-btn w3-padding w3-teal upload-button" onclick="wijzigCijferSelectie()">Wijzig &nbsp; ❯
+            </button>
+            <button type="button" class="w3-btn w3-padding w3-teal upload-button" onclick="deelCijferSelectie()">Deel &nbsp; ❯
+            </button>
+            <button type="button" class="w3-btn w3-padding w3-red upload-button" onclick="verwijderCijferSelectie()">Verwijder &nbsp; ❯
+            </button>
+        </div>
     </form>
+
+    <form style="width: 100%" action="javascript:void(0)">
+        <h2 style="margin-top: 15px;">Vakken wijzigen</h2>
+        <table id="vaktabel" class="w3-table-all w3-hoverable" style="margin-bottom: 15px;">
+            <thead>
+            <tr class="w3-light-grey">
+                <th></th>
+                <th>No.</th>
+                <th>Titel</th>
+                <th>Jaar</th>
+                <th>Periode</th>
+                <th>Studiepunten</th>
+                <th>Eindcijfer</th>
+                <th>Gehaald</th>
+                <th>Toon</th>
+            </tr>
+            </thead>
+            <!-- Hier worden de vakken geplaatst door `admin.js` -->
+        </table>
+        <div style="width: 100%;" id="vak-buttons">
+            <button type="button" class="w3-btn w3-padding w3-teal upload-button" onclick="wijzigVakSelectie()">Wijzig &nbsp; ❯
+            </button>
+            <button type="button" class="w3-btn w3-padding w3-red upload-button" onclick="verwijderVakSelectie()">Verwijder &nbsp; ❯
+            </button>
+        </div>
+    </form>
+
     <div class="w3-row-padding">
         <div class="w3-half">
             <h2>Nieuwe cijfers</h2>
@@ -138,7 +168,7 @@ require_once "print_copyright.php";
                 <div id="cijfervak0">
                 </div>
             </div>
-            <button type="button" class="w3-btn w3-padding w3-teal upload-button" onclick="uploadAlleCijfers()">Upload
+            <button type="button" style="float: left;" class="w3-btn w3-padding w3-teal upload-button" onclick="uploadAlleCijfers()">Upload
                 alle &nbsp; ❯
             </button>
             <form style="float: left" id="resetCijfer" onsubmit="resetCijferUpload()" action="javascript:void(0)">
@@ -153,7 +183,7 @@ require_once "print_copyright.php";
                 <div id="vak0">
                 </div>
             </div>
-            <button type="button" class="w3-btn w3-padding w3-teal upload-button" onclick="uploadAlleVakken()">Upload
+            <button style="float: left;" type="button" class="w3-btn w3-padding w3-teal upload-button" onclick="uploadAlleVakken()">Upload
                 alle &nbsp; ❯
             </button>
             <form style="float: left" id="resetVak" onsubmit="resetVakUpload()" action="javascript:void(0)">
