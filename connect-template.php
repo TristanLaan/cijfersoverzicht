@@ -23,6 +23,9 @@ $server = "localhost";
     $charset = "UTF8MB4";
     $title = "Cijfers";
     $session = "user";
+    $domein = "https://example.com";
+    $intern = True;
+    $interndomein = "http://127.0.0.1";
 
     $adminpass = "";
     $userpass = "";

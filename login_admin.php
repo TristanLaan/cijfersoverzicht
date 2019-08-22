@@ -46,6 +46,7 @@ if ($_SESSION[$session . 'admin'] === null) //weergeven als niet is ingelogd
                 const xhttp = new XMLHttpRequest();
                 xhttp.onreadystatechange = function () {
                     if (this.readyState === 4 && this.status === 200) {
+                        document.getElementById("password").value = "";
                         console.debug("ajax response: " + this.responseText);
                         const errorvak = document.getElementById("error");
                         const errorcode = parseInt(this.responseText);

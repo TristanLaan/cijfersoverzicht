@@ -95,7 +95,6 @@ function wijzig_cijfer() {
     }
 
     $cijfer->vak = $vak;
-    $cijfer->cijfer = $_POST['cijfer'];
     $cijfer->datum = $datum;
     $cijfer->weging = $weging;
     $cijfer->naam = $naam;

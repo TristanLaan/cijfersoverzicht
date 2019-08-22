@@ -20,11 +20,6 @@ require_once "connect.php";
 require_once "login_admin.php";
 require_once "footer.php";
 require_once "print_copyright.php";
-require_once "Cijfer.php";
-require_once "Vak.php";
-$datum = new DateTime();
-/* @var Vak[] $vakken */
-$vakken = vak::getAllVakken();
 ?>
 <!DOCTYPE html>
 <html lang="nl">
@@ -32,7 +27,7 @@ $vakken = vak::getAllVakken();
 <head>
     <title>Bewerk cijfers</title>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <script src="admin.js"></script>
+    <script src="admin.js" async></script>
     <style>
         @media (min-width: 601px) {
             .third-left, .third-mid {
@@ -42,6 +37,10 @@ $vakken = vak::getAllVakken();
             .third-right, .third-mid {
                 padding-left: 16px
             }
+        }
+
+        html {
+            overflow-x: auto;
         }
 
         .upload-button {
@@ -63,323 +62,80 @@ $vakken = vak::getAllVakken();
             float: left;
             margin-bottom: 10px;
         }
+
+        .popupachtergrond {
+            position: fixed;
+            background-color: black;
+            opacity: 0.4;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 2;
+            display: none;
+        }
+
+        .popupscherm {
+            position: fixed;
+            left: 12.5%;
+            width: calc(75% - 10px);
+            top: 2.5%;
+            background-color: rgba(255,255,255,0);
+            height: 95%;
+            overflow-y: auto;
+            z-index: 3;
+            display: none;
+            overflow: -moz-scrollbars-none;
+            -ms-overflow-style: none;
+        }
+
+        .popupscherm::-webkit-scrollbar {
+            width: 0 !important
+        }
     </style>
-
     <script>
-        const cijferUploaded = `Cijfer geupload!`;
-        const vakUploaded = `Vak geupload!`;
-    </script>
-
-    <script>
-        function toonFout(foutmelding) {
-            return `<div class="w3-panel w3-red w3-display-container">
-                    <span onclick="this.parentElement.style.display='none'"
-                    class="w3-button w3-large w3-display-topright">&times;</span>
-                    <h3>Fout!</h3>
-                    <p>${foutmelding}</p>
-                </div>`
-        }
-    </script>
-
-    <script>
-        function toonUploadCijferVak(vak, getal) {
-            vak.innerHTML = `<div class="w3-container w3-teal">
-            <h3>Cijfer ${getal + 1}</h3>
-        </div>
-        <form onsubmit="uploadCijferVak(${getal})" action="javascript:void(0)" class="w3-container w3-card-4" style="margin-bottom: 15px;">
-            <div class="errorvak"></div>
-            <h4 style="margin-bottom: 0">Verplicht</h4>
-            <p>
-                <label class="w3-text-grey">Titel</label>
-                <input name="titel" class="w3-input w3-border" type="text" placeholder="eindtentamen" required>
-            </p>
-            <p>
-                <label class="w3-text-grey">Vak</label>
-                <select name="vakid" class="w3-select" name="vak" required>
-                    <option value="" disabled selected>Kies je vak</option>
-                    <?php
-                if ($vakken !== NULL) {
-                    foreach ($vakken as $vak) {
-                        echo "<option value=\"$vak->vaknummer\">$vak->naam</option>\n";
-                    }
-                }
-                ?>
-                </select>
-            </p>
-            <h4 style="margin-bottom: 0">Optioneel</h4>
-            <div class="w3-row">
-                <div class="w3-third third-left">
-                    <p>
-                        <label class="w3-text-grey">Weging (in %)</label>
-                        <input name="weging" class="w3-input w3-border" type="number" min="0" step="0.01" placeholder="42.0">
-                    </p>
-                </div>
-
-                <div class="w3-third third-mid">
-                    <p>
-                        <label class="w3-text-grey">Datum</label>
-                        <input name="datum" class="w3-input w3-border" type="date">
-                    </p>
-                </div>
-
-                <div class="w3-third third-right">
-                    <p>
-                        <label class="w3-text-grey">Cijfer</label>
-                        <input name="cijfer" class="w3-input w3-border" type="number" min="0" step="0.01" placeholder="6.66">
-                    </p>
-                </div>
-            </div>
-            <p><input type="submit" class="w3-btn w3-padding w3-teal" style="width:120px" value="Upload &nbsp; ❯"></p>
-        </form>`;
-        }
-    </script>
-
-    <script>
-        function toonUploadVakVak(vak, getal) {
-            vak.innerHTML = `<div class="w3-container w3-teal">
-                    <h3>Vak ${getal + 1}</h3>
-                </div>
-                <form onsubmit="uploadVakVak(${getal})" action="javascript:void(0)" class="w3-container w3-card-4" style="margin-bottom: 15px;">
-                    <div class="errorvak"></div>
-                    <h4 style="margin-bottom: 0">Verplicht</h4>
-                    <p>
-                        <label class="w3-text-grey">Titel</label>
-                        <input name="titel" class="w3-input w3-border" type="text" placeholder="Inleiding Studie" required>
-                    </p>
-                    <div class="w3-row">
-                        <div class="w3-half third-left">
-                            <p>
-                                <label class="w3-text-grey">Jaar</label>
-                                <input name="jaar" class="w3-input w3-border" type="number" min="1" step="1" placeholder="1">
-                            </p>
-                        </div>
-
-                        <div class="w3-half third-right">
-                            <p>
-                                <label class="w3-text-grey">Studiepunten</label>
-                                <input name="studiepunten" class="w3-input w3-border" type="number" min="0" step="1" placeholder="6">
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="w3-row">
-                        <div class="w3-half third-left">
-                            <p style="margin: 0">
-                                <label class="w3-text-grey">Gehaald: </label>
-                                <input name="gehaald" class="w3-check" type="checkbox">
-                            </p>
-                        </div>
-
-                        <div class="w3-half third-right">
-                            <p style="margin: 0">
-                                <label class="w3-text-grey">Toon: </label>
-                                <input name="toon" class="w3-check" type="checkbox" checked>
-                            </p>
-                        </div>
-                    </div>
-
-                    <h4 style="margin-bottom: 0">Optioneel</h4>
-                    <div class="w3-row">
-                        <div class="w3-half third-left">
-                            <p>
-                                <label class="w3-text-grey">Periode</label>
-                                <input name="periode" class="w3-input w3-border" type="number" min="0" step="1" placeholder="1">
-                            </p>
-                        </div>
-
-                        <div class="w3-half third-right">
-                            <p>
-                                <label class="w3-text-grey">Eindcijfer</label>
-                                <input name="eindcijfer" class="w3-input w3-border" type="number" min="0" step="0.01" placeholder="6.66">
-                            </p>
-                        </div>
-                    </div>
-                    <p><input type="submit" class="w3-btn w3-padding w3-teal" style="width:120px" value="Upload &nbsp; ❯"></p>
-                </form>`;
-        }
-    </script>
-
-    <script>
-        function uploadCijferVak(getal) {
-            const div = document.getElementById('cijfervak' + getal);
-            const inputs = div.children[1].elements;
-            let titel = inputs["titel"].value;
-            let vakid = inputs["vakid"].value;
-            let weging = inputs["weging"].value === "" ? null : inputs["weging"].value;
-            let datum = inputs["datum"].value === "" ? null : inputs["datum"].value;
-            let cijfergetal = inputs["cijfer"].value === "" ? null : inputs["cijfer"].value;
-
-            console.debug(`titel: ${titel}, vakid: ${vakid}, weging: ${weging}, datum: ${datum}, cijfer: ${cijfergetal}`);
-
-            let errorfun = function () {
-                let returnwaarde = parseCijferUpload(this.responseText);
-                switch (returnwaarde.returncode) {
-                    case 0:
-                        div.children[1].innerHTML = cijferUploaded;
-                        break;
-                    case -1:
-                        div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout(`Je bent niet meer ingelogd, open <a target="_blank" href="admin.php">deze pagina</a>, log opnieuw in en probeer het opnieuw.`);
-                        break;
-                    case -2:
-                    case -5:
-                    case 2:
-                        div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Vak niet opgegeven/niet gevonden.");
-                        break;
-                    case -3:
-                    case 3:
-                        div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Titel niet opgegeven/incorrect");
-                        break;
-                    case -4:
-                    case 5:
-                        div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Datum is niet in correct formaat opgegeven (YYYY-mm-dd of ingebouwde date picker).");
-                        break;
-                    case -6:
-                    case 6:
-                        div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Cijfer moet een getal zijn");
-                        break;
-                    case -7:
-                    case 4:
-                        div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Weging moet een getal zijn");
-                        break;
-                    case 1:
-                        div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Geen verbinding met database, probeer later opnieuw");
-                        break;
-                    default:
-                        div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Er is een onbekende fout opgetreden, probeer het later opnieuw.");
-                        break;
-                }
-            };
-
-            uploadCijfer(vakid, titel, weging, datum, cijfergetal, errorfun);
-        }
-    </script>
-
-    <script>
-        function uploadVakVak(getal) {
-            console.debug(getal);
-            const div = document.getElementById('vak' + getal);
-            console.debug(div);
-            const inputs = div.children[1].elements;
-            console.debug(inputs);
-            let titel = inputs["titel"].value;
-            let jaar = inputs["jaar"].value;
-            let studiepunten = inputs["studiepunten"].value;
-            let gehaald = inputs["gehaald"].checked;
-            let toon = inputs["toon"].checked;
-            let periode = inputs["periode"].value === "" ? null : inputs["periode"].value;
-            let eindcijfer = inputs["eindcijfer"].value === "" ? null : inputs["eindcijfer"].value;
-
-            console.debug(`titel: ${titel}, jaar: ${jaar}, studiepunten: ${studiepunten}, gehaald: ${gehaald}, toon: ${toon}, periode: ${periode}, eindcijfer: ${eindcijfer}`);
-
-            let errorfun = function () {
-                let returnwaarde = parseVakUpload(this.responseText);
-                switch (returnwaarde.returncode) {
-                    case 0:
-                        div.children[1].innerHTML = vakUploaded;
-                        break;
-                    case -1:
-                        div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout(`Je bent niet meer ingelogd, open <a target="_blank" href="admin.php">deze pagina</a>, log opnieuw in en probeer het opnieuw.`);
-                        break;
-                    case -2:
-                    case 2:
-                        div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Vaktitel niet opgegeven/incorrect");
-                        break;
-                    case -3:
-                    case 3:
-                        div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Jaar niet opgegeven/incorrect");
-                        break;
-                    case -4:
-                    case 5:
-                        div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Studiepunten niet opgegeven/incorrect");
-                        break;
-                    case -5:
-                    case 4:
-                        div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Periode niet opgegeven/incorrect");
-                        break;
-                    case -6:
-                    case 7:
-                        div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Eindcijfer moet een cijfer zijn");
-                        break;
-                    case 1:
-                        div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Geen verbinding met database, probeer later opnieuw");
-                        break;
-                    default:
-                        div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Er is een onbekende fout opgetreden, probeer het later opnieuw");
-                        break;
-                }
-            };
-
-            uploadVak(titel, jaar, studiepunten, gehaald, toon, periode, eindcijfer, errorfun);
-        }
-    </script>
-
-    <script>
-        function resetCijferUpload() {
-            const resetForm = document.getElementById("resetCijfer");
-            const aantal = resetForm.elements["aantal"];
-            const cijferVak = document.getElementById("cijfervakken");
-            cijferVak.innerHTML = "";
-
-            for (let i = 0; i < aantal.value; i++) {
-                cijferVak.innerHTML += `<div id="cijfervak${i}"></div>`;
-                toonUploadCijferVak(document.getElementById("cijfervak" + i), i);
-            }
-
-            aantal.value = 1;
-        }
-    </script>
-
-    <script>
-        function resetVakUpload() {
-            const resetForm = document.getElementById("resetVak");
-            const aantal = resetForm.elements["aantal"];
-            const cijferVak = document.getElementById("vakvakken");
-            cijferVak.innerHTML = "";
-
-            for (let i = 0; i < aantal.value; i++) {
-                cijferVak.innerHTML += `<div id="vak${i}"></div>`;
-                toonUploadVakVak(document.getElementById("vak" + i), i);
-            }
-
-            aantal.value = 1;
-        }
-    </script>
-
-    <script>
-        function uploadAlleCijfers() {
-            const cijferDiv = document.getElementById('cijfervakken');
-            const cijferVakken = cijferDiv.children;
-            for (let i = 0; i < cijferVakken.length; i++) {
-                if (cijferVakken[i].children[1].innerHTML !== cijferUploaded) {
-                    uploadCijferVak(i);
-                }
-            }
-        }
-    </script>
-
-    <script>
-        function uploadAlleVakken() {
-            const vakDiv = document.getElementById('vakvakken');
-            const vakVakken = vakDiv.children;
-            for (let i = 0; i < vakVakken.length; i++) {
-                if (vakVakken[i].children[1].innerHTML !== vakUploaded) {
-                    uploadVakVak(i);
-                }
-            }
-        }
+        const serverinfo = {
+            domein: "<?php echo $domein; ?>",
+            wachtwoord: "<?php echo $userpass; ?>",
+            intern: <?php echo $intern ? "true" : "false"; ?>,
+            interndomein: "<?php echo $interndomein; ?>"
+        };
     </script>
 </head>
 <body>
+<div id="popup" class="popupachtergrond popup"></div>
+
+<div id="wijzig-cijfer-popup" class="popupscherm popup"></div>
 
 <div class="w3-container">
+    <h2>Cijfers wijzigen</h2>
+    <form action="javascript:void(0)">
+        <table id="cijfertabel" class="w3-table-all w3-hoverable" style="margin-bottom: 15px;">
+            <thead>
+            <tr class="w3-light-grey">
+                <th></th>
+                <th>No.</th>
+                <th>Vak</th>
+                <th>Titel</th>
+                <th>Datum</th>
+                <th>Weging</th>
+                <th>Cijfer</th>
+            </tr>
+            </thead>
+            <!-- Hier worden de huidige cijfers geplaatst door `admin.js` -->
+        </table>
+        <button type="button" class="w3-btn w3-padding w3-teal upload-button" onclick="wijzigCijferSelectie()">Wijzig &nbsp; ❯
+        </button>
+        <button type="button" class="w3-btn w3-padding w3-teal upload-button" onclick="deelCijferSelectie()">Deel &nbsp; ❯
+        </button>
+        <button type="button" class="w3-btn w3-padding w3-red upload-button" onclick="verwijderCijferSelectie()">Verwijder &nbsp; ❯
+        </button>
+    </form>
     <div class="w3-row-padding">
         <div class="w3-half">
             <h2>Nieuwe cijfers</h2>
             <div id="cijfervakken">
                 <div id="cijfervak0">
-                    <script>
-                        toonUploadCijferVak(document.getElementById('cijfervak0'), 0);
-                    </script>
                 </div>
             </div>
             <button type="button" class="w3-btn w3-padding w3-teal upload-button" onclick="uploadAlleCijfers()">Upload
@@ -395,9 +151,6 @@ $vakken = vak::getAllVakken();
             <h2>Nieuwe Vakken</h2>
             <div id="vakvakken">
                 <div id="vak0">
-                    <script>
-                        toonUploadVakVak(document.getElementById('vak0'), 0);
-                    </script>
                 </div>
             </div>
             <button type="button" class="w3-btn w3-padding w3-teal upload-button" onclick="uploadAlleVakken()">Upload

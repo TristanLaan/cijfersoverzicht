@@ -169,7 +169,46 @@ class Cijfer implements JsonSerializable {
         return $found ? round($eindcijfer, 2) : NULL;
     }
 
-    public static function getAllCijfers() {
+    private static function getAllCijfersZonderVakken() {
+        $database = verbindDatabase();
+
+        if ($database === NULL) {
+            error_log("Geen verbinding met database");
+            return NULL;
+        }
+
+        $sql = $database->prepare("SELECT * FROM Cijfers");
+        if (!$sql->execute()) {
+            error_log("Execute failed: " . implode($sql->errorInfo()));
+            return NULL;
+        }
+
+        $results = $sql->fetchAll(PDO::FETCH_ASSOC);
+
+        $database = NULL;
+
+        $length = sizeof($results);
+
+
+        if ($length < 1) {
+            return NULL;
+        }
+
+        $cijfers = [];
+
+        for ($i = 0; $i < $length; $i++) {
+            $cijfer = Cijfer::getCijferFromArray($results[$i]);
+            $cijfers[$i] = $cijfer;
+        }
+
+        return $cijfers;
+    }
+
+    public static function getAllCijfers($vakken = true) {
+        if (!$vakken) {
+            return self::getAllCijfersZonderVakken();
+        }
+
         $vakken = Vak::getAllVakken();
 
         if ($vakken == NULL) {

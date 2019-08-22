@@ -15,6 +15,30 @@
  * along with cijfersoverzicht.  If not, see <https://www.gnu.org/licenses/>
  */
 
+const cijfer_head = `<thead>
+        <tr class="w3-light-grey">
+            <th></th>
+            <th>No.</th>
+            <th>Titel</th>
+            <th>Vak</th>
+            <th>Datum</th>
+            <th>Weging</th>
+            <th>Cijfer</th>
+        </tr>
+        </thead>`;
+
+let cached_cijfers = null;
+let cijfers = null;
+let first = true;
+let first_vak = true;
+let klaar_voor_vak = false;
+let cached_vakken = null;
+let vakken = null;
+
+const cijferUploaded = `Cijfer geüpload!`;
+const cijferGewijzigd = `Cijfer gewijzigd!`;
+const vakUploaded = `Vak geüpload!`;
+
 function dump(obj, indent = 0) {
     let out = '';
     for (let i in obj) {
@@ -32,13 +56,13 @@ function dump(obj, indent = 0) {
 function parseCijferUpload(ajax) {
     console.debug("ajax response: " + ajax);
     const response = JSON.parse(ajax);
-    console.debug(dump(response));
+    console.debug(response);
     let item = response.object;
 
     switch (response.returnwaarde) {
         case 0:
             console.debug("upload geslaagd");
-            console.debug(dump(item));
+            console.debug(item);
             break;
         case -1:
             console.debug("Niet ingelogd");
@@ -85,7 +109,7 @@ function parseCijferUpload(ajax) {
 }
 
 function logUploadCijfer() {
-    console.debug("Return:\n\n" + dump(parseCijferUpload(this.responseText)));
+    console.debug(parseCijferUpload(this.responseText));
 }
 
 function uploadCijfer(vakid, naam, weging, datum, cijfer,
@@ -118,7 +142,7 @@ function uploadCijfer(vakid, naam, weging, datum, cijfer,
 function parseVakUpload(ajax) {
     console.debug("ajax response: " + ajax);
     const response = JSON.parse(ajax);
-    console.debug(dump(response));
+    console.debug(response);
     let item = response.object;
     switch (response.returnwaarde) {
         case 0:
@@ -176,7 +200,7 @@ function parseVakUpload(ajax) {
 }
 
 function logUploadVak() {
-    console.debug("Return:\n\n" + dump(parseVakUpload(this.responseText)));
+    console.debug(parseVakUpload(this.responseText));
 }
 
 function uploadVak(naam, jaar, studiepunten, gehaald, toon, periode = null,
@@ -205,13 +229,14 @@ function uploadVak(naam, jaar, studiepunten, gehaald, toon, periode = null,
 
 function parseCijferWijzig(ajax) {
     console.debug("ajax response: " + ajax);
-    const errorcode = parseInt(ajax.split('\n')[0]);
-    let item = null;
-    switch (errorcode) {
+    const response = JSON.parse(ajax);
+    console.debug(response);
+    let item = response.object;
+
+    switch (response.returnwaarde) {
         case 0:
             console.debug("upload geslaagd");
-            item = JSON.parse(ajax.substring(2));
-            item.vak = JSON.parse(item.vak);
+            console.debug(item);
             break;
         case -1:
             console.debug("Niet ingelogd");
@@ -253,15 +278,15 @@ function parseCijferWijzig(ajax) {
             console.debug("Incorrecte cijfer");
             break;
         default:
-            console.debug("Onbekende fout: " + errorcode);
+            console.debug("Onbekende fout: " + response.returnwaarde);
             break;
     }
 
-    return {returncode: errorcode, item: item};
+    return {returncode: response.returnwaarde, item: item};
 }
 
 function logWijzigCijfer() {
-    console.debug("Return:\n\n" + dump(parseCijferWijzig(this.responseText)));
+    console.debug(parseCijferWijzig(this.responseText));
 }
 
 function wijzigCijfer(cijferid, vakid, naam, weging, datum, cijfer,
@@ -290,3 +315,715 @@ function wijzigCijfer(cijferid, vakid, naam, weging, datum, cijfer,
 
     xhttp.send(input);
 }
+
+function parseCijferVerwijder(ajax) {
+    console.debug("ajax response: " + ajax);
+    const response = parseInt(ajax);
+    console.debug(response);
+
+    switch (response) {
+        case 0:
+            console.debug("Verwijderen geslaagd");
+            break;
+        case -1:
+            console.debug("Niet ingelogd");
+            break;
+        case -2:
+            console.debug("Cijfer incorrect");
+            break;
+        case -3:
+            console.debug("Cijfer niet gevonden");
+            break;
+        default:
+            console.debug("Onbekende fout: " + response);
+            break;
+    }
+
+    return response;
+}
+
+function logVerwijderCijfer() {
+    console.debug(parseCijferVerwijder(this.responseText));
+}
+
+function verwijderCijfer(cijferid, callback = logVerwijderCijfer) {
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            callback.apply(xhttp);
+        }
+    };
+    xhttp.open("POST", "verwijder_cijfer.php", true);
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    let input = "cijferid=" + cijferid;
+    xhttp.send(input);
+}
+
+
+function verwijderCijfers(cijfers) {
+    for (let cijfer of cijfers) {
+        let errfun = function() {
+            let tablerow = document.getElementById("tr-" + cijfer.cijfernummer);
+            let string = "<td colspan=\"7\"><i>";
+            let response = parseCijferVerwijder(this.responseText);
+
+            switch (response) {
+                case 0:
+                    string += "Verwijderen geslaagd";
+                    break;
+                case -1:
+                    string += "Je bent niet meer ingelogd, open <a href=\"admin.php\">deze pagina</a>, log opnieuw in en probeer het opnieuw.";
+                    break;
+                case -2:
+                case -3:
+                    string += "Cijfer is niet gevonden";
+                    break;
+                default:
+                    string += "Onbekende fout: " + response;
+                    break;
+            }
+            string += "</i></td>";
+            tablerow.innerHTML = string;
+        };
+
+        verwijderCijfer(cijfer.cijfernummer, errfun);
+    }
+}
+
+function toonFout(foutmelding) {
+    return `<div class="w3-panel w3-red w3-display-container">
+                    <span onclick="this.parentElement.style.display='none'"
+                    class="w3-button w3-large w3-display-topright">&times;</span>
+                    <h3>Fout!</h3>
+                    <p>${foutmelding}</p>
+                </div>`
+}
+
+function toonSelectieVakken(value = null) {
+    let string = "";
+
+    for (let vak of vakken.object) {
+        string += `<option value=\"${vak.vaknummer}\" ${(value === vak.vaknummer ? "selected" : "")}>${vak.naam}</option>`;
+    }
+
+    return string;
+}
+
+function toonUploadCijferVak(vak, getal, bewerk = false, cijfer = null) {
+    let selectieVakken = toonSelectieVakken(cijfer === null ? null : cijfer.vak.vaknummer);
+    vak.innerHTML = `<div class="w3-container w3-teal">
+            <h3>${(cijfer === null ? `Cijfer ${getal + 1}` : `${cijfer.cijfernummer}. ${cijfer.naam} - ${cijfer.vak.naam}`)}</h3>
+        </div>
+        <form onsubmit="${(bewerk ? "wijzig" : "upload")}CijferVak(${getal})" action="javascript:void(0)" class="w3-white w3-container w3-card-4" style="margin-bottom: 15px;">
+            <div class="errorvak"></div>
+            <h4 style="margin-bottom: 0">Verplicht</h4>
+            <p>
+                <label class="w3-text-grey">Titel</label>
+                <input name="titel" class="w3-input w3-border" type="text" placeholder="eindtentamen" ${(cijfer === null ? "" : `value="${cijfer.naam}"`)} required>
+                ${(cijfer === null ? "" : `<input name="cijfernummer" style="display: none" value="${cijfer.cijfernummer}" required readonly>`)}
+            </p>
+            <p>
+                <label class="w3-text-grey">Vak</label>
+                <select name="vakid" class="w3-select" name="vak" required>
+                    <option value="" disabled ${(cijfer === null ? "selected" : "")}>Kies je vak</option>
+                    ${selectieVakken}
+                </select>
+            </p>
+            <h4 style="margin-bottom: 0">Optioneel</h4>
+            <div class="w3-row">
+                <div class="w3-third third-left">
+                    <p>
+                        <label class="w3-text-grey">Weging (in %)</label>
+                        <input name="weging" class="w3-input w3-border" type="number" min="0" step="0.01" placeholder="42.0" ${(cijfer === null || cijfer.weging === null ? "" : `value="${cijfer.weging}"`)}>
+                    </p>
+                </div>
+
+                <div class="w3-third third-mid">
+                    <p>
+                        <label class="w3-text-grey">Datum</label>
+                        <input name="datum" class="w3-input w3-border" type="date" ${(cijfer === null || cijfer.datum === null ? "" : `value="${cijfer.datum}"`)}>
+                    </p>
+                </div>
+
+                <div class="w3-third third-right">
+                    <p>
+                        <label class="w3-text-grey">Cijfer</label>
+                        <input name="cijfer" class="w3-input w3-border" type="number" min="0" step="0.01" placeholder="6.66" ${(cijfer === null || cijfer.cijfer === null ? "" : `value="${cijfer.cijfer}"`)}>
+                    </p>
+                </div>
+            </div>
+            <p><input type="submit" class="w3-btn w3-padding w3-teal" style="width:120px" value="${(bewerk ? "Wijzig" : "Upload")} &nbsp; ❯"></p>
+        </form>`;
+}
+
+function toonUploadVakVak(vak, getal) {
+    vak.innerHTML = `<div class="w3-container w3-teal">
+                    <h3>Vak ${getal + 1}</h3>
+                </div>
+                <form onsubmit="uploadVakVak(${getal})" action="javascript:void(0)" class="w3-container w3-card-4" style="margin-bottom: 15px;">
+                    <div class="errorvak"></div>
+                    <h4 style="margin-bottom: 0">Verplicht</h4>
+                    <p>
+                        <label class="w3-text-grey">Titel</label>
+                        <input name="titel" class="w3-input w3-border" type="text" placeholder="Inleiding Studie" required>
+                    </p>
+                    <div class="w3-row">
+                        <div class="w3-half third-left">
+                            <p>
+                                <label class="w3-text-grey">Jaar</label>
+                                <input name="jaar" class="w3-input w3-border" type="number" min="1" step="1" placeholder="1">
+                            </p>
+                        </div>
+
+                        <div class="w3-half third-right">
+                            <p>
+                                <label class="w3-text-grey">Studiepunten</label>
+                                <input name="studiepunten" class="w3-input w3-border" type="number" min="0" step="1" placeholder="6">
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="w3-row">
+                        <div class="w3-half third-left">
+                            <p style="margin: 0">
+                                <label class="w3-text-grey">Gehaald: </label>
+                                <input name="gehaald" class="w3-check" type="checkbox">
+                            </p>
+                        </div>
+
+                        <div class="w3-half third-right">
+                            <p style="margin: 0">
+                                <label class="w3-text-grey">Toon: </label>
+                                <input name="toon" class="w3-check" type="checkbox" checked>
+                            </p>
+                        </div>
+                    </div>
+
+                    <h4 style="margin-bottom: 0">Optioneel</h4>
+                    <div class="w3-row">
+                        <div class="w3-half third-left">
+                            <p>
+                                <label class="w3-text-grey">Periode</label>
+                                <input name="periode" class="w3-input w3-border" type="number" min="0" step="1" placeholder="1">
+                            </p>
+                        </div>
+
+                        <div class="w3-half third-right">
+                            <p>
+                                <label class="w3-text-grey">Eindcijfer</label>
+                                <input name="eindcijfer" class="w3-input w3-border" type="number" min="0" step="0.01" placeholder="6.66">
+                            </p>
+                        </div>
+                    </div>
+                    <p><input type="submit" class="w3-btn w3-padding w3-teal" style="width:120px" value="Upload &nbsp; ❯"></p>
+                </form>`;
+}
+
+function uploadCijferVak(getal) {
+    const div = document.getElementById('cijfervak' + getal);
+    const inputs = div.children[1].elements;
+    let titel = inputs["titel"].value;
+    let vakid = inputs["vakid"].value;
+    let weging = inputs["weging"].value === "" ? null : inputs["weging"].value;
+    let datum = inputs["datum"].value === "" ? null : inputs["datum"].value;
+    let cijfergetal = inputs["cijfer"].value === "" ? null : inputs["cijfer"].value;
+
+    console.debug(`titel: ${titel}, vakid: ${vakid}, weging: ${weging}, datum: ${datum}, cijfer: ${cijfergetal}`);
+
+    let errorfun = function () {
+        let returnwaarde = parseCijferUpload(this.responseText);
+        switch (returnwaarde.returncode) {
+            case 0:
+                div.children[1].innerHTML = cijferUploaded;
+                break;
+            case -1:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout(`Je bent niet meer ingelogd, open <a target="_blank" href="admin.php">deze pagina</a>, log opnieuw in en probeer het opnieuw.`);
+                break;
+            case -2:
+            case -5:
+            case 2:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Vak niet opgegeven/niet gevonden.");
+                break;
+            case -3:
+            case 3:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Titel niet opgegeven/incorrect");
+                break;
+            case -4:
+            case 5:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Datum is niet in correct formaat opgegeven (YYYY-mm-dd of ingebouwde date picker).");
+                break;
+            case -6:
+            case 6:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Cijfer moet een getal zijn");
+                break;
+            case -7:
+            case 4:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Weging moet een getal zijn");
+                break;
+            case 1:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Geen verbinding met database, probeer later opnieuw");
+                break;
+            default:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Er is een onbekende fout opgetreden, probeer het later opnieuw.");
+                break;
+        }
+    };
+
+    uploadCijfer(vakid, titel, weging, datum, cijfergetal, errorfun);
+}
+
+function wijzigCijferVak(getal) {
+    const div = document.getElementById('wijzigcijfervak' + getal);
+    const inputs = div.children[1].elements;
+    let cijfernummer = inputs["cijfernummer"].value;
+    let titel = inputs["titel"].value;
+    let vakid = inputs["vakid"].value;
+    let weging = inputs["weging"].value === "" ? null : inputs["weging"].value;
+    let datum = inputs["datum"].value === "" ? null : inputs["datum"].value;
+    let cijfergetal = inputs["cijfer"].value === "" ? null : inputs["cijfer"].value;
+
+    console.debug(`cijfernummer: ${cijfernummer}, titel: ${titel}, vakid: ${vakid}, weging: ${weging}, datum: ${datum}, cijfer: ${cijfergetal}`);
+
+    let errorfun = function () {
+        let returnwaarde = parseCijferWijzig(this.responseText);
+        switch (returnwaarde.returncode) {
+            case 0:
+                div.children[1].innerHTML = cijferGewijzigd;
+                break;
+            case -1:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout(`Je bent niet meer ingelogd, open <a target="_blank" href="admin.php">deze pagina</a>, log opnieuw in en probeer het opnieuw.`);
+                break;
+            case -2:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Cijfer niet gevonden");
+                break;
+            case -3:
+            case -7:
+            case 2:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Vak niet opgegeven/niet gevonden.");
+                break;
+            case -4:
+            case 3:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Titel niet opgegeven/incorrect");
+                break;
+            case -5:
+            case 5:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Datum is niet in correct formaat opgegeven (YYYY-mm-dd of ingebouwde date picker).");
+                break;
+            case -6:
+            case 6:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Cijfer moet een getal zijn");
+                break;
+            case -8:
+            case 4:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Weging moet een getal zijn");
+                break;
+            case 1:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Geen verbinding met database, probeer later opnieuw");
+                break;
+            default:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Er is een onbekende fout opgetreden, probeer het later opnieuw.");
+                break;
+        }
+    };
+
+    wijzigCijfer(cijfernummer, vakid, titel, weging, datum, cijfergetal, errorfun);
+}
+
+function uploadVakVak(getal) {
+    console.debug(getal);
+    const div = document.getElementById('vak' + getal);
+    console.debug(div);
+    const inputs = div.children[1].elements;
+    console.debug(inputs);
+    let titel = inputs["titel"].value;
+    let jaar = inputs["jaar"].value;
+    let studiepunten = inputs["studiepunten"].value;
+    let gehaald = inputs["gehaald"].checked;
+    let toon = inputs["toon"].checked;
+    let periode = inputs["periode"].value === "" ? null : inputs["periode"].value;
+    let eindcijfer = inputs["eindcijfer"].value === "" ? null : inputs["eindcijfer"].value;
+
+    console.debug(`titel: ${titel}, jaar: ${jaar}, studiepunten: ${studiepunten}, gehaald: ${gehaald}, toon: ${toon}, periode: ${periode}, eindcijfer: ${eindcijfer}`);
+
+    let errorfun = function () {
+        let returnwaarde = parseVakUpload(this.responseText);
+        switch (returnwaarde.returncode) {
+            case 0:
+                div.children[1].innerHTML = vakUploaded;
+                break;
+            case -1:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout(`Je bent niet meer ingelogd, open <a target="_blank" href="admin.php">deze pagina</a>, log opnieuw in en probeer het opnieuw.`);
+                break;
+            case -2:
+            case 2:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Vaktitel niet opgegeven/incorrect");
+                break;
+            case -3:
+            case 3:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Jaar niet opgegeven/incorrect");
+                break;
+            case -4:
+            case 5:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Studiepunten niet opgegeven/incorrect");
+                break;
+            case -5:
+            case 4:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Periode niet opgegeven/incorrect");
+                break;
+            case -6:
+            case 7:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Eindcijfer moet een cijfer zijn");
+                break;
+            case 1:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Geen verbinding met database, probeer later opnieuw");
+                break;
+            default:
+                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Er is een onbekende fout opgetreden, probeer het later opnieuw");
+                break;
+        }
+    };
+
+    uploadVak(titel, jaar, studiepunten, gehaald, toon, periode, eindcijfer, errorfun);
+}
+
+function resetCijferUpload() {
+    const resetForm = document.getElementById("resetCijfer");
+    const aantal = resetForm.elements["aantal"];
+    const cijferVak = document.getElementById("cijfervakken");
+    cijferVak.innerHTML = "";
+
+    for (let i = 0; i < aantal.value; i++) {
+        cijferVak.innerHTML += `<div id="cijfervak${i}"></div>`;
+        toonUploadCijferVak(document.getElementById("cijfervak" + i), i);
+    }
+
+    aantal.value = 1;
+}
+
+function uploadAlleCijfers() {
+    const cijferDiv = document.getElementById('cijfervakken');
+    const cijferVakken = cijferDiv.children;
+    for (let i = 0; i < cijferVakken.length; i++) {
+        if (cijferVakken[i].children[1].innerHTML !== cijferUploaded) {
+            uploadCijferVak(i);
+        }
+    }
+}
+
+function uploadAlleVakken() {
+    const vakDiv = document.getElementById('vakvakken');
+    const vakVakken = vakDiv.children;
+    for (let i = 0; i < vakVakken.length; i++) {
+        if (vakVakken[i].children[1].innerHTML !== vakUploaded) {
+            uploadVakVak(i);
+        }
+    }
+}
+
+function wijzigAlleCijfers() {
+    const cijferDiv = document.getElementById('wijzigcijfervakken');
+    const cijferVakken = cijferDiv.children;
+    for (let i = 0; i < cijferVakken.length; i++) {
+        if (cijferVakken[i].children[1].innerHTML !== cijferUploaded) {
+            wijzigCijferVak(i);
+        }
+    }
+}
+
+function resetVakUpload() {
+    const resetForm = document.getElementById("resetVak");
+    const aantal = resetForm.elements["aantal"];
+    const cijferVak = document.getElementById("vakvakken");
+    cijferVak.innerHTML = "";
+
+    for (let i = 0; i < aantal.value; i++) {
+        cijferVak.innerHTML += `<div id="vak${i}"></div>`;
+        toonUploadVakVak(document.getElementById("vak" + i), i);
+    }
+
+    aantal.value = 1;
+}
+
+function get_cijfers(md5) {
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = update_cijfers_scherm;
+    xhttp.open("POST", "get_cijfers.php", true);
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+    if (first) {
+        xhttp.send("cijfers=true");
+        first = false;
+    } else {
+        xhttp.send("cijfers=true&md5=" + md5);
+    }
+}
+
+function get_vakken(md5) {
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = update_vakken_scherm;
+    xhttp.open("POST", "get_vakken.php", true);
+
+    if (first_vak) {
+        xhttp.send();
+        first_vak = false;
+    } else {
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhttp.send("md5=" + md5);
+    }
+}
+
+function update_vakken_scherm() {
+    if (this.readyState === 4 && this.status === 200) {
+        vakken = JSON.parse(this.responseText);
+        console.debug(vakken);
+
+        if (cached_vakken === null) {
+            console.debug("eerste md5 = " + vakken.md5);
+            cached_vakken = vakken.md5;
+        }
+
+        if (!klaar_voor_vak) {
+            let uploadCijferVak0 = document.getElementById('cijfervak0');
+            if (uploadCijferVak0 === null) {
+                uploadCijferVakKlaar = setInterval(probeerToonUploadCijferVak, 100);
+            } else {
+                toonUploadCijferVak(uploadCijferVak0, 0);
+            }
+            klaar_voor_vak = true;
+        }
+    }
+}
+
+function update_cijfers_scherm() {
+    if (this.readyState === 4 && this.status === 200) {
+        cijfers = JSON.parse(this.responseText);
+        console.debug(cijfers);
+
+        if (cached_cijfers === null) {
+            console.debug("eerste md5 = " + cijfers.md5);
+            cached_cijfers = cijfers.md5;
+        }
+
+        toon_cijfers();
+    }
+}
+
+let cijfers_getoont = null;
+
+function probeer_toon_cijfers() {
+    if (document.getElementById("cijfertabel") !== null) {
+        clearInterval(cijfers_getoont);
+        toon_cijfers();
+    }
+}
+
+function toon_cijfers() {
+    let table = document.getElementById("cijfertabel");
+
+    if (table === null) {
+        cijfers_getoont = setInterval(probeer_toon_cijfers, 100);
+    }
+
+    let table_inhoud = cijfer_head;
+
+    if (cijfers.object !== null) {
+        for (let cijfer of cijfers.object) {
+            table_inhoud += `<tr id="tr-${cijfer.cijfernummer}"><td><input id="select-${cijfer.cijfernummer}" name="${cijfer.cijfernummer}" class="w3-check" type="checkbox"></td>
+            <td>${cijfer.cijfernummer}</td>
+            <td>${cijfer.naam}</td>
+            <td>${cijfer.vak.naam}</td>
+            <td>${(cijfer.datum !== null ? cijfer.datum : "")}</td>
+            <td>${(cijfer.weging !== null ? cijfer.weging + "%" : "")}</td>
+            <td>${(cijfer.cijfer !== null ? cijfer.cijfer : "")}</td>
+            </tr>`;
+        }
+    }
+
+    table.innerHTML = table_inhoud;
+}
+
+function getCijferSelectie() {
+    let results = [];
+    let selectie = [];
+    let table = document.getElementById("cijfertabel");
+    let checkboxes = table.getElementsByTagName("input");
+
+    for (let checkbox of checkboxes) {
+        if (checkbox.checked) {
+            results.push(parseInt(checkbox.name));
+        }
+    }
+
+    if (results.length === 0) {
+        return null;
+    }
+
+
+    for (let cijfer of cijfers.object) {
+        if (results.includes(cijfer.cijfernummer)) {
+            selectie.push(cijfer);
+        }
+    }
+
+    resetCijferSelectie();
+
+    return selectie;
+}
+
+function resetCijferSelectie() {
+    let table = document.getElementById("cijfertabel");
+    let checkboxes = table.getElementsByTagName("input");
+
+    for (let checkbox of checkboxes) {
+        checkbox.checked = false;
+    }
+}
+
+function deelCijferSelectie() {
+    let selectie = getCijferSelectie();
+
+    if (selectie === null) {
+        return;
+    }
+
+    let string = `Er ${(selectie.length === 1 ? "is een nieuw cijfer" : "zijn nieuwe cijfers")} geüpload:\n`;
+
+    for (let i = 0; i < selectie.length; i++) {
+        let cijfer = selectie[i];
+        string += `Cijfer:\t\t\t${cijfer.cijfer}\nVak:\t\t\t${cijfer.vak.naam}\nOmschrijving:\t${cijfer.naam}\nWeging:\t\t${cijfer.weging}%\n\n`;
+    }
+
+    string += `Bekijk het cijfer:\nExtern:\t\t\t${serverinfo.domein}\n${(serverinfo.intern ? `Intern:\t\t\t${serverinfo.interndomein}\n` : "")}Wachtwoord:\t${serverinfo.wachtwoord}`;
+
+    kopieerString(string);
+}
+
+function verwijderCijferSelectie() {
+    let selectie = getCijferSelectie();
+
+    if (selectie === null) {
+        return;
+    }
+
+    let string = `Weet je zeker dat je deze cijfers wilt verwijderen:\n`;
+
+    for (let i = 0; i < selectie.length; i++) {
+        let cijfer = selectie[i];
+        string += `${cijfer.cijfernummer}. ${cijfer.naam}\n`;
+    }
+
+    if (window.confirm(string)) {
+        verwijderCijfers(selectie);
+    }
+}
+
+function kopieerString(string) {
+    let tekstVak = document.createElement('textarea');
+    tekstVak.value = string;
+    tekstVak.setAttribute('readonly', '');
+    tekstVak.style = {position: 'absolute', left: '-9999px'};
+    document.body.appendChild(tekstVak);
+    tekstVak.select();
+    document.execCommand('copy');
+    document.body.removeChild(tekstVak);
+}
+
+document.onkeydown = function(evt) {
+    evt = evt || window.event;
+    var isEscape = false;
+    if ("key" in evt) {
+        isEscape = (evt.key === "Escape" || evt.key === "Esc");
+    } else {
+        isEscape = (evt.keyCode === 27);
+    }
+    if (isEscape) {
+        verbergPopups();
+    }
+};
+
+window.onload = function () {
+    let popups = document.getElementsByClassName('popup');
+    /* Sluit popup als er naast geklikt wordt */
+    document.onclick = function (e) {
+        if (e.target.id === 'popup') {
+            let i;
+            for (i = 0; i < popups.length; i++) {
+                popups[i].style.display = "none";
+            }
+        }
+    };
+};
+
+function verbergPopups() {
+    let popups;
+    popups = document.getElementsByClassName('popup');
+
+    let i;
+    for (i = 0; i < popups.length; i++) {
+        popups[i].style.display = "none";
+    }
+
+}
+
+function wijzigCijferSelectie() {
+    let selectie = getCijferSelectie();
+
+    if (selectie === null) {
+        return;
+    }
+
+    toonCijferPopup(selectie);
+}
+
+function toonCijferPopup(cijfers) {
+    let popup = document.getElementById("wijzig-cijfer-popup");
+    let background = document.getElementById("popup");
+    verbergPopups();
+    popup.innerHTML = "<div id=\"wijzigcijfervakken\" style=\"padding-top: 15px;\"></div>";
+    popup.style.display = "block";
+    popup = popup.children[0];
+    background.style.display = "block";
+
+    if (cijfers === null || cijfers.length === 0) {
+        return;
+    }
+
+    for (let i = 0; i < cijfers.length; i++) {
+        let cijfer = cijfers[i];
+        popup.innerHTML += `<div id="wijzigcijfervak${i}"></div>`;
+        toonUploadCijferVak(document.getElementById("wijzigcijfervak" + i), i, true, cijfer);
+    }
+
+    popup.innerHTML += `<button type="button" class="w3-btn w3-padding w3-teal upload-button" onclick="wijzigAlleCijfers()">Wijzig
+                alle &nbsp; ❯
+            </button>`;
+}
+
+function probeerToonUploadVakVak() {
+    let uploadVak0 = document.getElementById('vak0');
+
+    if (uploadVak0 !== null) {
+        clearInterval(uploadVakKlaar);
+        toonUploadVakVak(uploadVak0, 0);
+    }
+}
+function probeerToonUploadCijferVak() {
+    let uploadCijferVak0 = document.getElementById('cijfervak0');
+
+    if (uploadCijferVak0 !== null) {
+        clearInterval(uploadCijferVakKlaar);
+        toonUploadCijferVak(uploadCijferVak0, 0);
+    }
+}
+
+get_cijfers(false);
+get_vakken(false);
+let uploadVak0 = document.getElementById('vak0');
+let uploadVakKlaar = null;
+let uploadCijferVakKlaar = null;
+if (uploadVak0 === null) {
+    uploadVakKlaar = setInterval(probeerToonUploadVakVak, 100);
+} else {
+    toonUploadVakVak(uploadVak0, 0);
+}
+

@@ -6,18 +6,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 ### Added
 - Het gemiddelde cijfer van alle vakken wordt nu weergeven
-- Cijfers en vakken worden nu los opgehaald via javascript/ajax op de homepage in
-  plaats van dat ze gelijk worden neergezet tijdens het ophalen van de pagina
+- Cijfers en vakken worden nu los opgehaald via javascript/ajax op de homepage
+  in plaats van dat ze gelijk worden neergezet tijdens het ophalen van de pagina
 - Er wordt nu iedere 15s gecontroleerd of er nieuwe cijfers zijn
-- Alle ajax requests worden nu beantwoord met pure JSON en de header wordt ook op
-  application/json gezet ipv text/html
-- Er zijn duidelijkere instructies toegevoegd voor het installeren van de website
+- Alle ajax requests worden nu beantwoord met pure JSON en de header wordt ook
+  op application/json gezet ipv text/html
+- Er zijn duidelijkere instructies toegevoegd voor het installeren van de
+  website
+- Vakken worden op de admin pagina opgehaald via AJAX
+- Er is een tabel met cijfers toegevoegd op de admin pagina
+- Cijfers kunnen nu worden gewijzigd, gedeeld en verwijderd worden
 
 ### Changed
 - De footer neemt de hele breedte in en heeft een margin aan de onderkant
 - Divs zitten niet meer aan elkaar vast op de admin pagina
 - Het Vak-object in Cijfer-objecten worden nu in correcte JSON verstuurd
 - Er zijn overbodige comments uit het sql-bestand verwijderd
+- Wachtwoord veld wordt geleegd als het wachtwoord incorrect is
+- Er zijn extra velden toegevoegd aan connect.php
+- Alle javascript code van admin.php is verplaatst naar admin.js
+
+### Fixed
+- Er zat een foute regel in wijzig_cijfer.php waardoor php een warning kon geven
+  als de pagina opgevraagd werd.
 
 ## [0.3.0] - 2019-07-09
 ### Added
