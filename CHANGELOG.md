@@ -12,12 +12,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   in plaats van dat ze gelijk worden neergezet tijdens het ophalen van de pagina
 - Er wordt nu iedere 15s gecontroleerd of er nieuwe cijfers zijn
 - Alle ajax requests worden nu beantwoord met pure JSON en de header wordt ook
-  op application/json gezet ipv text/html
+  op application/json gezet i.p.v. text/html
 - Er zijn duidelijkere instructies toegevoegd voor het installeren van de
   website
 - Vakken worden op de admin pagina opgehaald via AJAX
 - Er is een tabel met cijfers toegevoegd op de admin pagina
-- Er is een tabel met vakken toegevoegd op de admin pagin
+- Er is een tabel met vakken toegevoegd op de admin pagina
 - Cijfers kunnen nu worden gewijzigd, gedeeld en verwijderd worden
 - Vakken kunnen nu worden gewijzigd en verwijderd worden
 
