@@ -217,15 +217,20 @@ function update_cijfers_scherm() {
     if (this.readyState === 4 && this.status === 200) {
         cijfers = JSON.parse(this.responseText);
         console.debug("Nieuwe cijfers:\n" + dump(cijfers));
+        if (cijfers.returnwaarde === -1) {
+            location.reload();
+        }
 
         if (cached_cijfers === null) {
             console.debug("eerste md5 = " + cijfers.md5);
             cached_cijfers = cijfers.md5;
         }
 
-        toon_huidige_cijfers();
-        toon_oude_cijfers();
-        toon_vakken();
+        if (cijfers.returnwaarde === 0) {
+            toon_huidige_cijfers();
+            toon_oude_cijfers();
+            toon_vakken();
+        }
     }
 }
 

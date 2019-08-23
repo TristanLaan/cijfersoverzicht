@@ -1197,7 +1197,7 @@ function deelCijferSelectie() {
         string += `Cijfer:\t\t\t${cijfer.cijfer}\nVak:\t\t\t${cijfer.vak.naam}\nOmschrijving:\t${cijfer.naam}\nWeging:\t\t${cijfer.weging}%\n\n`;
     }
 
-    string += `Bekijk het cijfer:\nExtern:\t\t\t${serverinfo.domein}\n${(serverinfo.intern ? `Intern:\t\t\t${serverinfo.interndomein}\n` : "")}Wachtwoord:\t${serverinfo.wachtwoord}`;
+    string += `Bekijk cijfers:${(serverinfo.intern ? `\nExtern:\t\t\t${serverinfo.domein}\nIntern:\t\t\t${serverinfo.interndomein}` : `\t${serverinfo.domein}`)}\nWachtwoord:\t${serverinfo.wachtwoord}`;
 
     kopieerString(string);
 }
