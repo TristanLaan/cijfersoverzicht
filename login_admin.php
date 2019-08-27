@@ -82,8 +82,8 @@ if ($_SESSION[$session . 'admin'] === null) //weergeven als niet is ingelogd
         </div>
 
         <div class="w3-card-4">
-            <div class="w3-container w3-light-grey">
-                <h2>Log in:</h2>
+            <div class="w3-container w3-pale-red">
+                <h2>Log in admin:</h2>
             </div>
             <form method="post" action="javascript:void(0)" onsubmit="loginsite()">
                 <div class="w3-container">
@@ -98,7 +98,7 @@ if ($_SESSION[$session . 'admin'] === null) //weergeven als niet is ingelogd
             </form>
         </div>
     </div>
-    <?php footer(true); ?>
+    <?php footer(true, true); ?>
     </body>
     </html>
     <?php

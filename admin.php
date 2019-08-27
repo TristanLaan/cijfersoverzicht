@@ -194,6 +194,6 @@ require_once "print_copyright.php";
         </div>
     </div>
 </div>
-<?php footer(); ?>
+<?php footer(false, true); ?>
 </body>
 </html>

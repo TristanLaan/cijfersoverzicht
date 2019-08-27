@@ -18,14 +18,20 @@
 
 /**
  * @param bool $sticky
+ * @param bool $admin
  */
-function footer(bool $sticky = false) { ?>
+function footer(bool $sticky = false, bool $admin = false) { ?>
     <footer style=" width: 100%; <?php if ($sticky) { ?>position: fixed; bottom: 0; right: 0; <?php } ?>">
         <?php
         if (!$sticky) {
             ?><hr><?php
         } ?>
         <div style="float: right; margin-bottom: 5px;">
+            <?php if ($admin) {
+                ?><a href="./" style="margin: 0 5px; color: #0645AD">Cijfersoverzicht</a><?php
+            } else {
+                ?><a href="admin.php" style="margin: 0 5px; color: #0645AD">Admin</a><?php
+            }?>
             <a href="LICENSE" style="margin: 0 5px; color: #0645AD">Licence</a>
             <a href="https://github.com/TristanLaan/cijfersoverzicht" style="margin: 0 5px; color: #0645AD">Source</a>
             <p style="display: inline; margin: 0px 5px;">&copy;Tristan Laan 2018-<?php

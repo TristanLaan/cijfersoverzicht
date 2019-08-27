@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Changed
 - Deel bericht is verbeterd als intern-adres uit staat
+- Het verschil tussen het login-scherm van de admin pagina en van de normale
+  pagina is wat duidelijker gemaakt
+- Er is een link toegevoegd naar de thuis-pagina/admin-pagina
 
 ### Fixed
 - Nieuwe cijfers maken wordt getoont als er nog geen vakken bestaan
