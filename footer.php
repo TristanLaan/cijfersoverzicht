@@ -32,7 +32,7 @@ function footer(bool $sticky = false, bool $admin = false) { ?>
             } else {
                 ?><a href="admin.php" style="margin: 0 5px; color: #0645AD">Admin</a><?php
             }?>
-            <a href="LICENSE" style="margin: 0 5px; color: #0645AD">Licence</a>
+            <a href="license.html" style="margin: 0 5px; color: #0645AD">Licence</a>
             <a href="https://github.com/TristanLaan/cijfersoverzicht" style="margin: 0 5px; color: #0645AD">Source</a>
             <p style="display: inline; margin: 0px 5px;">&copy;Tristan Laan 2018-<?php
                 try {
