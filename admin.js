@@ -1,17 +1,17 @@
-/**
+/*
  * Copyright (c) Tristan Laan 2019.
  * This file is part of cijfersoverzicht.
  * cijfersoverzicht is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or any later
- * version.
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
  * cijfersoverzicht is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Affero General Public License
  * along with cijfersoverzicht.  If not, see <https://www.gnu.org/licenses/>
  */
 
@@ -957,6 +957,18 @@ function uploadAlleCijfers() {
             uploadCijferVak(i);
         }
     }
+}
+
+function testCijfer(post_data) {
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            console.debug(JSON.parse(this.responseText));
+        }
+    };
+    xhttp.open("POST", "upload_cijfers.php", true);
+    xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xhttp.send(JSON.stringify(post_data));
 }
 
 function uploadAlleVakken() {

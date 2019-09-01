@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Het verschil tussen het login-scherm van de admin pagina en van de normale
   pagina is wat duidelijker gemaakt
 - Er is een link toegevoegd naar de thuis-pagina/admin-pagina
+- Licentie veranderd van GPLv3 > GNU AGPL
 
 ### Fixed
 - Nieuwe cijfers maken wordt getoont als er nog geen vakken bestaan
