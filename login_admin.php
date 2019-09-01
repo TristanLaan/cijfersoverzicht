@@ -40,6 +40,7 @@ if ($_SESSION[$session . 'admin'] === null) //weergeven als niet is ingelogd
     <head>
         <title>Login om cijfers te beheren - <?php echo $title; ?></title>
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script>
             function loginsite() {
                 const pass = document.getElementById("password").value;
@@ -72,10 +73,36 @@ if ($_SESSION[$session . 'admin'] === null) //weergeven als niet is ingelogd
                 xhttp.send("password=" + pass);
             }
         </script>
+        
+        <style>
+            @media only screen and (max-width: 850px) {
+                .titel-tekst {
+                    font-size: 40px!important;
+                }
+            }
+
+            @media only screen and (max-width: 725px) {
+                .titel-tekst {
+                    font-size: 32px!important;
+                }
+            }
+
+            @media only screen and (max-width: 575px) {
+                .titel-tekst {
+                    font-size: 28px!important;
+                }
+            }
+
+            @media only screen and (max-width: 500px) {
+                .titel-tekst {
+                    font-size: 24px!important;
+                }
+            }
+        </style>
     </head>
     <body>
     <div class="w3-display-topmiddle">
-        <h1 class="w3-xxxlarge"><?php echo $title; ?></h1>
+        <h1 class="w3-xxxlarge titel-tekst"><?php echo $title; ?></h1>
     </div>
 
     <div class="w3-display-middle">
