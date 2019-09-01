@@ -41,6 +41,7 @@ $datum = new DateTime();
 
 <body>
 <div style="min-width: 1200px;" class="w3-container">
+    <h1 class="w3-center"><?php echo $title; ?></h1>
     <h2>Cijfers</h2>
 
     <table id="huidige-cijfers" class="w3-table-all w3-hoverable">

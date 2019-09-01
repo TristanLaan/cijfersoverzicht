@@ -38,7 +38,7 @@ if ($_SESSION[$session . 'admin'] === null) //weergeven als niet is ingelogd
     <html lang="nl">
     <?php htmlcopyright(); ?>
     <head>
-        <title>Login om cijfers te zien</title>
+        <title>Login om cijfers te beheren - <?php echo $title; ?></title>
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
         <script>
             function loginsite() {
@@ -74,6 +74,10 @@ if ($_SESSION[$session . 'admin'] === null) //weergeven als niet is ingelogd
         </script>
     </head>
     <body>
+    <div class="w3-display-topmiddle">
+        <h1 class="w3-xxxlarge"><?php echo $title; ?></h1>
+    </div>
+
     <div class="w3-display-middle">
         <div style="display: none" id="error" class="w3-panel w3-red w3-card w3-display-container">
             <span onclick="this.parentElement.style.display='none'"

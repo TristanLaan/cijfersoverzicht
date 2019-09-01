@@ -25,7 +25,7 @@ require_once "print_copyright.php";
 <html lang="nl">
 <?php htmlcopyright(); ?>
 <head>
-    <title>Bewerk cijfers</title>
+    <title>Bewerk cijfers - <?php echo $title; ?></title>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <script src="admin.js" async></script>
     <style>
@@ -109,6 +109,7 @@ require_once "print_copyright.php";
 <div id="wijzig-vak-popup" class="popupscherm popup"></div>
 
 <div class="w3-container">
+    <h1 class="w3-center"><?php echo $title; ?></h1>
     <form style="width: 100%" action="javascript:void(0)">
         <h2>Cijfers wijzigen</h2>
         <table id="cijfertabel" class="w3-table-all w3-hoverable" style="margin-bottom: 15px;">

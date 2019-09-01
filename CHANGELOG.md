@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Added
 - HTML-pagina voor licentie toegevoegd
+- Titel duidelijker op pagina weergeven
 
 ## Changed
 - Deel bericht is verbeterd als intern-adres uit staat
@@ -17,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - Nieuwe cijfers maken wordt getoont als er nog geen vakken bestaan
 - Tabel met cijfers en vakken wordt niet meer geleegd bij een server fout
+- Placeholder date format voor browsers die input type=date niet ondersteunen
 
 ## [0.4.0] - 2019-07-22
 ### Added

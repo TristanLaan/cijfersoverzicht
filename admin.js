@@ -230,7 +230,7 @@ function uploadVak(naam, jaar, studiepunten, gehaald, toon, periode = null,
     xhttp.open("POST", "upload_vak.php", true);
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     let input = "naam=" + naam + "&jaar=" + jaar + "&studiepunten=" +
-                studiepunten + "&gehaald=" + gehaald + "&toon=" + toon;
+        studiepunten + "&gehaald=" + gehaald + "&toon=" + toon;
 
     if (periode !== null) {
         input += "&periode=" + periode;
@@ -469,7 +469,7 @@ function verwijderCijfer(cijferid, callback = logVerwijderCijfer) {
 
 function verwijderCijfers(cijfers) {
     for (let cijfer of cijfers) {
-        let errfun = function() {
+        let errfun = function () {
             let tablerow = document.getElementById("tr-cijfer-" + cijfer.cijfernummer);
             let string = "<td colspan=\"7\"><i>";
             let response = parseCijferVerwijder(this.responseText);
@@ -542,7 +542,7 @@ function verwijderVak(vakid, callback = logVerwijderVak) {
 
 function verwijderVakken(vakken) {
     for (let vak of vakken) {
-        let errfun = function() {
+        let errfun = function () {
             let tablerow = document.getElementById("tr-vak-" + vak.vaknummer);
             let string = "<td colspan=\"9\"><i>";
             let response = parseVakVerwijder(this.responseText);
@@ -625,7 +625,7 @@ function toonUploadCijferVak(vak, getal, bewerk = false, cijfer = null) {
                 <div class="w3-third third-mid">
                     <p>
                         <label class="w3-text-grey">Datum</label>
-                        <input name="datum" class="w3-input w3-border" type="date" ${(cijfer === null || cijfer.datum === null ? "" : `value="${cijfer.datum}"`)}>
+                        <input name="datum" class="w3-input w3-border" type="date" placeholder="yyyy-mm-dd" ${(cijfer === null || cijfer.datum === null ? "" : `value="${cijfer.datum}"`)}>
                     </p>
                 </div>
 
@@ -1308,7 +1308,7 @@ function kopieerString(string) {
     document.body.removeChild(tekstVak);
 }
 
-document.onkeydown = function(evt) {
+document.onkeydown = function (evt) {
     evt = evt || window.event;
     var isEscape = false;
     if ("key" in evt) {
