@@ -1206,7 +1206,7 @@ function deelCijferSelectie() {
 
     for (let i = 0; i < selectie.length; i++) {
         let cijfer = selectie[i];
-        string += `Cijfer:\t\t\t${cijfer.cijfer}\nVak:\t\t\t${cijfer.vak.naam}\nOmschrijving:\t${cijfer.naam}\nWeging:\t\t${cijfer.weging}%\n\n`;
+        string += `Cijfer:\t\t\t${(cijfer.cijfer == null ? "Onbekend" : `${cijfer.cijfer}`)}\nVak:\t\t\t${cijfer.vak.naam}\nOmschrijving:\t${cijfer.naam}\nWeging:\t\t${(cijfer.weging == null ? "Onbekend" : `${cijfer.weging}%`)}\n\n`;
     }
 
     string += `Bekijk cijfers:${(serverinfo.intern ? `\nExtern:\t\t\t${serverinfo.domein}\nIntern:\t\t\t${serverinfo.interndomein}` : `\t${serverinfo.domein}`)}\nWachtwoord:\t${serverinfo.wachtwoord}`;
