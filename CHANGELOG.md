@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## Added
 - HTML-pagina voor licentie toegevoegd
 - Titel duidelijker op pagina weergeven
+- Dark mode toegevoegd
 
 ## Changed
 - Deel bericht is verbeterd als intern-adres uit staat
@@ -15,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   pagina is wat duidelijker gemaakt
 - Er is een link toegevoegd naar de thuis-pagina/admin-pagina
 - Licentie veranderd van GPLv3 > GNU AGPL
+- CSS naar apart bestand verhuist
 
 ### Fixed
 - Nieuwe cijfers maken wordt getoont als er nog geen vakken bestaan

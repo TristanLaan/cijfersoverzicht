@@ -27,71 +27,8 @@ require_once "print_copyright.php";
 <head>
     <title>Bewerk cijfers - <?php echo $title; ?></title>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="style.css">
     <script src="admin.js" async></script>
-    <style>
-        @media (min-width: 601px) {
-            .third-left, .third-mid {
-                padding-right: 16px
-            }
-
-            .third-right, .third-mid {
-                padding-left: 16px
-            }
-        }
-
-        html {
-            overflow-x: auto;
-        }
-
-        .upload-button {
-            width: 140px;
-            margin-right: 25px;
-            margin-bottom: 10px;
-        }
-
-        .aantal-reset {
-            width: 250px;
-            float: left;
-            margin-right: 15px;
-            margin-bottom: 10px;
-        }
-
-        .reset-button {
-            width: 100px;
-            float: left;
-            margin-bottom: 10px;
-        }
-
-        .popupachtergrond {
-            position: fixed;
-            background-color: black;
-            opacity: 0.4;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 2;
-            display: none;
-        }
-
-        .popupscherm {
-            position: fixed;
-            left: 12.5%;
-            width: calc(75% - 10px);
-            top: 2.5%;
-            background-color: rgba(255,255,255,0);
-            height: 95%;
-            overflow-y: auto;
-            z-index: 3;
-            display: none;
-            overflow: -moz-scrollbars-none;
-            -ms-overflow-style: none;
-        }
-
-        .popupscherm::-webkit-scrollbar {
-            width: 0 !important
-        }
-    </style>
     <script>
         const serverinfo = {
             domein: "<?php echo $domein; ?>",
@@ -110,11 +47,11 @@ require_once "print_copyright.php";
 
 <div class="w3-container">
     <h1 class="w3-center"><?php echo $title; ?></h1>
-    <form style="width: 100%" action="javascript:void(0)">
+    <form class="fullwidth" action="javascript:void(0)">
         <h2>Cijfers wijzigen</h2>
-        <table id="cijfertabel" class="w3-table-all w3-hoverable" style="margin-bottom: 15px;">
+        <table id="cijfertabel" class="bottom-room w3-table-all w3-hoverable">
             <thead>
-            <tr class="w3-light-grey">
+            <tr class="w3-light-grey table-head">
                 <th></th>
                 <th>No.</th>
                 <th>Titel</th>
@@ -126,7 +63,7 @@ require_once "print_copyright.php";
             </thead>
             <!-- Hier worden de cijfers geplaatst door `admin.js` -->
         </table>
-        <div style="width: 100%;" id="cijfer-buttons">
+        <div class="fullwidth" id="cijfer-buttons">
             <button type="button" class="w3-btn w3-padding w3-teal upload-button" onclick="wijzigCijferSelectie()">Wijzig &nbsp; ❯
             </button>
             <button type="button" class="w3-btn w3-padding w3-teal upload-button" onclick="deelCijferSelectie()">Deel &nbsp; ❯
@@ -136,11 +73,11 @@ require_once "print_copyright.php";
         </div>
     </form>
 
-    <form style="width: 100%" action="javascript:void(0)">
-        <h2 style="margin-top: 15px;">Vakken wijzigen</h2>
-        <table id="vaktabel" class="w3-table-all w3-hoverable" style="margin-bottom: 15px;">
+    <form class="fullwidth" action="javascript:void(0)">
+        <h2 id="wijzig-vak">Vakken wijzigen</h2>
+        <table id="vaktabel" class="w3-table-all w3-hoverable bottom-room">
             <thead>
-            <tr class="w3-light-grey">
+            <tr class="w3-light-grey table-head">
                 <th></th>
                 <th>No.</th>
                 <th>Titel</th>
@@ -154,7 +91,7 @@ require_once "print_copyright.php";
             </thead>
             <!-- Hier worden de vakken geplaatst door `admin.js` -->
         </table>
-        <div style="width: 100%;" id="vak-buttons">
+        <div class="fullwidth" id="vak-buttons">
             <button type="button" class="w3-btn w3-padding w3-teal upload-button" onclick="wijzigVakSelectie()">Wijzig &nbsp; ❯
             </button>
             <button type="button" class="w3-btn w3-padding w3-red upload-button" onclick="verwijderVakSelectie()">Verwijder &nbsp; ❯
@@ -169,10 +106,10 @@ require_once "print_copyright.php";
                 <div id="cijfervak0">
                 </div>
             </div>
-            <button type="button" style="float: left;" class="w3-btn w3-padding w3-teal upload-button" onclick="uploadAlleCijfers()">Upload
+            <button type="button" class="w3-btn w3-padding w3-teal upload-button left" onclick="uploadAlleCijfers()">Upload
                 alle &nbsp; ❯
             </button>
-            <form style="float: left" id="resetCijfer" onsubmit="resetCijferUpload()" action="javascript:void(0)">
+            <form class="left" id="resetCijfer" onsubmit="resetCijferUpload()" action="javascript:void(0)">
                 <input class="w3-input w3-border aantal-reset" type="number" name="aantal" required value="1" min="1"
                        step="1">
                 <input type="submit" class="w3-btn w3-padding w3-red reset-button" value="Reset &nbsp; ❯">
@@ -184,10 +121,10 @@ require_once "print_copyright.php";
                 <div id="vak0">
                 </div>
             </div>
-            <button style="float: left;" type="button" class="w3-btn w3-padding w3-teal upload-button" onclick="uploadAlleVakken()">Upload
+            <button type="button" class="left w3-btn w3-padding w3-teal upload-button" onclick="uploadAlleVakken()">Upload
                 alle &nbsp; ❯
             </button>
-            <form style="float: left" id="resetVak" onsubmit="resetVakUpload()" action="javascript:void(0)">
+            <form class="left" id="resetVak" onsubmit="resetVakUpload()" action="javascript:void(0)">
                 <input class="w3-input w3-border aantal-reset" type="number" name="aantal" required value="1" min="1"
                        step="1">
                 <input type="submit" class="w3-btn w3-padding w3-red reset-button" value="Reset &nbsp; ❯">

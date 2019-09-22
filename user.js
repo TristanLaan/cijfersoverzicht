@@ -19,9 +19,9 @@ let cijfers = null;
 let first = true;
 
 const cijfer_head = `<thead>
-        <tr class="w3-light-grey">
+        <tr class="w3-light-grey table-head">
             <th>Vak</th>
-            <th style="padding-left: 16px;">Titel</th>
+            <th class="table-cijfertitel">Titel</th>
             <th>Datum</th>
             <th>Weging</th>
             <th>Cijfer</th>
@@ -29,7 +29,7 @@ const cijfer_head = `<thead>
         </thead>`;
 
 const vak_head = `<thead>
-        <tr class="w3-light-grey">
+        <tr class="w3-light-grey table-head">
             <th>Vak</th>
             <th>Jaar</th>
             <th>Periode</th>
@@ -87,15 +87,15 @@ function toon_cijfers(table, nieuw) {
 
                     if (first) {
                         if (kleur % 2 === 0) {
-                            table_inhoud += `<td style="background-color: #f1f1f1; border-right: 1px solid #ddd;" rowspan="${aantal_cijfers}">`
+                            table_inhoud += `<td class="table-row-1" rowspan="${aantal_cijfers}">`
                         } else {
-                            table_inhoud += `<td style="background-color: #fff; border-right: 1px solid #ddd;" rowspan="${aantal_cijfers}">`
+                            table_inhoud += `<td class="table-row-2" rowspan="${aantal_cijfers}">`
                         }
                         table_inhoud += `${vak.naam}</td>`;
                         first = false;
                     }
 
-                    table_inhoud += `<td style="padding-left: 16px;">${cijfer.naam}</td>
+                    table_inhoud += `<td class="table-cijfertitel">${cijfer.naam}</td>
                     <td>${(cijfer.datum !== null ? cijfer.datum : "")}</td>
                     <td>${(cijfer.weging !== null ? cijfer.weging + "%" : "")}</td>
                     <td>${(cijfer.cijfer !== null ? cijfer.cijfer : "")}</td>

@@ -28,13 +28,13 @@ function footer(bool $sticky = false, bool $admin = false) { ?>
         } ?>
         <div style="float: right; margin-bottom: 5px;">
             <?php if ($admin) {
-                ?><a href="./" style="margin: 0 5px; color: #0645AD">Cijfersoverzicht</a><?php
+                ?><a href="./" class="spacing url">Cijfersoverzicht</a><?php
             } else {
-                ?><a href="admin.php" style="margin: 0 5px; color: #0645AD">Admin</a><?php
+                ?><a href="admin.php" class="spacing url">Admin</a><?php
             }?>
-            <a href="license.html" style="margin: 0 5px; color: #0645AD">Licence</a>
-            <a href="https://github.com/TristanLaan/cijfersoverzicht" style="margin: 0 5px; color: #0645AD">Source</a>
-            <p style="display: inline; margin: 0px 5px;">&copy;Tristan Laan 2018-<?php
+            <a href="license.html" class="spacing url">Licence</a>
+            <a href="https://github.com/TristanLaan/cijfersoverzicht" class="spacing url">Source</a>
+            <p class="inline spacing">&copy;Tristan Laan 2018-<?php
                 try {
                     $datum = new DateTime();
                     echo $datum->format("Y");

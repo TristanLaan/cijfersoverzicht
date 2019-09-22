@@ -31,24 +31,20 @@ $datum = new DateTime();
     <title><?php echo $title; ?></title>
     <meta name="viewport" content="width=1200px, initial-scale=0.86, maximum-scale=3.0, minimum-scale=0.25" />
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="style.css">
     <script src="user.js" async></script>
-    <style>
-        html {
-            overflow-x: auto;
-        }
-    </style>
 </head>
 
 <body>
-<div style="min-width: 1200px;" class="w3-container">
+<div class="w3-container index-table">
     <h1 class="w3-center"><?php echo $title; ?></h1>
     <h2>Cijfers</h2>
 
     <table id="huidige-cijfers" class="w3-table-all w3-hoverable">
         <thead>
-        <tr class="w3-light-grey">
+        <tr class="w3-light-grey table-head">
             <th>Vak</th>
-            <th style="padding-left: 16px;">Titel</th>
+            <th class="table-cijfertitel">Titel</th>
             <th>Datum</th>
             <th>Weging</th>
             <th>Cijfer</th>
@@ -61,7 +57,7 @@ $datum = new DateTime();
 
     <table id="vakken" class="w3-table-all w3-hoverable">
         <thead>
-        <tr class="w3-light-grey">
+        <tr class="w3-light-grey table-head">
             <th>Vak</th>
             <th>Jaar</th>
             <th>Periode</th>
@@ -83,9 +79,9 @@ $datum = new DateTime();
 
     <table id="oude-cijfers" class="w3-table-all w3-hoverable">
         <thead>
-        <tr class="w3-light-grey">
+        <tr class="w3-light-grey table-head">
             <th>Vak</th>
-            <th style="padding-left: 16px;">Titel</th>
+            <th class="table-cijfertitel">Titel</th>
             <th>Datum</th>
             <th>Weging</th>
             <th>Cijfer</th>

@@ -16,7 +16,7 @@
  */
 
 const cijfer_head = `<thead>
-        <tr class="w3-light-grey">
+        <tr class="w3-light-grey table-head">
             <th></th>
             <th>No.</th>
             <th>Titel</th>
@@ -28,7 +28,7 @@ const cijfer_head = `<thead>
         </thead>`;
 
 const vak_head = `<thead>
-            <tr class="w3-light-grey">
+            <tr class="w3-light-grey table-head">
                 <th></th>
                 <th>No.</th>
                 <th>Titel</th>
@@ -651,7 +651,7 @@ function toonUploadVakVak(div, getal, bewerk = false, vak = null) {
                         <label class="w3-text-grey">Titel</label>
                         <input name="titel" class="w3-input w3-border" type="text" placeholder="Inleiding Studie" ${(vak === null ? "" : `value="${vak.naam}"`)} required>
                         ${(vak === null ? "" : `<input name="vaknummer" style="display: none" value="${vak.vaknummer}" required readonly>`)}
-            
+
                     </p>
                     <div class="w3-row">
                         <div class="w3-half third-left">
@@ -957,18 +957,6 @@ function uploadAlleCijfers() {
             uploadCijferVak(i);
         }
     }
-}
-
-function testCijfer(post_data) {
-    const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function () {
-        if (this.readyState === 4 && this.status === 200) {
-            console.debug(JSON.parse(this.responseText));
-        }
-    };
-    xhttp.open("POST", "upload_cijfers.php", true);
-    xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    xhttp.send(JSON.stringify(post_data));
 }
 
 function uploadAlleVakken() {
