@@ -191,6 +191,10 @@ h2#wijzig-vak {
         background: #423e48;
     }
 
+    .w3-select {
+        border-bottom: 1px solid #333333 !important;
+    }
+
     .login-header {
         color: white !important;
         background-color: inherit !important;
@@ -240,12 +244,20 @@ h2#wijzig-vak {
         color: white!important;
     }
 
+    .w3-border {
+        border: 1px solid #333333 !important;
+    }
+
     .w3-pale-red {
         background-color: inherit !important;
     }
 
     .w3-white {
         background: #1F1B24!important;
+    }
+
+    .w3-teal {
+        background-color: #BB86FC !important;
     }
 
     .login-knop-admin {

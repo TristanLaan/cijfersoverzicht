@@ -50,10 +50,10 @@ let cached_vakken = null;
 let vakken = null;
 let sorted_vakken = null;
 
-const cijferUploaded = `Cijfer geüpload!`;
-const cijferGewijzigd = `Cijfer gewijzigd!`;
-const vakUploaded = `Vak geüpload!`;
-const vakGewijzigd = `Vak gewijzigd!`;
+const cijferUploaded = "<p>Cijfer geüpload!</p>";
+const cijferGewijzigd = "<p>Cijfer gewijzigd!</p>";
+const vakUploaded = "<p>Vak geüpload!</p>";
+const vakGewijzigd = "<p>Vak gewijzigd!</p>";
 
 function dump(obj, indent = 0) {
     let out = '';
