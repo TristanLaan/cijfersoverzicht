@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.5.0] - 2019-09-25
 ## Added
 - HTML-pagina voor licentie toegevoegd
 - Titel duidelijker op pagina weergeven
@@ -17,6 +18,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Er is een link toegevoegd naar de thuis-pagina/admin-pagina
 - Licentie veranderd van GPLv3 > GNU AGPL
 - CSS naar apart bestand verhuist
+- Voor het gemiddelde van alle cijfers wordt nu het gemiddelde gebruikt in
+  plaats van het voorlopige eindcijfer wanneer het eindcijfer nog onbekend is
 
 ### Fixed
 - Nieuwe cijfers maken wordt getoont als er nog geen vakken bestaan
@@ -105,7 +108,8 @@ opgeschoont door het opsplitsen in functies
 - Een login pagina die een wachtwoord vereist voordat de website wordt bezocht
 - Een pagina waar alle cijfers te zien zijn
 
-[Unreleased]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.1.2...v0.2.0

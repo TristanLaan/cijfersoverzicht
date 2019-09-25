@@ -131,9 +131,9 @@ function gemiddelde_cijfer() {
         if (vak_array.vak.eindcijfer !== null) {
             aantal++;
             som += vak_array.vak.eindcijfer;
-        } else if (vak_array.totaal !== null) {
+        } else if (vak_array.gemiddelde !== null) {
             aantal++;
-            som += vak_array.totaal;
+            som += vak_array.gemiddelde;
         }
     }
 
