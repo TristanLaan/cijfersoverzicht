@@ -4,17 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
-## Changed
+### Changed
 - Als je als admin inlogt hoef je niet meer als gebruiker in te loggen om
 het overzicht te zien
 
 ## [0.5.0] - 2019-09-25
-## Added
+### Added
 - HTML-pagina voor licentie toegevoegd
 - Titel duidelijker op pagina weergeven
 - Dark mode toegevoegd
 
-## Changed
+### Changed
 - Deel bericht is verbeterd als intern-adres uit staat
 - Het verschil tussen het login-scherm van de admin pagina en van de normale
   pagina is wat duidelijker gemaakt
