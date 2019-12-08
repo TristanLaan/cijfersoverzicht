@@ -31,6 +31,7 @@ if (isset($_POST['password'])) //uitvoeren als er op inloggen is gedrukt
     $user_password = $_POST['password'];
     if ($user_password == $adminpass) {
         $_SESSION[$session . 'admin'] = "ingelogd";
+        $_SESSION[$session] = "ingelogd";
         echo "0";
     } else {
         echo "1";
