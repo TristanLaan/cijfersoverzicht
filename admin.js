@@ -41,12 +41,8 @@ const vak_head = `<thead>
             </tr>
             </thead>`;
 
-let cached_cijfers = null;
 let cijfers = null;
-let first = true;
-let first_vak = true;
 let klaar_voor_vak = false;
-let cached_vakken = null;
 let vakken = null;
 let sorted_vakken = null;
 
@@ -1003,32 +999,17 @@ function resetVakUpload() {
     aantal.value = 1;
 }
 
-function get_cijfers(md5) {
+function get_cijfers() {
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = update_cijfers_scherm;
-    xhttp.open("POST", "get_cijfers.php", true);
+    xhttp.open("GET", "get_cijfers.php", true);
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-
-    if (first) {
-        xhttp.send("cijfers=true");
-        first = false;
-    } else {
-        xhttp.send("cijfers=true&md5=" + md5);
-    }
 }
 
-function get_vakken(md5) {
+function get_vakken() {
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = update_vakken_scherm;
-    xhttp.open("POST", "get_vakken.php", true);
-
-    if (first_vak) {
-        xhttp.send();
-        first_vak = false;
-    } else {
-        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        xhttp.send("md5=" + md5);
-    }
+    xhttp.open("GET", "get_vakken.php", true);
 }
 
 function update_vakken_scherm() {
@@ -1042,11 +1023,6 @@ function update_vakken_scherm() {
             });
         }
         console.debug(vakken);
-
-        if (cached_vakken === null) {
-            console.debug("eerste md5 = " + vakken.md5);
-            cached_vakken = vakken.md5;
-        }
 
         if (!klaar_voor_vak) {
             let uploadCijferVak0 = document.getElementById('cijfervak0');
@@ -1066,11 +1042,6 @@ function update_cijfers_scherm() {
     if (this.readyState === 4 && this.status === 200) {
         cijfers = JSON.parse(this.responseText);
         console.debug(cijfers);
-
-        if (cached_cijfers === null) {
-            console.debug("eerste md5 = " + cijfers.md5);
-            cached_cijfers = cijfers.md5;
-        }
 
         toon_cijfers();
     }
@@ -1411,11 +1382,13 @@ function probeerToonUploadCijferVak() {
     }
 }
 
-get_cijfers(false);
-get_vakken(false);
+get_cijfers();
+get_vakken();
+
 let uploadVak0 = document.getElementById('vak0');
 let uploadVakKlaar = null;
 let uploadCijferVakKlaar = null;
+
 if (uploadVak0 === null) {
     uploadVakKlaar = setInterval(probeerToonUploadVakVak, 100);
 } else {
