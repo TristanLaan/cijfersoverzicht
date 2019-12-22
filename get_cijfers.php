@@ -65,12 +65,13 @@ if ($_SESSION[$session] !== "ingelogd" && $_SESSION[$session . 'admin'] !== "ing
     }
 }
 
-$return["md5"] = md5(json_encode($return));
+header('Content-Type: application/json');
+$etag = md5(json_encode($return));
+header('ETag: ' . $etag);
+header('Cache-Control: private, must-revalidate');
 
-if (isset($_POST["md5"]) && $_POST["md5"] == "true") {
-    header('Content-Type: text/plain');
-    echo $return["md5"];
+if(isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] === $etag) {
+    http_response_code(304);
 } else {
-    header('Content-Type: application/json');
     echo json_encode($return);
 }

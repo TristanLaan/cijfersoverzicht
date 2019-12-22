@@ -14,9 +14,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with cijfersoverzicht.  If not, see <https://www.gnu.org/licenses/>
  */
-let cached_cijfers = null;
 let cijfers = null;
-let first = true;
 
 const cijfer_head = `<thead>
         <tr class="w3-light-grey table-head">
@@ -54,18 +52,11 @@ function dump(obj, indent = 0) {
     return out;
 }
 
-function get_cijfers(toon_cijfers) {
+function get_cijfers(handle_cijfers) {
     const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = toon_cijfers;
-    xhttp.open("POST", "get_cijfers.php", true);
-
-    if (first) {
-        xhttp.send();
-        first = false;
-    } else {
-        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        xhttp.send("md5=true");
-    }
+    xhttp.onreadystatechange = handle_cijfers;
+    xhttp.open("GET", "get_cijfers.php", true);
+    xhttp.send();
 }
 
 function toon_cijfers(table, nieuw) {
@@ -191,39 +182,12 @@ function toon_vakken() {
     table.innerHTML = table_inhoud;
 }
 
-function check_update() {
-    if (this.readyState === 4 && this.status === 200) {
-        let currentdate = new Date();
-
-        console.debug("Last Sync: " + currentdate.getDate() + "/"
-            + (currentdate.getMonth() + 1) + "/"
-            + currentdate.getFullYear() + " @ "
-            + currentdate.getHours() + ":"
-            + currentdate.getMinutes() + ":"
-            + currentdate.getSeconds());
-        oude_cijfers = cached_cijfers;
-        cached_cijfers = this.responseText;
-
-        if (oude_cijfers !== cached_cijfers) {
-            const newxhttp = new XMLHttpRequest();
-            newxhttp.onreadystatechange = update_cijfers_scherm;
-            newxhttp.open("POST", "get_cijfers.php", true);
-            newxhttp.send();
-        }
-    }
-}
-
 function update_cijfers_scherm() {
     if (this.readyState === 4 && this.status === 200) {
         cijfers = JSON.parse(this.responseText);
         console.debug("Nieuwe cijfers:\n" + dump(cijfers));
         if (cijfers.returnwaarde === -1) {
             location.reload();
-        }
-
-        if (cached_cijfers === null) {
-            console.debug("eerste md5 = " + cijfers.md5);
-            cached_cijfers = cijfers.md5;
         }
 
         if (cijfers.returnwaarde === 0) {
@@ -235,8 +199,8 @@ function update_cijfers_scherm() {
 }
 
 function herlaad_cijfers() {
-    get_cijfers(check_update);
+    get_cijfers(update_cijfers_scherm);
 }
 
-get_cijfers(update_cijfers_scherm);
+herlaad_cijfers();
 setInterval(herlaad_cijfers, 15000);

@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - Als je als admin inlogt hoef je niet meer als gebruiker in te loggen om
 het overzicht te zien
+- Gebruik etag en de HTTP 304 Not Modified response code in plaats van de
+huidige check of de data gewijzigd is in get_cijfers.php en get_vakken.php.
 
 ## [0.5.0] - 2019-09-25
 ### Added
