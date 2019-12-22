@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) Tristan Laan 2019.
+ * Copyright (c) Tristan Laan 2018-2019.
  * This file is part of cijfersoverzicht.
  * cijfersoverzicht is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with cijfersoverzicht.  If not, see <https://www.gnu.org/licenses/>
  */
+
 require_once "login.php";
 require_once "connect.php";
 require_once "footer.php";
