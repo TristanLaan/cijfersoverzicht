@@ -171,7 +171,7 @@ function toon_vakken() {
         }
     }
 
-    if (studiepunten >= 42) {
+    if (studiepunten >= bsa_benodigd) {
         bsa_vak.innerHTML = "<b>BSA gehaald:</b> ja";
     } else {
         bsa_vak.innerHTML = "<b>BSA gehaald:</b> nee";

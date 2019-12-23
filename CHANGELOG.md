@@ -6,11 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 ### Changed
 - Als je als admin inlogt hoef je niet meer als gebruiker in te loggen om
-het overzicht te zien
+  het overzicht te zien
 - Gebruik etag en de HTTP `304 Not Modified` response code in plaats van de
-huidige check of de data gewijzigd is in `get_cijfers.php` en `get_vakken.php`.
+  huidige check of de data gewijzigd is in `get_cijfers.php` en `get_vakken.php`
 - `get_cijfers.php` en `get_vakken.php` gebruiken nu GET om opties mee te geven
-in plaats van POST.
+  in plaats van POST
+- Het aantal benodigde studiepunten wordt nu in `connect.php` bewaard
 
 ## [0.5.0] - 2019-09-25
 ### Added
@@ -69,7 +70,7 @@ in plaats van POST.
 - Er is een admin pagina gemaakt waar cijfers geupload kunnen worden
 - De footer wordt nu door een losse functie aangemaakt
 - Er zijn methodes aan de vak- en cijfer-klasses toegevoegd om cijfers en vakken
-te kunnen uploaden en updaten
+  te kunnen uploaden en updaten
 - De vak- en cijfer-klasses implementeren nu de JsonSerializable-klasse
 - Er is een CHANGELOG toegevoegd aan het project
 - De vakken worden nu aflopend op jaar gesorteerd
@@ -78,7 +79,7 @@ te kunnen uploaden en updaten
 ## [0.2.0] - 2019-07-08
 ### Added
 - Er is een cijfer- en vak-klasse aangemaakt in php en de code is erg
-opgeschoont door het opsplitsen in functies
+  opgeschoont door het opsplitsen in functies
 - Project geupgrade van PHP 5.6 > PHP 7.0
 
 ## Removed

@@ -16,7 +16,7 @@
  * along with cijfersoverzicht.  If not, see <https://www.gnu.org/licenses/>
  */
 
-$server = "localhost";
+    $server = "localhost";
     $username = "";
     $password = "";
     $database = "cijfers";
@@ -29,4 +29,6 @@ $server = "localhost";
 
     $adminpass = "";
     $userpass = "";
+
+    $bsa_benodigd = 42;
 ?>

@@ -33,6 +33,10 @@ $datum = new DateTime();
     <meta name="viewport" content="width=1200px, initial-scale=0.86, maximum-scale=3.0, minimum-scale=0.25" />
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="style.css">
+    <script>
+        // noinspection JSAnnotator
+        const bsa_benodigd = <?php echo $bsa_benodigd; ?>;
+    </script>
     <script src="user.js" async></script>
 </head>
 
