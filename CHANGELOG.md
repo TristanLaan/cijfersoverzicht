@@ -7,8 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - Als je als admin inlogt hoef je niet meer als gebruiker in te loggen om
 het overzicht te zien
-- Gebruik etag en de HTTP 304 Not Modified response code in plaats van de
-huidige check of de data gewijzigd is in get_cijfers.php en get_vakken.php.
+- Gebruik etag en de HTTP `304 Not Modified` response code in plaats van de
+huidige check of de data gewijzigd is in `get_cijfers.php` en `get_vakken.php`.
+- `get_cijfers.php` en `get_vakken.php` gebruiken nu GET om opties mee te geven
+in plaats van POST.
 
 ## [0.5.0] - 2019-09-25
 ### Added
@@ -54,12 +56,12 @@ huidige check of de data gewijzigd is in get_cijfers.php en get_vakken.php.
 - Het Vak-object in Cijfer-objecten worden nu in correcte JSON verstuurd
 - Er zijn overbodige comments uit het sql-bestand verwijderd
 - Wachtwoord veld wordt geleegd als het wachtwoord incorrect is
-- Er zijn extra velden toegevoegd aan connect.php
-- Alle javascript code van admin.php is verplaatst naar admin.js
+- Er zijn extra velden toegevoegd aan `connect.php`
+- Alle javascript code van `admin.php` is verplaatst naar `admin.js`
 
 ### Fixed
-- Er zat een foute regel in wijzig_cijfer.php waardoor php een warning kon geven
-  als de pagina opgevraagd werd.
+- Er zat een foute regel in `wijzig_cijfer.php` waardoor php een warning kon
+  geven als de pagina opgevraagd werd.
 
 ## [0.3.0] - 2019-07-09
 ### Added

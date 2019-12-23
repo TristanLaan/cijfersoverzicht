@@ -37,11 +37,11 @@ if (!isset($_SESSION[$session . 'admin'])) {
 if ($_SESSION[$session] !== "ingelogd" && $_SESSION[$session . 'admin'] !== "ingelogd") {
     $return["returnwaarde"] = -1;
 } else {
-    if (isset($_POST['vakid']) && $_POST['vakid'] !== "None" && $_POST['vakid'] !== "null") {
-        if (!is_numeric($_POST['vakid'])) {
+    if (isset($_GET['vakid']) && $_GET['vakid'] !== "None" && $_GET['vakid'] !== "null") {
+        if (!is_numeric($_GET['vakid'])) {
             $return["returnwaarde"] = -2;
         } else {
-            $return["object"] = Vak::getVak($_POST['vakid']);
+            $return["object"] = Vak::getVak($_GET['vakid']);
         }
     } else {
         $return["object"] = Vak::getAllVakken();
@@ -50,8 +50,8 @@ if ($_SESSION[$session] !== "ingelogd" && $_SESSION[$session . 'admin'] !== "ing
 
 $etag = md5(json_encode($return));
 
+// Set etag in header for caching results
 header('Content-Type: application/json');
-$etag = md5(json_encode($return));
 header('ETag: ' . $etag);
 header('Cache-Control: private, must-revalidate');
 

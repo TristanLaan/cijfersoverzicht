@@ -1002,14 +1002,15 @@ function resetVakUpload() {
 function get_cijfers() {
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = update_cijfers_scherm;
-    xhttp.open("GET", "get_cijfers.php", true);
-    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhttp.open("GET", "get_cijfers.php?cijfers=true", true);
+    xhttp.send();
 }
 
 function get_vakken() {
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = update_vakken_scherm;
     xhttp.open("GET", "get_vakken.php", true);
+    xhttp.send();
 }
 
 function update_vakken_scherm() {

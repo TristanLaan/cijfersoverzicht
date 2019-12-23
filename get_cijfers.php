@@ -38,17 +38,17 @@ if (!isset($_SESSION[$session . 'admin'])) {
 if ($_SESSION[$session] !== "ingelogd" && $_SESSION[$session . 'admin'] !== "ingelogd") {
     $return["returnwaarde"] = -1;
 } else {
-    if (isset($_POST['cijferid']) && $_POST['cijferid'] !== "None" && $_POST['cijferid'] !== "null") {
-        if (!is_numeric($_POST['cijferid'])) {
+    if (isset($_GET['cijferid']) && $_GET['cijferid'] !== "None" && $_GET['cijferid'] !== "null") {
+        if (!is_numeric($_GET['cijferid'])) {
             $return["returnwaarde"] = -2;
         } else {
-            $return["object"] = Cijfer::getCijfer($_POST['cijferid']);
+            $return["object"] = Cijfer::getCijfer($_GET['cijferid']);
         }
-    } elseif (isset($_POST['vakid']) && $_POST['vakid'] !== "None" && $_POST['vakid'] !== "null") {
-        if (!is_numeric($_POST['vakid'])) {
+    } elseif (isset($_GET['vakid']) && $_GET['vakid'] !== "None" && $_GET['vakid'] !== "null") {
+        if (!is_numeric($_GET['vakid'])) {
             $return["returnwaarde"] = -2;
         } else {
-            $vak = Vak::getVak($_POST['vakid']);
+            $vak = Vak::getVak($_GET['vakid']);
 
             if ($vak === NULL) {
                 $return["returnwaarde"] = -3;
@@ -57,7 +57,7 @@ if ($_SESSION[$session] !== "ingelogd" && $_SESSION[$session . 'admin'] !== "ing
             }
         }
     } else {
-        if (isset($_POST["cijfers"]) && $_POST["cijfers"] == "true") {
+        if (isset($_GET["cijfers"]) && $_GET["cijfers"] == "true") {
             $return["object"] = Cijfer::getAllCijfers(false);
         } else {
             $return["object"] = Cijfer::getAllCijfers();
@@ -65,8 +65,10 @@ if ($_SESSION[$session] !== "ingelogd" && $_SESSION[$session . 'admin'] !== "ing
     }
 }
 
-header('Content-Type: application/json');
 $etag = md5(json_encode($return));
+
+// Set etag in header for caching results
+header('Content-Type: application/json');
 header('ETag: ' . $etag);
 header('Cache-Control: private, must-revalidate');
 
