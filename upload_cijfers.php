@@ -18,6 +18,22 @@
 
 require_once "upload_cijfer_function.php";
 
-list($return["returnwaarde"], $return["object"]) = upload_cijfer();
+// Takes raw data from the request
+$json = file_get_contents('php://input');
+
+// Converts the raw data into a array
+$data = json_decode($json, true);
+
+if ($data === NULL) {
+    $return = ["returnwaarde" => 1, "object" => NULL];
+} else {
+    $return = ["returnwaarde" => 0, "object" => []];
+
+    foreach ($data as $cijfer) {
+        list($returnwaarde, $object) = upload_cijfer($cijfer);
+        $return["object"][] = ["returnwaarde" => $returnwaarde, "object" => $object];
+    }
+}
+
 header('Content-Type: application/json');
 echo json_encode($return);

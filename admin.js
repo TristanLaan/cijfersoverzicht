@@ -65,9 +65,7 @@ function dump(obj, indent = 0) {
     return out;
 }
 
-function parseCijferUpload(ajax) {
-    console.debug("ajax response: " + ajax);
-    const response = JSON.parse(ajax);
+function parseCijferUpload(response) {
     console.debug(response);
     let item = response.object;
 
@@ -121,7 +119,8 @@ function parseCijferUpload(ajax) {
 }
 
 function logUploadCijfer() {
-    console.debug(parseCijferUpload(this.responseText));
+    console.debug("ajax response: " + this.responseText);
+    console.debug(parseCijferUpload(JSON.parse(this.responseText)));
 }
 
 function uploadCijfer(vakid, naam, weging, datum, cijfer,
@@ -151,9 +150,7 @@ function uploadCijfer(vakid, naam, weging, datum, cijfer,
     xhttp.send(input);
 }
 
-function parseVakUpload(ajax) {
-    console.debug("ajax response: " + ajax);
-    const response = JSON.parse(ajax);
+function parseVakUpload(response) {
     console.debug(response);
     let item = response.object;
     switch (response.returnwaarde) {
@@ -212,7 +209,8 @@ function parseVakUpload(ajax) {
 }
 
 function logUploadVak() {
-    console.debug(parseVakUpload(this.responseText));
+    console.debug("ajax response: " + this.responseText);
+    console.debug(parseVakUpload(JSON.parse(this.responseText)));
 }
 
 function uploadVak(naam, jaar, studiepunten, gehaald, toon, periode = null,
@@ -303,7 +301,7 @@ function parseVakWijzig(ajax) {
 }
 
 function logWijzigVak() {
-    console.debug(parseVakUpload(this.responseText));
+    console.debug(parseVakWijzig(this.responseText));
 }
 
 function wijzigVak(vakid, naam, jaar, studiepunten, gehaald, toon, periode = null,
@@ -701,7 +699,7 @@ function toonUploadVakVak(div, getal, bewerk = false, vak = null) {
                 </form>`;
 }
 
-function uploadCijferVak(getal) {
+function getCijferInput(getal) {
     const div = document.getElementById('cijfervak' + getal);
     const inputs = div.children[1].elements;
     let titel = inputs["titel"].value;
@@ -709,49 +707,58 @@ function uploadCijferVak(getal) {
     let weging = inputs["weging"].value === "" ? null : inputs["weging"].value;
     let datum = inputs["datum"].value === "" ? null : inputs["datum"].value;
     let cijfergetal = inputs["cijfer"].value === "" ? null : inputs["cijfer"].value;
+    return {naam: titel, vakid: vakid, weging: weging, datum: datum, cijfer: cijfergetal}
+}
 
-    console.debug(`titel: ${titel}, vakid: ${vakid}, weging: ${weging}, datum: ${datum}, cijfer: ${cijfergetal}`);
+function cijferError(div, returnwaarde) {
+    switch (returnwaarde.returncode) {
+        case 0:
+            div.children[1].innerHTML = cijferUploaded;
+            break;
+        case -1:
+            div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout(`Je bent niet meer ingelogd, open <a target="_blank" href="admin.php">deze pagina</a>, log opnieuw in en probeer het opnieuw.`);
+            break;
+        case -2:
+        case -5:
+        case 2:
+            div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Vak niet opgegeven/niet gevonden.");
+            break;
+        case -3:
+        case 3:
+            div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Titel niet opgegeven/incorrect");
+            break;
+        case -4:
+        case 5:
+            div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Datum is niet in correct formaat opgegeven (YYYY-mm-dd of ingebouwde date picker).");
+            break;
+        case -6:
+        case 6:
+            div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Cijfer moet een getal zijn");
+            break;
+        case -7:
+        case 4:
+            div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Weging moet een getal zijn");
+            break;
+        case 1:
+            div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Geen verbinding met database, probeer later opnieuw");
+            break;
+        default:
+            div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Er is een onbekende fout opgetreden, probeer het later opnieuw.");
+            break;
+    }
+}
+
+function uploadCijferVak(getal) {
+    const div = document.getElementById('cijfervak' + getal);
+    let input = getCijferInput(getal);
+
+    console.debug(`titel: ${input.naam}, vakid: ${input.vakid}, weging: ${input.weging}, datum: ${input.datum}, cijfer: ${input.cijfer}`);
 
     let errorfun = function () {
-        let returnwaarde = parseCijferUpload(this.responseText);
-        switch (returnwaarde.returncode) {
-            case 0:
-                div.children[1].innerHTML = cijferUploaded;
-                break;
-            case -1:
-                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout(`Je bent niet meer ingelogd, open <a target="_blank" href="admin.php">deze pagina</a>, log opnieuw in en probeer het opnieuw.`);
-                break;
-            case -2:
-            case -5:
-            case 2:
-                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Vak niet opgegeven/niet gevonden.");
-                break;
-            case -3:
-            case 3:
-                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Titel niet opgegeven/incorrect");
-                break;
-            case -4:
-            case 5:
-                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Datum is niet in correct formaat opgegeven (YYYY-mm-dd of ingebouwde date picker).");
-                break;
-            case -6:
-            case 6:
-                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Cijfer moet een getal zijn");
-                break;
-            case -7:
-            case 4:
-                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Weging moet een getal zijn");
-                break;
-            case 1:
-                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Geen verbinding met database, probeer later opnieuw");
-                break;
-            default:
-                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Er is een onbekende fout opgetreden, probeer het later opnieuw.");
-                break;
-        }
+        cijferError(div, parseCijferUpload(JSON.parse(this.responseText)));
     };
 
-    uploadCijfer(vakid, titel, weging, datum, cijfergetal, errorfun);
+    uploadCijfer(input.vakid, input.naam, input.weging, input.datum, input.cijfer, errorfun);
 }
 
 function wijzigCijferVak(getal) {
@@ -874,12 +881,9 @@ function wijzigVakVak(getal) {
     wijzigVak(vaknummer, titel, jaar, studiepunten, gehaald, toon, periode, eindcijfer, errorfun);
 }
 
-function uploadVakVak(getal) {
-    console.debug(getal);
+function getVakInput(getal) {
     const div = document.getElementById('vak' + getal);
-    console.debug(div);
     const inputs = div.children[1].elements;
-    console.debug(inputs);
     let titel = inputs["titel"].value;
     let jaar = inputs["jaar"].value;
     let studiepunten = inputs["studiepunten"].value;
@@ -887,48 +891,58 @@ function uploadVakVak(getal) {
     let toon = inputs["toon"].checked;
     let periode = inputs["periode"].value === "" ? null : inputs["periode"].value;
     let eindcijfer = inputs["eindcijfer"].value === "" ? null : inputs["eindcijfer"].value;
+    return {naam: titel, jaar: jaar, studiepunten: studiepunten, gehaald: gehaald, toon: toon, periode: periode, eindcijfer: eindcijfer}
+}
 
-    console.debug(`titel: ${titel}, jaar: ${jaar}, studiepunten: ${studiepunten}, gehaald: ${gehaald}, toon: ${toon}, periode: ${periode}, eindcijfer: ${eindcijfer}`);
+function vakError(div, returnwaarde) {
+    switch (returnwaarde.returncode) {
+        case 0:
+            div.children[1].innerHTML = vakUploaded;
+            break;
+        case -1:
+            div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout(`Je bent niet meer ingelogd, open <a target="_blank" href="admin.php">deze pagina</a>, log opnieuw in en probeer het opnieuw.`);
+            break;
+        case -2:
+        case 2:
+            div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Vaktitel niet opgegeven/incorrect");
+            break;
+        case -3:
+        case 3:
+            div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Jaar niet opgegeven/incorrect");
+            break;
+        case -4:
+        case 5:
+            div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Studiepunten niet opgegeven/incorrect");
+            break;
+        case -5:
+        case 4:
+            div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Periode niet opgegeven/incorrect");
+            break;
+        case -6:
+        case 7:
+            div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Eindcijfer moet een cijfer zijn");
+            break;
+        case 1:
+            div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Geen verbinding met database, probeer later opnieuw");
+            break;
+        default:
+            div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Er is een onbekende fout opgetreden, probeer het later opnieuw");
+            break;
+    }
+}
+
+function uploadVakVak(getal) {
+    const div = document.getElementById('vak' + getal);
+    let input = getVakInput(getal);
+
+    console.debug(`titel: ${input.naam}, jaar: ${input.jaar}, studiepunten: ${input.studiepunten}, gehaald: ${input.gehaald}, toon: ${input.toon}, periode: ${input.periode}, eindcijfer: ${input.eindcijfer}`);
 
     let errorfun = function () {
-        let returnwaarde = parseVakUpload(this.responseText);
-        switch (returnwaarde.returncode) {
-            case 0:
-                div.children[1].innerHTML = vakUploaded;
-                break;
-            case -1:
-                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout(`Je bent niet meer ingelogd, open <a target="_blank" href="admin.php">deze pagina</a>, log opnieuw in en probeer het opnieuw.`);
-                break;
-            case -2:
-            case 2:
-                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Vaktitel niet opgegeven/incorrect");
-                break;
-            case -3:
-            case 3:
-                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Jaar niet opgegeven/incorrect");
-                break;
-            case -4:
-            case 5:
-                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Studiepunten niet opgegeven/incorrect");
-                break;
-            case -5:
-            case 4:
-                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Periode niet opgegeven/incorrect");
-                break;
-            case -6:
-            case 7:
-                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Eindcijfer moet een cijfer zijn");
-                break;
-            case 1:
-                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Geen verbinding met database, probeer later opnieuw");
-                break;
-            default:
-                div.children[1].getElementsByClassName('errorvak')[0].innerHTML = toonFout("Er is een onbekende fout opgetreden, probeer het later opnieuw");
-                break;
-        }
+        let returnwaarde = parseVakUpload(JSON.parse(this.responseText));
+        vakError(div, returnwaarde);
     };
 
-    uploadVak(titel, jaar, studiepunten, gehaald, toon, periode, eindcijfer, errorfun);
+    uploadVak(input.naam, input.jaar, input.studiepunten, input.gehaald, input.toon, input.periode, input.eindcijfer, errorfun);
 }
 
 function resetCijferUpload() {
@@ -948,21 +962,75 @@ function resetCijferUpload() {
 function uploadAlleCijfers() {
     const cijferDiv = document.getElementById('cijfervakken');
     const cijferVakken = cijferDiv.children;
+    let input = [];
     for (let i = 0; i < cijferVakken.length; i++) {
         if (cijferVakken[i].children[1].innerHTML !== cijferUploaded) {
-            uploadCijferVak(i);
+            input.push(getCijferInput(i));
         }
     }
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            let output = JSON.parse(this.responseText);
+            if (output.returnwaarde !== 0) {
+                let errorvak = document.getElementById('cijferuploaderror');
+                errorvak.innerHTML = toonFout("Er is een onbekende fout opgetreden, probeer het later opnieuw");
+            } else {
+                for (let i = 0; i < cijferVakken.length; i++) {
+                    let cijfervak = document.getElementById('cijfervak' + i);
+                    let cijfer = output.object[i];
+                    cijferError(cijfervak, parseCijferUpload(cijfer));
+                }
+            }
+        }
+    };
+    xhttp.open("POST", "upload_cijfers.php", true);
+    xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xhttp.send(JSON.stringify(input));
+}
+
+function testCijfer(post_data) {
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            console.debug(JSON.parse(this.responseText));
+        }
+    };
+    xhttp.open("POST", "upload_cijfers.php", true);
+    xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xhttp.send(JSON.stringify(post_data));
 }
 
 function uploadAlleVakken() {
     const vakDiv = document.getElementById('vakvakken');
     const vakVakken = vakDiv.children;
+    let input = [];
+
     for (let i = 0; i < vakVakken.length; i++) {
-        if (vakVakken[i].children[1].innerHTML !== vakGewijzigd) {
-            uploadVakVak(i);
+        if (vakVakken[i].children[1].innerHTML !== cijferUploaded) {
+            input.push(getVakInput(i));
         }
     }
+
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            let output = JSON.parse(this.responseText);
+            if (output.returnwaarde !== 0) {
+                let errorvak = document.getElementById('vakuploaderror');
+                errorvak.innerHTML = toonFout("Er is een onbekende fout opgetreden, probeer het later opnieuw");
+            } else {
+                for (let i = 0; i < vakVakken.length; i++) {
+                    let vakVak = document.getElementById('vak' + i);
+                    let vak = output.object[i];
+                    vakError(vakVak, parseVakUpload(vak));
+                }
+            }
+        }
+    };
+    xhttp.open("POST", "upload_vakken.php", true);
+    xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xhttp.send(JSON.stringify(input));
 }
 
 function wijzigAlleCijfers() {

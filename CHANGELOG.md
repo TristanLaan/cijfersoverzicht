@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [0.5.1]
 ### Changed
 - Als je als admin inlogt hoef je niet meer als gebruiker in te loggen om
   het overzicht te zien
@@ -11,6 +11,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   huidige check of de data gewijzigd is in `get_cijfers.php` en `get_vakken.php`
 - `get_cijfers.php` en `get_vakken.php` gebruiken nu GET om opties mee te geven
   in plaats van POST
+- Upload alle stuurt nu alle vakken/cijfers in één request naar de server, in
+  plaats van één request per vak/cijfer. Dit zorgt voor betere prestaties als er
+  veel vakken tegelijk worden geüpload en het zorgt ervoor dat de volgorde
+  gegarandeerd hetzelfde is als ingevoerd
 - Het aantal benodigde studiepunten wordt nu in `connect.php` bewaard
 
 ## [0.5.0] - 2019-09-25
@@ -116,7 +120,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Een login pagina die een wachtwoord vereist voordat de website wordt bezocht
 - Een pagina waar alle cijfers te zien zijn
 
-[Unreleased]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.5.0...HEAD
+[0.5.1]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.2.0...v0.3.0

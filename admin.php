@@ -106,6 +106,7 @@ require_once "print_copyright.php";
                 <div id="cijfervak0">
                 </div>
             </div>
+            <div id="cijferuploaderror"></div>
             <button type="button" class="w3-btn w3-padding w3-teal upload-button left" onclick="uploadAlleCijfers()">Upload
                 alle &nbsp; ❯
             </button>
@@ -121,6 +122,7 @@ require_once "print_copyright.php";
                 <div id="vak0">
                 </div>
             </div>
+            <div id="vakuploaderror"></div>
             <button type="button" class="left w3-btn w3-padding w3-teal upload-button" onclick="uploadAlleVakken()">Upload
                 alle &nbsp; ❯
             </button>

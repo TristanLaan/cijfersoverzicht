@@ -16,8 +16,24 @@
  * along with cijfersoverzicht.  If not, see <https://www.gnu.org/licenses/>
  */
 
-require_once "upload_cijfer_function.php";
+require_once "upload_vak_function.php";
 
-list($return["returnwaarde"], $return["object"]) = upload_cijfer();
+// Takes raw data from the request
+$json = file_get_contents('php://input');
+
+// Converts the raw data into a array
+$data = json_decode($json, true);
+
+if ($data === NULL) {
+    $return = ["returnwaarde" => 1, "object" => NULL];
+} else {
+    $return = ["returnwaarde" => 0, "object" => []];
+
+    foreach ($data as $vak) {
+        list($returnwaarde, $object) = upload_vak($vak);
+        $return["object"][] = ["returnwaarde" => $returnwaarde, "object" => $object];
+    }
+}
+
 header('Content-Type: application/json');
 echo json_encode($return);
