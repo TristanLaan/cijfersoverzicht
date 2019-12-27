@@ -420,7 +420,6 @@ function wijzigCijfer(cijferid, vakid, naam, weging, datum, cijfer,
 function parseCijferVerwijder(ajax) {
     console.debug("ajax response: " + ajax);
     const response = parseInt(ajax);
-    console.debug(response);
 
     switch (response) {
         case 0:
@@ -494,7 +493,6 @@ function verwijderCijfers(cijfers) {
 function parseVakVerwijder(ajax) {
     console.debug("ajax response: " + ajax);
     const response = parseInt(ajax);
-    console.debug(response);
 
     switch (response) {
         case 0:
@@ -562,6 +560,43 @@ function verwijderVakken(vakken) {
 
         verwijderVak(vak.vaknummer, errfun);
     }
+}
+
+function parseRefreshGrafiek(ajax) {
+    console.debug("ajax response: " + ajax);
+    const response = parseInt(ajax);
+
+    switch (response) {
+        case 0:
+            console.debug("Vernieuwen geslaagd");
+            break;
+        case -1:
+            console.debug("Niet ingelogd");
+            break;
+        case -2:
+            console.debug("Grafiek uitgeschakeld");
+            break;
+        default:
+            console.debug("Onbekende fout: " + response);
+            break;
+    }
+
+    return response;
+}
+
+function logRefreshGrafiek() {
+    console.debug(parseRefreshGrafiek(this.responseText));
+}
+
+function refreshGrafiek(callback = logRefreshGrafiek) {
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            callback.apply(xhttp);
+        }
+    };
+    xhttp.open("POST", "refresh_grafiek.php", true);
+    xhttp.send();
 }
 
 function toonFout(foutmelding) {

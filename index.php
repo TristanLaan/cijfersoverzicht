@@ -30,7 +30,7 @@ $datum = new DateTime();
     <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <title><?php echo $title; ?></title>
-    <meta name="viewport" content="width=1200px, initial-scale=0.86, maximum-scale=3.0, minimum-scale=0.25" />
+    <meta name="viewport" content="width=1200px, initial-scale=0.86, maximum-scale=3.0, minimum-scale=0.25"/>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="style.css">
     <script>
@@ -79,6 +79,36 @@ $datum = new DateTime();
     <p id="bsa"><b>BSA gehaald:</b><!-- wordt ingevuld door `user.js` --></p>
     <p id="gemiddelde"><b>Gemiddelde cijfer:</b><!-- wordt ingevuld door `user.js` --></p>
 
+    <?php if ($grafiek) { ?>
+
+    <img class="graph light" src="afbeelding.php?id=grades-light-latest.svg" alt="Grafiek cijfers licht"/>
+    <img class="graph dark" src="afbeelding.php?id=grades-dark-latest.svg" alt="Grafiek cijfers donker"/>
+    <div class="fullwidth downloads">
+        <div class="center download-buttons">
+            <a class="left" target="_blank" href="afbeelding.php?id=grades-light-latest.svg">
+                <button type="button" class="left w3-btn w3-padding w3-teal download-button">Download svg (licht) &nbsp;
+                    ❯
+                </button>
+            </a>
+            <a class="left"  target="_blank" href="afbeelding.php?id=grades-light-latest.png">
+                <button type="button" class="left w3-btn w3-padding w3-teal download-button">Download png (licht) &nbsp;
+                    ❯
+                </button>
+            </a>
+            <a class="left" target="_blank" href="afbeelding.php?id=grades-dark-latest.svg">
+                <button type="button" class="left w3-btn w3-padding w3-teal download-button">Download svg (donker)
+                    &nbsp; ❯
+                </button>
+            </a>
+            <a class="left" target="_blank" href="afbeelding.php?id=grades-dark-latest.png">
+                <button type="button" class="left w3-btn w3-padding w3-teal download-button">Download png (donker)
+                    &nbsp; ❯
+                </button>
+            </a>
+        </div>
+    </div>
+
+    <?php } ?>
 
     <h2>Oude cijfers</h2>
 

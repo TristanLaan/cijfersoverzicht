@@ -3,7 +3,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [0.5.1]
+## [Unreleased]
+### Added
+- Python script om een grafiek met cijfers te genereren toegevoegd, zie
+  [README.md](README.md) voor vereisten
+- Toggle in `connect.php` om de grafiek aan en uit te zetten
+- In `index.php` staat de grafiek en knoppen om de grafiek te downloaden
+- Met `afbeelding.php` is het mogelijk om afbeeldingen op te halen uit
+  `graphs/` als de gebruiker is ingelogd
+- Met `refresh_grafiek.php` kan de grafiek opnieuw gegenereerd worden
+- In `admin.php` staat de grafiek en knoppen om de grafiek te vernieuwen en
+  te downloaden
+
+## [0.5.1] - 2019-12-23
 ### Changed
 - Als je als admin inlogt hoef je niet meer als gebruiker in te loggen om
   het overzicht te zien
@@ -120,6 +132,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Een login pagina die een wachtwoord vereist voordat de website wordt bezocht
 - Een pagina waar alle cijfers te zien zijn
 
+[Unreleased]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.5.1...HEAD
 [0.5.1]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.3.0...v0.4.0

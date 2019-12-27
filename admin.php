@@ -133,6 +133,40 @@ require_once "print_copyright.php";
             </form>
         </div>
     </div>
+
+    <?php if ($grafiek) { ?>
+
+        <img class="graph light" src="afbeelding.php?id=grades-light-latest.svg" alt="Grafiek cijfers licht"/>
+        <img class="graph dark" src="afbeelding.php?id=grades-dark-latest.svg" alt="Grafiek cijfers donker"/>
+        <div class="fullwidth downloads">
+            <div class="center download-buttons">
+                <button type="button" class="left w3-btn w3-padding w3-teal download-button" onclick="refreshGrafiek()">Vernieuw grafiek &nbsp;
+                    ❯
+                </button>
+                <a class="left" target="_blank" href="afbeelding.php?id=grades-light-latest.svg">
+                    <button type="button" class="left w3-btn w3-padding w3-teal download-button">Download svg (licht) &nbsp;
+                        ❯
+                    </button>
+                </a>
+                <a class="left"  target="_blank" href="afbeelding.php?id=grades-light-latest.png">
+                    <button type="button" class="left w3-btn w3-padding w3-teal download-button">Download png (licht) &nbsp;
+                        ❯
+                    </button>
+                </a>
+                <a class="left" target="_blank" href="afbeelding.php?id=grades-dark-latest.svg">
+                    <button type="button" class="left w3-btn w3-padding w3-teal download-button">Download svg (donker)
+                        &nbsp; ❯
+                    </button>
+                </a>
+                <a class="left" target="_blank" href="afbeelding.php?id=grades-dark-latest.png">
+                    <button type="button" class="left w3-btn w3-padding w3-teal download-button">Download png (donker)
+                        &nbsp; ❯
+                    </button>
+                </a>
+            </div>
+        </div>
+
+    <?php } ?>
 </div>
 <?php footer(false, true); ?>
 </body>

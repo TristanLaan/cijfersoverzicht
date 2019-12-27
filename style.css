@@ -65,6 +65,10 @@ html {
     width: 100%;
 }
 
+.center {
+    margin: auto;
+}
+
 /* footer */
 .spacing {
     margin: 0 5px;
@@ -96,6 +100,28 @@ td.table-cijfertitel {
 .table-row-2 {
     background-color: #fff;
     border-right: 1px solid #ddd
+}
+
+.graph {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1000px;
+    width: 100%;
+    display: block;
+}
+
+.downloads {
+    margin-top: 10px;
+    height: 60px;
+}
+
+.download-buttons {
+    height: 100%;
+    width: fit-content;
+}
+
+.download-button {
+    margin: 0 12px;
 }
 
 /* admin */
@@ -161,8 +187,20 @@ h2#wijzig-vak {
     float: left;
 }
 
+.dark {
+    display: none;
+}
+
 /* dark mode */
 @media (prefers-color-scheme: dark) {
+    .dark {
+        display: block;
+    }
+
+    .light {
+        display: none;
+    }
+
     body {
         color: #fff;
         background: #121212;
@@ -182,8 +220,6 @@ h2#wijzig-vak {
 
     .login-box {
         background: #1F1B24;
-        /*box-shadow: 0 4px 10px 0 rgba(234, 217, 189, 0.2), 0 4px 20px 0 rgba(234, 217, 189, 0.19);
-    */
     }
 
     input, select {
