@@ -26,6 +26,10 @@ function verwijder_vak() {
         session_start(); //sessie starten
     }
 
+    if (!isset($_SESSION[$session . 'admin'])) {
+        $_SESSION[$session . 'admin'] = NULL;
+    }
+
     if ($_SESSION[$session . 'admin'] !== "ingelogd") {
         return -1;
     }

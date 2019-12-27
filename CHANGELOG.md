@@ -15,6 +15,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - In `admin.php` staat de grafiek en knoppen om de grafiek te vernieuwen en
   te downloaden
 
+### Fixed
+- `verwijder_*.php` en `wijzig_*.php` gaven een php error als de pagina werd
+  bezocht voordat een andere pagina werd bezocht, waardoor de sessie nog niet
+  geinitialiseerd was
+
 ## [0.5.1] - 2019-12-23
 ### Changed
 - Als je als admin inlogt hoef je niet meer als gebruiker in te loggen om
