@@ -128,10 +128,10 @@ def plot_grades(grades: List[Tuple[datetime.date, float]], config: Config,
         plt.gca().set_facecolor('#121212')
 
     if len(grades) > 0:
+        plt.plot_date(*data, label='Behaald cijfer')
         df_roll.plot(style='--',
                      label='Voortschrijdend gemiddelde over {} dagen'.format(
                          window))
-        plt.plot_date(*data, label='Behaald cijfer')
 
     plt.xlabel("Datum")
     plt.ylabel("Cijfer")
