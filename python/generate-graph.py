@@ -123,9 +123,12 @@ def plot_grades(grades: List[Tuple[datetime.date, float]], config: Config,
 
     if dark:
         # Kies betere kleuren voor dark mode
-        plt.gca().set_prop_cycle(color=[colors[4], colors[3]])
+        plt.gca().set_prop_cycle(color=[colors[3], colors[4]])
         f.patch.set_facecolor('#121212')
         plt.gca().set_facecolor('#121212')
+    else:
+        # Wissel eerste 2 kleuren om
+        plt.gca().set_prop_cycle(color=[colors[1], colors[0]] + colors[2:])
 
     if len(grades) > 0:
         plt.plot_date(*data, label='Behaald cijfer')
