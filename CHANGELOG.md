@@ -12,7 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Met `afbeelding.php` is het mogelijk om afbeeldingen op te halen uit
   `graphs/` als de gebruiker is ingelogd
 - Met `refresh_grafiek.php` kan de grafiek opnieuw gegenereerd worden
-- In `admin.php` staat de grafiek en knoppen om de grafiek te vernieuwen en
+- In `admin.php` staan de grafiek en knoppen om de grafiek te vernieuwen en
   te downloaden
 
 ### Fixed

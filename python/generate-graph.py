@@ -79,38 +79,38 @@ def get_grades(config: Config) -> List[Tuple[datetime.date, float]]:
             result['datum'] is not None and result['cijfer'] is not None]
 
 
-def plot_grades(grades: List[Tuple[datetime.date, float]], config: Config,
-                time: str, dark: bool = False, window: int = 25) -> None:
-    data = tuple(zip(*[(date2num(grade[0]), grade[1]) for grade in grades]))
+def interpolate_grades(dates: np.ndarray, grades: np.ndarray,
+                       window: int = 31) -> Tuple[np.ndarray, np.ndarray]:
+    min = np.min(dates)
+    max = np.max(dates)
+    days = np.arange(min, max + 1)
+    all_grades = []
+    win = window - 1 // 2
 
-    x = []
-    y = []
-    gradesdict = {}
+    for day in days:
+        range_grades = grades[
+            np.logical_and(dates > day - win, dates < day + win)]
+        if len(range_grades) < window // 2:
+            all_grades.append(np.nan)
+        else:
+            all_grades.append(np.mean(range_grades))
 
-    if len(grades) > 0:
-        for date, grade in grades:
-            date = date2num(date)
+    all_grades = np.array(all_grades)
+    select_days = days[np.logical_not(np.isnan(all_grades))]
+    select_days = np.concatenate(([min], select_days, [max]))
+    select_grades = all_grades[np.logical_not(np.isnan(all_grades))]
+    select_grades = np.concatenate(
+        ([select_grades[0]], select_grades, [select_grades[-1]]))
 
-            if date in grades:
-                gradesdict[date][0] += 1
-                gradesdict[date][1] += grade
-            else:
-                gradesdict[date] = (1, grade)
+    return select_days, select_grades
 
-        times = gradesdict.keys()
-        for i in range(int(min(times)), int(max(times)) + 1):
-            x.append(i)
-            if i in gradesdict:
-                y.append(gradesdict[i][1] / gradesdict[i][0])
-            else:
-                y.append(np.nan)
 
-        x = np.array(x)
-        y = np.array(y)
-        df = pd.Series(y, index=x)
-        df = df.interpolate(method='linear')
-        df_roll = df.rolling(window=window, min_periods=window // 2,
-                             center=True).mean()
+def plot_grades(data: List[Tuple[datetime.date, float]], config: Config,
+                time: str, dark: bool = False, window: int = 31) -> None:
+    dates = np.array([date2num(date) for date, _grade in data])
+    grades = np.array([grade for _date, grade in data])
+
+    i_dates, i_grades = interpolate_grades(dates, grades, window)
 
     if dark:
         plt.style.use('dark_background')
@@ -131,18 +131,18 @@ def plot_grades(grades: List[Tuple[datetime.date, float]], config: Config,
         plt.gca().set_prop_cycle(color=[colors[1], colors[0]] + colors[2:])
 
     if len(grades) > 0:
-        plt.plot_date(*data, label='Behaald cijfer')
-        df_roll.plot(style='--',
-                     label='Voortschrijdend gemiddelde over {} dagen'.format(
-                         window))
+        plt.plot_date(dates, grades, label='Behaald cijfer')
+        plt.plot_date(i_dates, i_grades, linestyle='--', marker=None,
+                      label='Voortschrijdend gemiddelde over {} dagen'.format(
+                          window))
 
     plt.xlabel("Datum")
     plt.ylabel("Cijfer")
 
     if len(grades) > 0:
-        plt.ylim(bottom=0, top=max(max(y) + 0.5, 10.5))
-        plt.xlim(left=min(x), right=max(x))
-        plt.yticks(np.arange(0, max(max(y) + 0.5, 10.5), 1))
+        plt.ylim(bottom=0, top=max(np.max(grades) + 0.5, 10.5))
+        plt.xlim(left=np.min(dates), right=np.max(dates))
+        plt.yticks(np.arange(0, max(np.max(grades) + 0.5, 10.5), 1))
     else:
         plt.ylim(bottom=0, top=10.5)
         plt.yticks(np.arange(0, 10.5, 1))
