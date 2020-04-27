@@ -20,7 +20,7 @@
 #  cijfersoverzicht staat.
 
 import datetime
-from typing import Tuple, List
+from typing import Tuple, List, Optional
 import matplotlib
 
 # Backend display driver has to be changed before pyplot is imported, because
@@ -29,7 +29,6 @@ matplotlib.use('Agg')
 from matplotlib.dates import date2num
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import pymysql
 import pymysql.cursors
 import os
@@ -79,8 +78,9 @@ def get_grades(config: Config) -> List[Tuple[datetime.date, float]]:
             result['datum'] is not None and result['cijfer'] is not None]
 
 
-def interpolate_grades(dates: np.ndarray, grades: np.ndarray,
-                       window: int = 31) -> Tuple[np.ndarray, np.ndarray]:
+def interpolate_grades(dates: np.ndarray, grades: np.ndarray, window: int = 31,
+                       window_min: int = 5) -> Optional[Tuple[np.ndarray,
+                                                              np.ndarray]]:
     min = np.min(dates)
     max = np.max(dates)
     days = np.arange(min, max + 1)
@@ -90,7 +90,7 @@ def interpolate_grades(dates: np.ndarray, grades: np.ndarray,
     for day in days:
         range_grades = grades[
             np.logical_and(dates > day - win, dates < day + win)]
-        if len(range_grades) < window // 2:
+        if len(range_grades) < window_min:
             all_grades.append(np.nan)
         else:
             all_grades.append(np.mean(range_grades))
@@ -99,6 +99,10 @@ def interpolate_grades(dates: np.ndarray, grades: np.ndarray,
     select_days = days[np.logical_not(np.isnan(all_grades))]
     select_days = np.concatenate(([min], select_days, [max]))
     select_grades = all_grades[np.logical_not(np.isnan(all_grades))]
+
+    if len(select_grades) < 2:
+        return None
+
     select_grades = np.concatenate(
         ([select_grades[0]], select_grades, [select_grades[-1]]))
 
@@ -106,11 +110,12 @@ def interpolate_grades(dates: np.ndarray, grades: np.ndarray,
 
 
 def plot_grades(data: List[Tuple[datetime.date, float]], config: Config,
-                time: str, dark: bool = False, window: int = 31) -> None:
+                time: str, dark: bool = False, window: int = 31,
+                window_min: int = 5) -> None:
     dates = np.array([date2num(date) for date, _grade in data])
     grades = np.array([grade for _date, grade in data])
 
-    i_dates, i_grades = interpolate_grades(dates, grades, window)
+    interpolated = interpolate_grades(dates, grades, window, window_min)
 
     if dark:
         plt.style.use('dark_background')
@@ -132,9 +137,10 @@ def plot_grades(data: List[Tuple[datetime.date, float]], config: Config,
 
     if len(grades) > 0:
         plt.plot_date(dates, grades, label='Behaald cijfer')
-        plt.plot_date(i_dates, i_grades, linestyle='--', marker=None,
-                      label='Voortschrijdend gemiddelde over {} dagen'.format(
-                          window))
+        if interpolated:
+            plt.plot_date(*interpolated, linestyle='--', marker=None,
+                          label='Voortschrijdend gemiddelde'
+                                'over {} dagen'.format(window))
 
     plt.xlabel("Datum")
     plt.ylabel("Cijfer")
@@ -178,8 +184,8 @@ def plot_grades(data: List[Tuple[datetime.date, float]], config: Config,
 
 
 def symlink(target: str, link_name: str, overwrite: bool = False):
-    """
-    Create a symbolic link named link_name pointing to target.
+    """ Create a symbolic link named link_name pointing to target.
+
     If link_name exists then FileExistsError is raised, unless overwrite=True.
     When trying to overwrite a directory, IsADirectoryError is raised.
     Source: https://stackoverflow.com/a/55742015

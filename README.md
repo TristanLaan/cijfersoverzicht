@@ -24,10 +24,9 @@ behaalde cijfers.
   om de svg afbeeldingen te comprimeren.
 
 - _Optioneel:_ Om de grafiek met cijfers te genereren moeten de volgende
-  packages geïnstalleerd zijn: `python3`, `matplotlib`, `pandas`, `numpy` en
-  `pymysql`.
+  packages geïnstalleerd zijn: `python3`, `matplotlib`, `numpy` en `pymysql`.
   Op Debian kunnen deze packages geïnstalleerd worden met het commando:
-  `sudo apt update && sudo apt install python3 python3-pymysql python3-numpy python3-matplotlib python3-pandas`.
+  `sudo apt update && sudo apt install python3 python3-pymysql python3-numpy python3-matplotlib`.
 
   Ook moet het bestand `credentials-template.py` naar `credentials.py` worden
   gekopieerd en moet hier de configuratie worden ingevuld.

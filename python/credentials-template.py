@@ -21,6 +21,10 @@ image_name = "grades"
 title = ""
 # Aantal grafieken dat bewaard moet blijven
 history = 10
+# Het aantal dagen waar het gemiddelde over genomen wordt
+window = 31
+# Het minimum aantal cijfers om het gemiddelde over te nemen
+window_min = 5
 # Group id van webserver user, dit is standaard 33. De juiste waarde kan je
 # vinden in `/etc/group`
 gid = 33
