@@ -78,18 +78,17 @@ def get_grades(config: Config) -> List[Tuple[datetime.date, float]]:
             result['datum'] is not None and result['cijfer'] is not None]
 
 
-def interpolate_grades(dates: np.ndarray, grades: np.ndarray, window: int = 31,
+def interpolate_grades(dates: np.ndarray, grades: np.ndarray, window: int = 15,
                        window_min: int = 5) -> Optional[Tuple[np.ndarray,
                                                               np.ndarray]]:
     min = np.min(dates)
     max = np.max(dates)
     days = np.arange(min, max + 1)
     all_grades = []
-    win = window - 1 // 2
 
     for day in days:
         range_grades = grades[
-            np.logical_and(dates > day - win, dates < day + win)]
+            np.logical_and(dates > day - window, dates <= day)]
         if len(range_grades) < window_min:
             all_grades.append(np.nan)
         else:
@@ -97,12 +96,12 @@ def interpolate_grades(dates: np.ndarray, grades: np.ndarray, window: int = 31,
 
     all_grades = np.array(all_grades)
     select_days = days[np.logical_not(np.isnan(all_grades))]
-    select_days = np.concatenate(([min], select_days, [max]))
     select_grades = all_grades[np.logical_not(np.isnan(all_grades))]
 
     if len(select_grades) < 2:
         return None
 
+    select_days = np.concatenate(([min], select_days, [max]))
     select_grades = np.concatenate(
         ([select_grades[0]], select_grades, [select_grades[-1]]))
 
@@ -110,7 +109,7 @@ def interpolate_grades(dates: np.ndarray, grades: np.ndarray, window: int = 31,
 
 
 def plot_grades(data: List[Tuple[datetime.date, float]], config: Config,
-                time: str, dark: bool = False, window: int = 31,
+                time: str, dark: bool = False, window: int = 15,
                 window_min: int = 5) -> None:
     dates = np.array([date2num(date) for date, _grade in data])
     grades = np.array([grade for _date, grade in data])
@@ -139,7 +138,7 @@ def plot_grades(data: List[Tuple[datetime.date, float]], config: Config,
         plt.plot_date(dates, grades, label='Behaald cijfer')
         if interpolated:
             plt.plot_date(*interpolated, linestyle='--', marker=None,
-                          label='Voortschrijdend gemiddelde'
+                          label='Voortschrijdend gemiddelde '
                                 'over {} dagen'.format(window))
 
     plt.xlabel("Datum")
@@ -302,7 +301,6 @@ def remove_old_graphs(config: Config, amount: int):
 if __name__ == '__main__':
     import credentials
     from find_credentials import find_config
-    from pandas.plotting import register_matplotlib_converters
 
     config_file = "connect.php"
 
@@ -315,8 +313,6 @@ if __name__ == '__main__':
                         credentials.charset, credentials.image_path,
                         credentials.image_name, credentials.title)
 
-    register_matplotlib_converters()
-
     if not os.path.exists(credentials.image_path):
         os.makedirs(credentials.image_path)
 
@@ -324,8 +320,10 @@ if __name__ == '__main__':
 
     grades = get_grades(config)
     now = datetime.datetime.now().strftime("%Y-%m-%dT%H%M%S%f%z")
-    plot_grades(grades, config, now, False)
-    plot_grades(grades, config, now, True)
+    plot_grades(grades, config, now, False, credentials.window,
+                credentials.window_min)
+    plot_grades(grades, config, now, True, credentials.window,
+                credentials.window_min)
 
     set_all_permissions(config, credentials.gid, now)
     set_all_symlinks(config, now)

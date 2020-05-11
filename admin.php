@@ -138,6 +138,15 @@ require_once "print_copyright.php";
 
         <img class="graph light" src="afbeelding.php?id=grades-light-latest.svg" alt="Grafiek cijfers licht"/>
         <img class="graph dark" src="afbeelding.php?id=grades-dark-latest.svg" alt="Grafiek cijfers donker"/>
+        <div class="fullwidth hidden" id="loadicon">
+            <div class="center loading-bar">
+                <img class="loading dark" src="icons/purple-spin.svg">
+                <img class="loading light" src="icons/black-spin.svg">
+            </div>
+        </div>
+        <div class="fullwidth">
+            <div class="center" id="refresherror"></div>
+        </div>
         <div class="fullwidth downloads">
             <div class="center download-buttons">
                 <button type="button" class="left w3-btn w3-padding w3-teal download-button" onclick="refreshGrafiek()">Vernieuw grafiek &nbsp;

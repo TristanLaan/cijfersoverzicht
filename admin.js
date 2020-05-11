@@ -592,11 +592,16 @@ function refreshGrafiek(callback = logRefreshGrafiek) {
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
+            document.getElementById("loadicon").style.display = "none";
+            if (parseInt(xhttp.responseText) !== 0) {
+                document.getElementById('refresherror').innerHTML = toonFout("Er is een onbekende fout opgetreden, probeer het later opnieuw");
+            }
             callback.apply(xhttp);
         }
     };
     xhttp.open("POST", "refresh_grafiek.php", true);
     xhttp.send();
+    document.getElementById("loadicon").style.display = "block";
 }
 
 function toonFout(foutmelding) {
