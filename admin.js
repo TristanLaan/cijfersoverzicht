@@ -133,7 +133,7 @@ function uploadCijfer(vakid, naam, weging, datum, cijfer,
     };
     xhttp.open("POST", "upload_cijfer.php", true);
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    let input = "vakid=" + vakid + "&naam=" + naam;
+    let input = "vakid=" + vakid + "&naam=" + encodeURIComponent(naam);
 
     if (weging !== null) {
         input += "&weging=" + weging;
@@ -223,7 +223,7 @@ function uploadVak(naam, jaar, studiepunten, gehaald, toon, periode = null,
     };
     xhttp.open("POST", "upload_vak.php", true);
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    let input = "naam=" + naam + "&jaar=" + jaar + "&studiepunten=" +
+    let input = "naam=" + encodeURIComponent(naam) + "&jaar=" + jaar + "&studiepunten=" +
         studiepunten + "&gehaald=" + gehaald + "&toon=" + toon;
 
     if (periode !== null) {
@@ -314,7 +314,7 @@ function wijzigVak(vakid, naam, jaar, studiepunten, gehaald, toon, periode = nul
     };
     xhttp.open("POST", "wijzig_vak.php", true);
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    let input = "vakid=" + vakid + "&naam=" + naam + "&jaar=" + jaar + "&studiepunten=" +
+    let input = "vakid=" + vakid + "&naam=" + encodeURIComponent(naam) + "&jaar=" + jaar + "&studiepunten=" +
         studiepunten + "&gehaald=" + gehaald + "&toon=" + toon;
 
     if (periode !== null) {
@@ -400,7 +400,7 @@ function wijzigCijfer(cijferid, vakid, naam, weging, datum, cijfer,
     };
     xhttp.open("POST", "wijzig_cijfer.php", true);
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    let input = "cijferid=" + cijferid + "&vakid=" + vakid + "&naam=" + naam;
+    let input = "cijferid=" + cijferid + "&vakid=" + vakid + "&naam=" + encodeURIComponent(naam);
 
     if (weging !== null) {
         input += "&weging=" + weging;

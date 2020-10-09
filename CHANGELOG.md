@@ -19,6 +19,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `verwijder_*.php` en `wijzig_*.php` gaven een php error als de pagina werd
   bezocht voordat een andere pagina werd bezocht, waardoor de sessie nog niet
   geinitialiseerd was
+- Strings werden niet url encoded bij het aanmaken/wijzigen van cijfers en
+  vakken, waardoor karakters als '&' en '?' niet correct in de naam van een
+  cijfer/vak geplaatst konden worden.
 
 ## [0.5.1] - 2019-12-23
 ### Changed
