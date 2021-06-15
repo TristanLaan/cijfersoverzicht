@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [0.6.0] - 2021-06-15
 ### Added
 - Python script om een grafiek met cijfers te genereren toegevoegd, zie
   [README.md](README.md) voor vereisten
@@ -140,7 +140,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Een login pagina die een wachtwoord vereist voordat de website wordt bezocht
 - Een pagina waar alle cijfers te zien zijn
 
-[Unreleased]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.5.1...HEAD
+[0.6.0]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.3.0...v0.4.0
