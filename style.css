@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Tristan Laan 2018-2020.
+ * Copyright (c) Tristan Laan 2018-2021.
  * This file is part of cijfersoverzicht.
  * cijfersoverzicht is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
