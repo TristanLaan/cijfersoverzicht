@@ -41,9 +41,9 @@ function refresh_grafiek() {
     $return_var = 0;
     $output = [];
     exec(getcwd() . '/python/generate-graph.py 2>&1', $output, $return_var);
-    foreach ($output as $line) {
-        echo $line . "\n";
-    }
+//    foreach ($output as $line) {
+//        echo $line . "\n";
+//    }
     return $return_var;
 }
 

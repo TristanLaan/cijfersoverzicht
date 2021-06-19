@@ -17,7 +17,7 @@
  */
 
 require_once "connect.php";
-require_once "Vak.php";
+require_once "php/Vak.php";
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();

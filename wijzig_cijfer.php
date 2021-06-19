@@ -17,8 +17,8 @@
  */
 
 require_once "connect.php";
-require_once "Vak.php";
-require_once "Cijfer.php";
+require_once "php/Vak.php";
+require_once "php/Cijfer.php";
 
 function wijzig_cijfer() {
     global $session;

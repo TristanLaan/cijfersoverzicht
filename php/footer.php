@@ -28,11 +28,11 @@ function footer(bool $sticky = false, bool $admin = false) { ?>
         } ?>
         <div style="float: right; margin-bottom: 5px;">
             <?php if ($admin) {
-                ?><a href="./" class="spacing url">Cijfersoverzicht</a><?php
+                ?><a href=".." class="spacing url">Cijfersoverzicht</a><?php
             } else {
-                ?><a href="admin.php" class="spacing url">Admin</a><?php
+                ?><a href="../admin.php" class="spacing url">Admin</a><?php
             }?>
-            <a href="license.html" class="spacing url">Licence</a>
+            <a href="../license.html" class="spacing url">Licence</a>
             <a href="https://github.com/TristanLaan/cijfersoverzicht" class="spacing url">Source</a>
             <p class="inline spacing">&copy;Tristan Laan 2018-<?php
                 try {

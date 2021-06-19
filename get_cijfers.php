@@ -17,8 +17,8 @@
  */
 
 require_once "connect.php";
-require_once "Vak.php";
-require_once "Cijfer.php";
+require_once "php/Vak.php";
+require_once "php/Cijfer.php";
 
 if (session_status() == PHP_SESSION_NONE) { //controleren of sessie al is gestart
     session_start(); //sessie starten

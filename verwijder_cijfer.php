@@ -17,7 +17,7 @@
  */
 
 require_once "connect.php";
-require_once "Cijfer.php";
+require_once "php/Cijfer.php";
 
 function verwijder_cijfer() {
     global $session;

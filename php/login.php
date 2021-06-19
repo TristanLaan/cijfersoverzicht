@@ -17,8 +17,8 @@
  */
 
 require_once "connect.php";
-require_once "footer.php";
-require_once "print_copyright.php";
+require_once "php/footer.php";
+require_once "php/print_copyright.php";
 
 $datum = new DateTime();
 if (session_status() == PHP_SESSION_NONE) { //controleren of sessie al is gestart
@@ -38,7 +38,7 @@ if ($_SESSION[$session] == null) //weergeven als niet is ingelogd
     <head>
         <title>Login om cijfers te zien - <?php echo $title; ?></title>
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="../style.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script>
             function loginsite() {

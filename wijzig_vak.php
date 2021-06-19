@@ -17,7 +17,7 @@
  */
 
 require_once "connect.php";
-require_once "Vak.php";
+require_once "php/Vak.php";
 
 function wijzig_vak() {
     global $session;

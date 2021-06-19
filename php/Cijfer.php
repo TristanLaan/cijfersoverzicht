@@ -16,7 +16,6 @@
  * along with cijfersoverzicht.  If not, see <https://www.gnu.org/licenses/>
  */
 
-require_once "connect.php";
 require_once "Vak.php";
 require_once "verbindDatabase.php";
 

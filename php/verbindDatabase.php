@@ -16,6 +16,8 @@
  * along with cijfersoverzicht.  If not, see <https://www.gnu.org/licenses/>
  */
 
+require_once "connect.php";
+
 function verbindDatabase() {
     try {
         global $server, $password, $username, $database, $charset;

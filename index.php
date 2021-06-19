@@ -16,10 +16,10 @@
  * along with cijfersoverzicht.  If not, see <https://www.gnu.org/licenses/>
  */
 
-require_once "login.php";
+require_once "php/login.php";
 require_once "connect.php";
-require_once "footer.php";
-require_once "print_copyright.php";
+require_once "php/footer.php";
+require_once "php/print_copyright.php";
 
 $datum = new DateTime();
 ?>

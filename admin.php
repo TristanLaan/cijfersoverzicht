@@ -17,9 +17,9 @@
  */
 
 require_once "connect.php";
-require_once "login_admin.php";
-require_once "footer.php";
-require_once "print_copyright.php";
+require_once "php/login_admin.php";
+require_once "php/footer.php";
+require_once "php/print_copyright.php";
 ?>
 <!DOCTYPE html>
 <html lang="nl">
