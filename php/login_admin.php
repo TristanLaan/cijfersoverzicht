@@ -40,7 +40,7 @@ if ($_SESSION[$session . 'admin'] === null) //weergeven als niet is ingelogd
     <head>
         <title>Login om cijfers te beheren - <?php echo $title; ?></title>
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-        <link rel="stylesheet" href="../style.css">
+        <link rel="stylesheet" href="style.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script>
             function loginsite() {
@@ -94,7 +94,7 @@ if ($_SESSION[$session . 'admin'] === null) //weergeven als niet is ingelogd
             <form method="post" action="javascript:void(0)" onsubmit="loginsite()">
                 <div class="w3-container">
                     <p><input class="w3-input login-header" id="password" type="password" name="password" placeholder="wachtwoord"
-                              required></p>
+                              autocomplete="current-password" required></p>
                 </div>
                 <div class="w3-bar">
                     <button type="submit" name="login"
