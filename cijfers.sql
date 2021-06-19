@@ -24,74 +24,39 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
---
--- Database: `cijfersoverzicht`
---
-
 -- --------------------------------------------------------
-
---
--- Tabelstructuur voor tabel `Cijfers`
---
-
-CREATE TABLE `Cijfers` (
-  `cijfernr` int(11) NOT NULL,
-  `vaknr` int(11) NOT NULL,
-  `cijfertitel` text NOT NULL,
-  `weging` smallint(5) DEFAULT NULL,
-  `datum` date DEFAULT NULL,
-  `cijfer` smallint(4) DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
 --
 -- Tabelstructuur voor tabel `Vakken`
 --
 
 CREATE TABLE `Vakken` (
-  `vaknr` int(11) NOT NULL,
-  `vaknaam` tinytext NOT NULL,
-  `jaar` tinyint(1) NOT NULL,
-  `periode` int(6) NOT NULL,
-  `studiepunten` tinyint(2) NOT NULL DEFAULT '6',
-  `gehaald` tinyint(1) NOT NULL DEFAULT '0',
-  `eindcijfer` int(4) DEFAULT NULL,
-  `toon` tinyint(1) NOT NULL DEFAULT '1'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  `vaknr` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `vaknaam` VARCHAR(1024) NOT NULL,
+  `jaar` TINYINT(1) UNSIGNED NOT NULL,
+  `periode` TINYINT(1) UNSIGNED NOT NULL,
+  `studiepunten` TINYINT(2) UNSIGNED NOT NULL DEFAULT '6',
+  `gehaald` BOOLEAN NOT NULL DEFAULT FALSE,
+  `eindcijfer` SMALLINT(4) UNSIGNED DEFAULT NULL,
+  `toon` BOOLEAN NOT NULL DEFAULT TRUE,
+  PRIMARY KEY (`vaknr`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- --------------------------------------------------------
 --
--- Indexen voor geëxporteerde tabellen
---
-
---
--- Indexen voor tabel `Cijfers`
---
-ALTER TABLE `Cijfers`
-  ADD PRIMARY KEY (`cijfernr`),
-  ADD KEY `vaknr` (`vaknr`);
-
---
--- Indexen voor tabel `Vakken`
---
-ALTER TABLE `Vakken`
-  ADD PRIMARY KEY (`vaknr`);
-
---
--- AUTO_INCREMENT voor geëxporteerde tabellen
+-- Tabelstructuur voor tabel `Cijfers`
 --
 
---
--- AUTO_INCREMENT voor een tabel `Cijfers`
---
-ALTER TABLE `Cijfers`
-  MODIFY `cijfernr` int(11) NOT NULL AUTO_INCREMENT;
+CREATE TABLE `Cijfers` (
+  `cijfernr` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `vaknr` INT UNSIGNED NOT NULL,
+  `cijfertitel` VARCHAR(1024) NOT NULL,
+  `weging` SMALLINT(5) UNSIGNED DEFAULT NULL,
+  `datum` date DEFAULT NULL,
+  `cijfer` SMALLINT(4) UNSIGNED DEFAULT NULL,
+  PRIMARY KEY (`cijfernr`),
+  FOREIGN KEY (`vaknr`) REFERENCES `Vakken`(`vaknr`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- AUTO_INCREMENT voor een tabel `Vakken`
---
-ALTER TABLE `Vakken`
-  MODIFY `vaknr` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
