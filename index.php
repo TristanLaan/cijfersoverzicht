@@ -37,10 +37,12 @@ $datum = new DateTime();
         // noinspection JSAnnotator
         const bsa_benodigd = <?php echo $bsa_benodigd; ?>;
     </script>
-    <script src="user.js" async></script>
+    <script type="module" src="js/user.js" defer></script>
 </head>
 
 <body>
+<div id="popup" class="popupachtergrond popup"></div>
+<div id="error-popup" class="popupscherm popup"></div>
 <div class="w3-container index-table">
     <h1 class="w3-center"><?php echo $title; ?></h1>
     <h2>Cijfers</h2>
@@ -67,7 +69,7 @@ $datum = new DateTime();
             <th>Jaar</th>
             <th>Periode</th>
             <th>Gemiddelde cijfer</th>
-            <th>(Voorlopig) eindcijfer</th>
+            <th><span style="font-style: italic;">(Voorlopig)</span> eindcijfer</th>
             <th>Studiepunten</th>
             <th>Gehaald</th>
         </tr>
@@ -75,14 +77,17 @@ $datum = new DateTime();
         <!-- Hier worden de vakken geplaatst door `user.js` -->
     </table>
 
-    <p id="studiepunten"><b>Totaal aantal studiepunten:</b><!-- wordt ingevuld door `user.js` --></p>
-    <p id="bsa"><b>BSA gehaald:</b><!-- wordt ingevuld door `user.js` --></p>
-    <p id="gemiddelde"><b>Gemiddelde cijfer:</b><!-- wordt ingevuld door `user.js` --></p>
+    <p id="studiepunten"><strong>Totaal aantal studiepunten:</strong><!-- wordt ingevuld door `user.js` --></p>
+    <p id="bsa"><strong>BSA gehaald:</strong><!-- wordt ingevuld door `user.js` --></p>
+    <p id="gemiddelde"><strong>Gemiddelde cijfer:</strong><!-- wordt ingevuld door `user.js` --></p>
 
     <?php if ($grafiek) { ?>
 
-    <img class="graph light" src="afbeelding.php?id=grades-light-latest.svg" alt="Grafiek cijfers licht"/>
-    <img class="graph dark" src="afbeelding.php?id=grades-dark-latest.svg" alt="Grafiek cijfers donker"/>
+    <picture>
+        <source srcset="afbeelding.php?id=grades-dark-latest.svg" media="(prefers-color-scheme: dark)"/>
+        <img class="graph" src="afbeelding.php?id=grades-light-latest.svg" alt="Grafiek cijfers"/>
+    </picture>
+
     <div class="fullwidth downloads">
         <div class="center download-buttons">
             <a class="left" target="_blank" href="afbeelding.php?id=grades-light-latest.svg">

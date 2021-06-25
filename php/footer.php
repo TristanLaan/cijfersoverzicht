@@ -26,7 +26,7 @@ function footer(bool $sticky = false, bool $admin = false) { ?>
         if (!$sticky) {
             ?><hr><?php
         } ?>
-        <div style="float: right; margin-bottom: 5px;">
+        <div style="float: right; margin-bottom: 5px; margin-right: 5px;">
             <?php if ($admin) {
                 ?><a href="." class="spacing url">Cijfersoverzicht</a><?php
             } else {

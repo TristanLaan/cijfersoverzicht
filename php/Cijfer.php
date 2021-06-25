@@ -29,15 +29,16 @@ class Cijfer implements JsonSerializable {
 
     /**
      * Cijfer constructor.
-     * @param int $cijfernummer
-     * @param Vak $vak
-     * @param string $naam
-     * @param float $weging
-     * @param DateTime $datum
-     * @param float $cijfer
+     *
+     * @param int           $cijfernummer
+     * @param Vak           $vak
+     * @param string        $naam
+     * @param float|null    $weging
+     * @param DateTime|null $datum
+     * @param float|null    $cijfer
      */
-    public function __construct(int $cijfernummer, Vak $vak, string $naam, float $weging = NULL,
-                                DateTime $datum = NULL, float $cijfer = NULL) {
+    public function __construct(int $cijfernummer, Vak $vak, string $naam, float $weging = null,
+                                DateTime $datum = null, float $cijfer = null) {
         $this->cijfernummer = $cijfernummer;
         $this->vak = $vak;
         $this->naam = $naam;
@@ -49,34 +50,34 @@ class Cijfer implements JsonSerializable {
     public function jsonSerialize() {
         return [
             'cijfernummer' => $this->cijfernummer,
-            'vak' => $this->vak,
+            'vaknummer' => $this->vak->vaknummer,
             'naam' => $this->naam,
             'weging' => $this->weging,
-            'datum' => $this->datum === NULL ? NULL : $this->datum->format("Y-m-d"),
+            'datum' => $this->datum === null ? null : $this->datum->format("Y-m-d"),
             'cijfer' => $this->cijfer
         ];
     }
 
-    public static function getCijferFromArray(array $cijfer, Vak $vak = NULL) {
+    public static function getCijferFromArray(array $cijfer, Vak $vak = null) {
         $cijfernummer = $cijfer["cijfernr"];
-        if ($vak == NULL) {
+        if ($vak == null) {
             $internal_vak = Vak::getVak($cijfer["vaknr"]);
         } else {
             $internal_vak = $vak;
         }
         $naam = $cijfer["cijfertitel"];
-        $weging = $cijfer["weging"] === NULL ? NULL : $cijfer["weging"] / 100;
-        $getal = $cijfer["cijfer"] === NULL ? NULL : $cijfer["cijfer"] / 100;
+        $weging = $cijfer["weging"] === null ? null : $cijfer["weging"] / 100;
+        $getal = $cijfer["cijfer"] === null ? null : $cijfer["cijfer"] / 100;
         $datum = $cijfer["datum"];
 
         try {
             $datum = DateTime::createFromFormat("Y-m-d", $datum);
             if (!$datum) {
-                $datum = NULL;
+                $datum = null;
             }
         } catch (Exception $e) {
             error_log($e->getMessage());
-            return NULL;
+            return null;
         }
 
         return new Cijfer($cijfernummer, $internal_vak, $naam, $weging, $datum, $getal);
@@ -85,32 +86,32 @@ class Cijfer implements JsonSerializable {
     public static function getCijfer(int $cijfernummer) {
         $database = verbindDatabase();
 
-        if ($database === NULL) {
+        if ($database === null) {
             error_log("Geen verbinding met database");
-            return NULL;
+            return null;
         }
 
         $sql = $database->prepare("SELECT * FROM Cijfers WHERE Cijfers.cijfernr = :cijfer LIMIT 1");
         $sql->bindValue(':cijfer', $cijfernummer, PDO::PARAM_INT);
         if (!$sql->execute()) {
             error_log("Execute failed: " . implode($sql->errorInfo()));
-            return NULL;
+            return null;
         }
 
         $cijfer = $sql->fetch(PDO::FETCH_ASSOC);
 
-        $database = NULL;
+        $database = null;
 
-        if ($cijfer == NULL) {
+        if ($cijfer == null) {
             error_log("Cijfer niet gevonden: " . $cijfernummer);
-            return NULL;
+            return null;
         }
 
         return self::getCijferFromArray($cijfer);
     }
 
-    public static function createCijfer(Vak $vak, string $naam, float $weging = NULL, DateTime $datum = NULL,
-                                        float $cijfer = NULL) {
+    public static function createCijfer(Vak $vak, string $naam, float $weging = null, DateTime $datum = null,
+                                        float $cijfer = null) {
         $nieuwCijfer = new Cijfer(-1, $vak, $naam, $weging, $datum, $cijfer);
 
         $return = $nieuwCijfer->upload();
@@ -122,16 +123,16 @@ class Cijfer implements JsonSerializable {
      * @param Cijfer[] $cijfers
      * @return float
      */
-    private static function berekenGemiddeldeCijfer(array $cijfers = NULL) {
-        if ($cijfers === NULL) {
-            return NULL;
+    private static function berekenGemiddeldeCijfer(array $cijfers = null) {
+        if ($cijfers === null) {
+            return null;
         }
 
         $totaleWeging = 0;
         $totaleCijfer = 0;
         $found = false;
         foreach ($cijfers as $cijfer) {
-            if ($cijfer != NULL && $cijfer->cijfer != NULL && $cijfer->weging != NULL) {
+            if ($cijfer != null && $cijfer->cijfer != null && $cijfer->weging != null) {
                 $found = true;
                 $totaleWeging += $cijfer->weging;
                 $totaleCijfer += $cijfer->cijfer * $cijfer->weging;
@@ -144,53 +145,53 @@ class Cijfer implements JsonSerializable {
             $gemiddelde = $totaleCijfer / $totaleWeging;
         }
 
-        return $found ? round($gemiddelde, 2) : NULL;
+        return $found ? round($gemiddelde, 2) : null;
     }
 
     /**
      * @param Cijfer[] $cijfers
      * @return float
      */
-    private static function berekenEindcijfer(array $cijfers = NULL) {
-        if ($cijfers === NULL) {
-            return NULL;
+    private static function berekenEindcijfer(array $cijfers = null) {
+        if ($cijfers === null) {
+            return null;
         }
 
         $eindcijfer = 0;
         $found = false;
         foreach ($cijfers as $cijfer) {
-            if ($cijfer != NULL && $cijfer->cijfer != NULL && $cijfer->weging != NULL) {
+            if ($cijfer != null && $cijfer->cijfer != null && $cijfer->weging != null) {
                 $found = true;
                 $eindcijfer += $cijfer->cijfer * $cijfer->weging / 100;
             }
         }
 
-        return $found ? round($eindcijfer, 2) : NULL;
+        return $found ? round($eindcijfer, 2) : null;
     }
 
     private static function getAllCijfersZonderVakken() {
         $database = verbindDatabase();
 
-        if ($database === NULL) {
+        if ($database === null) {
             error_log("Geen verbinding met database");
-            return NULL;
+            return null;
         }
 
         $sql = $database->prepare("SELECT * FROM Cijfers ORDER BY cijfernr");
         if (!$sql->execute()) {
             error_log("Execute failed: " . implode($sql->errorInfo()));
-            return NULL;
+            return null;
         }
 
         $results = $sql->fetchAll(PDO::FETCH_ASSOC);
 
-        $database = NULL;
+        $database = null;
 
         $length = sizeof($results);
 
 
         if ($length < 1) {
-            return NULL;
+            return null;
         }
 
         $cijfers = [];
@@ -210,8 +211,8 @@ class Cijfer implements JsonSerializable {
 
         $vakken = Vak::getAllVakken();
 
-        if ($vakken == NULL) {
-            return NULL;
+        if ($vakken == null) {
+            return null;
         }
 
         /* @var Vak[] $vakken */
@@ -230,7 +231,7 @@ class Cijfer implements JsonSerializable {
     public function upload() {
         $database = verbindDatabase();
 
-        if ($database === NULL) {
+        if ($database === null) {
             error_log("Geen verbinding met database");
             return 1;
         }
@@ -251,17 +252,17 @@ class Cijfer implements JsonSerializable {
         $columns = "vaknr, cijfertitel";
         $values = ":vaknr, :titel";
 
-        if ($this->weging !== NULL) {
+        if ($this->weging !== null) {
             $columns .= ", weging";
             $values .= ", :weging";
         }
 
-        if ($this->datum !== NULL) {
+        if ($this->datum !== null) {
             $columns .= ", datum";
             $values .= ", :datum";
         }
 
-        if ($this->cijfer !== NULL) {
+        if ($this->cijfer !== null) {
             $columns .= ", cijfer";
             $values .= ", :cijfer";
         }
@@ -276,19 +277,19 @@ class Cijfer implements JsonSerializable {
             return 3;
         }
 
-        if ($this->weging !== NULL) {
+        if ($this->weging !== null) {
             if (!$sql->bindValue(':weging', round($this->weging * 100), PDO::PARAM_INT)) {
                 return 4;
             }
         }
 
-        if ($this->datum !== NULL) {
+        if ($this->datum !== null) {
             if (!$sql->bindValue(':datum', $this->datum->format("Y-m-d"), PDO::PARAM_STR)) {
                 return 5;
             }
         }
 
-        if ($this->cijfer !== NULL) {
+        if ($this->cijfer !== null) {
             if (!$sql->bindValue(':cijfer', round($this->cijfer * 100), PDO::PARAM_INT)) {
                 return 6;
             }
@@ -307,22 +308,22 @@ class Cijfer implements JsonSerializable {
         }
 
         $result = $sql->fetch(PDO::FETCH_ASSOC);
-        $database = NULL;
+        $database = null;
 
         $this->cijfernummer = (int)$result['cijfernr'];
         $this->vak = Vak::getVak((int)$result['vaknr']);
         $this->naam = $result['cijfertitel'];
-        $this->weging = $result["weging"] === NULL ? NULL : $result["weging"] / 100;
-        $this->cijfer = $result["cijfer"] === NULL ? NULL : $result["cijfer"] / 100;
+        $this->weging = $result["weging"] === null ? null : $result["weging"] / 100;
+        $this->cijfer = $result["cijfer"] === null ? null : $result["cijfer"] / 100;
 
         try {
             $datum = DateTime::createFromFormat("Y-m-d", $result['datum']);
             if (!$datum) {
-                $datum = NULL;
+                $datum = null;
             }
         } catch (Exception $e) {
             error_log($e->getMessage());
-            $datum = NULL;
+            $datum = null;
         }
 
         $this->datum = $datum;
@@ -333,7 +334,7 @@ class Cijfer implements JsonSerializable {
     public function update() {
         $database = verbindDatabase();
 
-        if ($database === NULL) {
+        if ($database === null) {
             error_log("Geen verbinding met database");
             return 1;
         }
@@ -349,32 +350,32 @@ class Cijfer implements JsonSerializable {
             return 3;
         }
 
-        if ($this->weging !== NULL) {
+        if ($this->weging !== null) {
             if (!$sql->bindValue(':weging', round($this->weging * 100), PDO::PARAM_INT)) {
                 return 4;
             }
         } else {
-            if (!$sql->bindValue(':weging', NULL, PDO::PARAM_NULL)) {
+            if (!$sql->bindValue(':weging', null, PDO::PARAM_null)) {
                 return 4;
             }
         }
 
-        if ($this->datum !== NULL) {
+        if ($this->datum !== null) {
             if (!$sql->bindValue(':datum', $this->datum->format("Y-m-d"), PDO::PARAM_STR)) {
                 return 5;
             }
         } else {
-            if (!$sql->bindValue(':datum', NULL, PDO::PARAM_NULL)) {
+            if (!$sql->bindValue(':datum', null, PDO::PARAM_null)) {
                 return 5;
             }
         }
 
-        if ($this->cijfer !== NULL) {
+        if ($this->cijfer !== null) {
             if (!$sql->bindValue(':cijfer', round($this->cijfer * 100), PDO::PARAM_INT)) {
                 return 6;
             }
         } else {
-            if (!$sql->bindValue(':cijfer', NULL, PDO::PARAM_NULL)) {
+            if (!$sql->bindValue(':cijfer', null, PDO::PARAM_null)) {
                 return 6;
             }
         }
@@ -388,7 +389,7 @@ class Cijfer implements JsonSerializable {
             return 8;
         }
 
-        $database = NULL;
+        $database = null;
 
         return 0;
     }
@@ -396,7 +397,7 @@ class Cijfer implements JsonSerializable {
     public function verwijder() {
         $database = verbindDatabase();
 
-        if ($database === NULL) {
+        if ($database === null) {
             error_log("Geen verbinding met database");
             return false;
         }
@@ -409,7 +410,7 @@ class Cijfer implements JsonSerializable {
             return false;
         }
 
-        $database = NULL;
+        $database = null;
 
         $this->cijfernummer = -1;
 

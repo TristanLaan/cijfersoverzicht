@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - SQL-database engine en types verbeterd/consistent gemaakt.
 - SQL-relaties toegevoegd.
 - Verplaats back-end php files naar `php` map.
+- Verplaats javascript files naar `js` map.
+- JS code compleet herschreven als modules.
 
 ## [0.6.0] - 2021-06-15
 ### Added

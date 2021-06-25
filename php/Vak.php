@@ -123,7 +123,7 @@ class Vak implements JsonSerializable {
             return NULL;
         }
 
-        $sql = $database->prepare("SELECT * FROM Vakken ORDER BY jaar DESC, periode ASC");
+        $sql = $database->prepare("SELECT * FROM Vakken ORDER BY jaar ASC, periode ASC");
         if (!$sql->execute()) {
             error_log("Execute failed: " . implode($sql->errorInfo()));
             return NULL;

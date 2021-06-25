@@ -73,6 +73,40 @@ html {
     margin: auto;
 }
 
+hr {
+    margin: 10px 0;
+}
+
+.popupachtergrond {
+    position: fixed;
+    background-color: black;
+    opacity: 0.4;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    display: none;
+}
+
+.popupscherm {
+    position: fixed;
+    left: 12.5%;
+    width: calc(75% - 10px);
+    top: 2.5%;
+    background-color: rgba(255, 255, 255, 0);
+    height: 95%;
+    overflow-y: auto;
+    z-index: 3;
+    display: none;
+    overflow: -moz-scrollbars-none;
+    -ms-overflow-style: none;
+}
+
+.popupscherm::-webkit-scrollbar {
+    width: 0 !important
+}
+
 /* footer */
 .spacing {
     margin: 0 5px;
@@ -147,36 +181,6 @@ td.table-cijfertitel {
     width: 100px;
     float: left;
     margin-bottom: 10px;
-}
-
-.popupachtergrond {
-    position: fixed;
-    background-color: black;
-    opacity: 0.4;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 2;
-    display: none;
-}
-
-.popupscherm {
-    position: fixed;
-    left: 12.5%;
-    width: calc(75% - 10px);
-    top: 2.5%;
-    background-color: rgba(255, 255, 255, 0);
-    height: 95%;
-    overflow-y: auto;
-    z-index: 3;
-    display: none;
-    overflow: -moz-scrollbars-none;
-    -ms-overflow-style: none;
-}
-
-.popupscherm::-webkit-scrollbar {
-    width: 0 !important
 }
 
 .bottom-room {
