@@ -19,7 +19,7 @@
 require_once "connect.php";
 require_once "php/Cijfer.php";
 
-function verwijder_cijfer() {
+function verwijder_cijfer($array) {
     global $session;
 
     if (session_status() == PHP_SESSION_NONE) { //controleren of sessie al is gestart
@@ -34,12 +34,12 @@ function verwijder_cijfer() {
         return -1;
     }
 
-    if (!isset($_POST['cijferid']) || !is_numeric($_POST['cijferid'])) {
+    if (!isset($array['cijfernummer']) || !is_numeric($array['cijfernummer'])) {
         return -2;
     }
 
     /* @var Cijfer $cijfer */
-    $cijfer = Cijfer::getCijfer($_POST['cijferid']);
+    $cijfer = Cijfer::getCijfer($array['cijfernummer']);
 
     if ($cijfer === NULL) {
         return -3;
@@ -49,4 +49,22 @@ function verwijder_cijfer() {
     return (int) (!$cijfer->verwijder());
 }
 
-echo verwijder_cijfer();
+// Takes raw data from the request
+$json = file_get_contents('php://input');
+
+// Converts the raw data into a array
+$data = json_decode($json, true);
+
+if ($data === NULL) {
+    $return = ["returnwaarde" => 1, "object" => NULL];
+} else {
+    $return = ["returnwaarde" => 0, "object" => []];
+
+    foreach ($data as $cijfer) {
+        $returnwaarde = verwijder_cijfer($cijfer);
+        $return["object"][] = ["returnwaarde" => $returnwaarde];
+    }
+}
+
+header('Content-Type: application/json');
+echo json_encode($return);

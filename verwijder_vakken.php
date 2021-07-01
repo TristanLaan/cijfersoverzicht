@@ -19,7 +19,7 @@
 require_once "connect.php";
 require_once "php/Vak.php";
 
-function verwijder_vak() {
+function verwijder_vak($array) {
     global $session;
 
     if (session_status() == PHP_SESSION_NONE) { //controleren of sessie al is gestart
@@ -34,12 +34,12 @@ function verwijder_vak() {
         return -1;
     }
 
-    if (!isset($_POST['vakid']) || !is_numeric($_POST['vakid'])) {
+    if (!isset($array['vaknummer']) || !is_numeric($array['vaknummer'])) {
         return -2;
     }
 
     /* @var Vak $vak */
-    $vak = Vak::getVak($_POST['vakid']);
+    $vak = Vak::getVak($array['vaknummer']);
 
     if ($vak === NULL) {
         return -3;
@@ -49,4 +49,22 @@ function verwijder_vak() {
     return (int) (!$vak->verwijder());
 }
 
-echo verwijder_vak();
+// Takes raw data from the request
+$json = file_get_contents('php://input');
+
+// Converts the raw data into a array
+$data = json_decode($json, true);
+
+if ($data === NULL) {
+    $return = ["returnwaarde" => 1, "object" => NULL];
+} else {
+    $return = ["returnwaarde" => 0, "object" => []];
+
+    foreach ($data as $vak) {
+        $returnwaarde = verwijder_vak($vak);
+        $return["object"][] = ["returnwaarde" => $returnwaarde];
+    }
+}
+
+header('Content-Type: application/json');
+echo json_encode($return);

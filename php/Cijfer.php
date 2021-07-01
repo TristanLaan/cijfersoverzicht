@@ -355,7 +355,7 @@ class Cijfer implements JsonSerializable {
                 return 4;
             }
         } else {
-            if (!$sql->bindValue(':weging', null, PDO::PARAM_null)) {
+            if (!$sql->bindValue(':weging', null, PDO::PARAM_NULL)) {
                 return 4;
             }
         }
@@ -365,7 +365,7 @@ class Cijfer implements JsonSerializable {
                 return 5;
             }
         } else {
-            if (!$sql->bindValue(':datum', null, PDO::PARAM_null)) {
+            if (!$sql->bindValue(':datum', null, PDO::PARAM_NULL)) {
                 return 5;
             }
         }
@@ -375,7 +375,7 @@ class Cijfer implements JsonSerializable {
                 return 6;
             }
         } else {
-            if (!$sql->bindValue(':cijfer', null, PDO::PARAM_null)) {
+            if (!$sql->bindValue(':cijfer', null, PDO::PARAM_NULL)) {
                 return 6;
             }
         }

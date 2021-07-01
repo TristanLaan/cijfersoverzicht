@@ -4,11 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+### Added
+- Admin interface wordt nu dynamisch geüpdatet na wijzigingen aan
+  cijfers/vakken, zonder dat een refresh nodig is.
+- Berekend gemiddelde cijfer van vak wordt nu ook in admin interface getoond.
+- Nieuwe cijfers worden alleen opgehaald als het browser-window open staat.
+- Verbeterde error messaging in admin en user interface.
+
 ### Changed
 - SQL-database engine en types verbeterd/consistent gemaakt.
 - SQL-relaties toegevoegd.
 - Verplaats back-end php files naar `php` map.
-- Verplaats javascript files naar `js` map.
+- Tabellen in admin interface zijn op dezelfde manier gesorteerd als in user
+  interface.
+- Wijzig/upload api's gemerged in 1 update api.
+- Alle api's werken nu op meerdere cijfers/vakken.
+- Javascript files verplaatst naar `js` map.
 - JS code compleet herschreven als modules.
 
 ## [0.6.0] - 2021-06-15

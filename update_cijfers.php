@@ -20,7 +20,7 @@ require_once "connect.php";
 require_once "php/Vak.php";
 require_once "php/Cijfer.php";
 
-function wijzig_cijfer() {
+function update_cijfer($array) {
     global $session;
 
     if (session_status() == PHP_SESSION_NONE) { //controleren of sessie al is gestart
@@ -35,41 +35,45 @@ function wijzig_cijfer() {
         return [-1, NULL];
     }
 
-    if (!isset($_POST['cijferid']) || !is_numeric($_POST['cijferid'])) {
-        return [-2, NULL];
+    $cijfer = NULL;
+
+    if (isset($array['cijfernummer'])) {
+        if (!is_numeric($array['cijfernummer'])) {
+            return [-2, NULL];
+        }
+
+        /* @var Cijfer $cijfer */
+        $cijfer = Cijfer::getCijfer($array['cijfernummer']);
+
+        if ($cijfer === NULL) {
+            return [-2, NULL];
+        }
     }
 
-    /* @var Cijfer $cijfer */
-    $cijfer = Cijfer::getCijfer($_POST['cijferid']);
-
-    if ($cijfer === NULL) {
-        return [-2, NULL];
-    }
-
-    if (!isset($_POST['vakid'])) {
+    if (!isset($array['vaknummer'])) {
         return [-3, NULL];
     }
 
-    if (!isset($_POST['naam']) || empty($_POST['naam']) || $_POST['naam'] === 'null') {
+    if (!isset($array['naam']) || empty($array['naam']) || $array['naam'] === 'null') {
         return [-4, NULL];
     }
 
-    $naam = $_POST['naam'];
+    $naam = $array['naam'];
 
-    if (!isset($_POST['weging']) || $_POST['weging'] === "") {
+    if (!isset($array['weging']) || empty($array['weging'])) {
         $weging = NULL;
     } else {
-        $weging = $_POST['weging'];
+        $weging = $array['weging'];
         if (!is_numeric($weging)) {
             return [-8, NULL];
         }
     }
 
-    if (!isset($_POST['datum']) || $_POST['datum'] === "") {
+    if (!isset($array['datum']) || empty($array['datum'])) {
         $datum = NULL;
     } else {
         try {
-            $datum = DateTime::createFromFormat("Y-m-d", $_POST['datum']);
+            $datum = DateTime::createFromFormat("Y-m-d", $array['datum']);
             if (!$datum) {
                 return [-5, NULL];
             }
@@ -79,23 +83,27 @@ function wijzig_cijfer() {
         }
     }
 
-    if (!isset($_POST['cijfer']) || $_POST['cijfer'] === "") {
+    if (!isset($array['cijfer']) || empty($array['cijfer'])) {
         $cijferwaarde = NULL;
     } else {
-        $cijferwaarde = $_POST['cijfer'];
+        $cijferwaarde = $array['cijfer'];
         if (!is_numeric($cijferwaarde)) {
             return [-6, NULL];
         }
     }
 
-    if (!is_numeric($_POST['vakid'])) {
+    if (!is_numeric($array['vaknummer'])) {
         $vak = NULL;
     } else {
-        $vak = Vak::getVak($_POST['vakid']);
+        $vak = Vak::getVak($array['vaknummer']);
     }
 
     if ($vak === NULL) {
         return [-7, NULL];
+    }
+
+    if ($cijfer === NULL) {
+        return Cijfer::createCijfer($vak, $naam, $weging, $datum, $cijferwaarde);
     }
 
     $cijfer->vak = $vak;
@@ -105,9 +113,26 @@ function wijzig_cijfer() {
     $cijfer->cijfer = $cijferwaarde;
 
     $return = $cijfer->update();
+
     return [$return, $cijfer];
 }
 
-list($return["returnwaarde"], $return["object"]) = wijzig_cijfer();
+// Takes raw data from the request
+$json = file_get_contents('php://input');
+
+// Converts the raw data into a array
+$data = json_decode($json, true);
+
+if ($data === NULL) {
+    $return = ["returnwaarde" => 1, "object" => NULL];
+} else {
+    $return = ["returnwaarde" => 0, "object" => []];
+
+    foreach ($data as $cijfer) {
+        list($returnwaarde, $object) = update_cijfer($cijfer);
+        $return["object"][] = ["returnwaarde" => $returnwaarde, "object" => $object];
+    }
+}
+
 header('Content-Type: application/json');
 echo json_encode($return);

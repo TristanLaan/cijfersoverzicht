@@ -28,15 +28,16 @@ require_once "php/print_copyright.php";
     <title>Bewerk cijfers - <?php echo $title; ?></title>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="style.css">
-    <script src="admin.js" async></script>
     <script>
         const serverinfo = {
             domein: "<?php echo $domein; ?>",
             wachtwoord: "<?php echo $userpass; ?>",
             intern: <?php echo $intern ? "true" : "false"; ?>,
-            interndomein: "<?php echo $interndomein; ?>"
+            interndomein: "<?php echo $interndomein; ?>",
+            titel: "<?php echo $title; ?>"
         };
     </script>
+    <script type="module" src="js/admin.js" defer></script>
 </head>
 <body>
 <div id="popup" class="popupachtergrond popup"></div>
@@ -44,6 +45,10 @@ require_once "php/print_copyright.php";
 <div id="wijzig-cijfer-popup" class="popupscherm popup"></div>
 
 <div id="wijzig-vak-popup" class="popupscherm popup"></div>
+
+<div id="cijfer-refresh-error" class="w3-container">
+
+</div>
 
 <div class="w3-container">
     <h1 class="w3-center"><?php echo $title; ?></h1>
@@ -61,14 +66,16 @@ require_once "php/print_copyright.php";
                 <th>Cijfer</th>
             </tr>
             </thead>
-            <!-- Hier worden de cijfers geplaatst door `admin.js` -->
+            <!-- Hier worden de cijfers geplaatst door `js/admin.js` -->
         </table>
+        <div id="cijfer-deel-info"></div>
+        <div id="cijferverwijdererror"></div>
         <div class="fullwidth" id="cijfer-buttons">
-            <button type="button" class="w3-btn w3-padding w3-teal upload-button" onclick="wijzigCijferSelectie()">Wijzig &nbsp; ❯
+            <button type="button" id="wijzig-cijfer-button" class="w3-btn w3-padding w3-teal upload-button">Wijzig &nbsp; ❯
             </button>
-            <button type="button" class="w3-btn w3-padding w3-teal upload-button" onclick="deelCijferSelectie()">Deel &nbsp; ❯
+            <button type="button" id="deel-cijfer-button" class="w3-btn w3-padding w3-teal upload-button">Deel &nbsp; ❯
             </button>
-            <button type="button" class="w3-btn w3-padding w3-red upload-button" onclick="verwijderCijferSelectie()">Verwijder &nbsp; ❯
+            <button type="button" id="verwijder-cijfer-button" class="w3-btn w3-padding w3-red upload-button">Verwijder &nbsp; ❯
             </button>
         </div>
     </form>
@@ -83,18 +90,20 @@ require_once "php/print_copyright.php";
                 <th>Titel</th>
                 <th>Jaar</th>
                 <th>Periode</th>
+                <th>Gemiddelde</th>
                 <th>Studiepunten</th>
                 <th>Eindcijfer</th>
                 <th>Gehaald</th>
                 <th>Toon</th>
             </tr>
             </thead>
-            <!-- Hier worden de vakken geplaatst door `admin.js` -->
+            <!-- Hier worden de vakken geplaatst door `js/admin.js` -->
         </table>
+        <div id="vakverwijdererror"></div>
         <div class="fullwidth" id="vak-buttons">
-            <button type="button" class="w3-btn w3-padding w3-teal upload-button" onclick="wijzigVakSelectie()">Wijzig &nbsp; ❯
+            <button type="button" id="wijzig-vak-button" class="w3-btn w3-padding w3-teal upload-button">Wijzig &nbsp; ❯
             </button>
-            <button type="button" class="w3-btn w3-padding w3-red upload-button" onclick="verwijderVakSelectie()">Verwijder &nbsp; ❯
+            <button type="button" id="verwijder-vak-button" class="w3-btn w3-padding w3-red upload-button">Verwijder &nbsp; ❯
             </button>
         </div>
     </form>
@@ -103,14 +112,12 @@ require_once "php/print_copyright.php";
         <div class="w3-half">
             <h2>Nieuwe cijfers</h2>
             <div id="cijfervakken">
-                <div id="cijfervak0">
-                </div>
             </div>
             <div id="cijferuploaderror"></div>
-            <button type="button" class="w3-btn w3-padding w3-teal upload-button left" onclick="uploadAlleCijfers()">Upload
+            <button type="button" id="upload-cijfers-button" class="w3-btn w3-padding w3-teal upload-button left">Upload
                 alle &nbsp; ❯
             </button>
-            <form class="left" id="resetCijfer" onsubmit="resetCijferUpload()" action="javascript:void(0)">
+            <form class="left" id="reset-cijfers-form" action="javascript:void(0)">
                 <input class="w3-input w3-border aantal-reset" type="number" name="aantal" required value="1" min="1"
                        step="1">
                 <input type="submit" class="w3-btn w3-padding w3-red reset-button" value="Reset &nbsp; ❯">
@@ -119,14 +126,12 @@ require_once "php/print_copyright.php";
         <div class="w3-half">
             <h2>Nieuwe Vakken</h2>
             <div id="vakvakken">
-                <div id="vak0">
-                </div>
             </div>
             <div id="vakuploaderror"></div>
-            <button type="button" class="left w3-btn w3-padding w3-teal upload-button" onclick="uploadAlleVakken()">Upload
+            <button type="button" id="upload-vakken-button" class="left w3-btn w3-padding w3-teal upload-button">Upload
                 alle &nbsp; ❯
             </button>
-            <form class="left" id="resetVak" onsubmit="resetVakUpload()" action="javascript:void(0)">
+            <form class="left" id="reset-vakken-form" action="javascript:void(0)">
                 <input class="w3-input w3-border aantal-reset" type="number" name="aantal" required value="1" min="1"
                        step="1">
                 <input type="submit" class="w3-btn w3-padding w3-red reset-button" value="Reset &nbsp; ❯">
@@ -136,12 +141,16 @@ require_once "php/print_copyright.php";
 
     <?php if ($grafiek) { ?>
 
-        <img class="graph light" src="afbeelding.php?id=grades-light-latest.svg" alt="Grafiek cijfers licht"/>
-        <img class="graph dark" src="afbeelding.php?id=grades-dark-latest.svg" alt="Grafiek cijfers donker"/>
+        <picture>
+            <source srcset="afbeelding.php?id=grades-dark-latest.svg" media="(prefers-color-scheme: dark)"/>
+            <img class="graph" src="afbeelding.php?id=grades-light-latest.svg" alt="Grafiek cijfers"/>
+        </picture>
         <div class="fullwidth hidden" id="loadicon">
             <div class="center loading-bar">
-                <img class="loading dark" src="icons/purple-spin.svg">
-                <img class="loading light" src="icons/black-spin.svg">
+                <picture>
+                    <source srcset="icons/purple-spin.svg" media="(prefers-color-scheme: dark)"/>
+                    <img class="loading" src="icons/black-spin.svg" alt="Grafiek aan het genereren..."/>
+                </picture>
             </div>
         </div>
         <div class="fullwidth">
@@ -149,7 +158,7 @@ require_once "php/print_copyright.php";
         </div>
         <div class="fullwidth downloads">
             <div class="center download-buttons">
-                <button type="button" class="left w3-btn w3-padding w3-teal download-button" onclick="refreshGrafiek()">Vernieuw grafiek &nbsp;
+                <button type="button" id="refresh-grafiek-button" class="left w3-btn w3-padding w3-teal download-button">Vernieuw grafiek &nbsp;
                     ❯
                 </button>
                 <a class="left" target="_blank" href="afbeelding.php?id=grades-light-latest.svg">

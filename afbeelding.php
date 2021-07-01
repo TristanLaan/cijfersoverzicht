@@ -48,7 +48,7 @@ if ($_SESSION[$session] !== "ingelogd") {
                         header("Content-Type: image/jpeg");
                         break;
                     default:
-                        http_response_code(400);
+                        http_response_code(501);
                         exit();
                 }
                 // Set etag in header for caching results

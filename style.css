@@ -314,6 +314,15 @@ img.loading {
         background-color: #BB86FC !important;
     }
 
+    .w3-amber {
+        background-color: #e36000 !important;
+    }
+
+    .w3-light-grey, .w3-light-gray {
+        color: white !important;
+        background-color: #212121 !important;
+    }
+
     .login-knop-admin {
         color: black !important;
         background-color: #fc4047 !important;

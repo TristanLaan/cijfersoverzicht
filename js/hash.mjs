@@ -1,4 +1,3 @@
-<?php
 /**
  * Copyright (c) Tristan Laan 2018-2021.
  * This file is part of cijfersoverzicht.
@@ -16,8 +15,31 @@
  * along with cijfersoverzicht.  If not, see <https://www.gnu.org/licenses/>
  */
 
-require_once "upload_cijfer_function.php";
+async function generate_hash(message) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(message);
+    return await crypto.subtle.digest('SHA-256', data);
+}
 
-list($return["returnwaarde"], $return["object"]) = upload_cijfer();
-header('Content-Type: application/json');
-echo json_encode($return);
+function compare_hashes(a, b) {
+    if (a === null || b === null) {
+        return false;
+    }
+
+    if (a.byteLength !== b.byteLength) {
+        return false;
+    }
+
+    a = new Uint8Array(a, 0);
+    b = new Uint8Array(b, 0);
+
+    for (let i = 0; i < a.byteLength; i++) {
+        if (a[i] !== b[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+export {generate_hash, compare_hashes};

@@ -19,16 +19,8 @@
 require_once "connect.php";
 require_once "php/Vak.php";
 
-/**
- * @param array $array
- * @return array
- */
-function upload_vak($array = NULL) {
+function update_vak($array) {
     global $session;
-
-    if ($array === NULL) {
-        $array = $_POST;
-    }
 
     if (session_status() == PHP_SESSION_NONE) { //controleren of sessie al is gestart
         session_start(); //sessie starten
@@ -42,30 +34,45 @@ function upload_vak($array = NULL) {
         return [-1, NULL];
     }
 
+    $vak = NULL;
+
+    if (isset($array['vaknummer'])) {
+        if (!is_numeric($array['vaknummer'])) {
+            return [-2, NULL];
+        }
+
+        /* @var Vak $vak */
+        $vak = Vak::getVak($array['vaknummer']);
+
+        if ($vak === NULL) {
+            return [-2, NULL];
+        }
+    }
+
     if (!isset($array['naam']) || empty($array['naam']) || $array['naam'] === 'null') {
-        return [-2, NULL];
+        return [-3, NULL];
     }
 
     $naam = $array['naam'];
 
-    if (!isset($array['jaar']) || $array['jaar'] === "" || $array['jaar'] === 'null' || !is_numeric($array['jaar'])) {
-        return [-3, NULL];
+    if (!isset($array['jaar']) || empty($array['jaar']) || !is_numeric($array['jaar'])) {
+        return [-4, NULL];
     }
 
     $jaar = $array['jaar'];
 
-    if (!isset($array['studiepunten']) || $array['studiepunten'] === "" || $array['studiepunten'] === 'null' || !is_numeric($array['studiepunten'])) {
-        return [-4, NULL];
+    if (!isset($array['studiepunten']) || empty($array['studiepunten']) || !is_numeric($array['studiepunten'])) {
+        return [-5, NULL];
     }
 
     $studiepunten = $array['studiepunten'];
 
-    if (!isset($array['periode']) || $array['periode'] === "") {
+    if (!isset($array['periode']) || empty($array['periode'])) {
         $periode = NULL;
     } else {
         $periode = $array['periode'];
         if (!is_numeric($periode)) {
-            return [-5, NULL];
+            return [-6, NULL];
         }
     }
 
@@ -81,15 +88,48 @@ function upload_vak($array = NULL) {
         $toon = true;
     }
 
-    if (!isset($array['eindcijfer']) || $array['eindcijfer'] === "") {
+    if (!isset($array['eindcijfer']) || empty($array['eindcijfer'])) {
         $eindcijfer = NULL;
     } else {
         $eindcijfer = $array['eindcijfer'];
         if (!is_numeric($eindcijfer)) {
-            return [-6, NULL];
+            return [-7, NULL];
         }
     }
 
-    /* @var Vak $uploadedVak */
-    return Vak::createVak($naam, $jaar, $studiepunten, $gehaald, $toon, $periode, $eindcijfer);
+    if ($vak === NULL) {
+        return Vak::createVak($naam, $jaar, $studiepunten, $gehaald, $toon, $periode, $eindcijfer);
+    }
+
+    $vak->naam = $naam;
+    $vak->jaar = $jaar;
+    $vak->periode = $periode;
+    $vak->studiepunten = $studiepunten;
+    $vak->gehaald = $gehaald;
+    $vak->toon = $toon;
+    $vak->eindcijfer = $eindcijfer;
+
+    $return = $vak->update();
+    return [$return, $vak];
 }
+
+
+// Takes raw data from the request
+$json = file_get_contents('php://input');
+
+// Converts the raw data into a array
+$data = json_decode($json, true);
+
+if ($data === NULL) {
+    $return = ["returnwaarde" => 1, "object" => NULL];
+} else {
+    $return = ["returnwaarde" => 0, "object" => []];
+
+    foreach ($data as $vak) {
+        list($returnwaarde, $object) = update_vak($vak);
+        $return["object"][] = ["returnwaarde" => $returnwaarde, "object" => $object];
+    }
+}
+
+header('Content-Type: application/json');
+echo json_encode($return);
