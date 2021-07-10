@@ -150,6 +150,14 @@ function update_cijfers_tabel(table, data, admin=false) {
     table.appendChild(table_inhoud);
 }
 
+function format_periode(periode) {
+    if (periode.start === periode.end) {
+        return periode.start;
+    }
+
+    return `${periode.start}–${periode.end}`
+}
+
 function vul_vakken_rij(rij, vak, admin) {
     if (admin) {
         maak_tcell(rij, document.createTextNode(vak.vaknummer));
@@ -157,7 +165,7 @@ function vul_vakken_rij(rij, vak, admin) {
 
     maak_tcell(rij, document.createTextNode(vak.naam));
     maak_tcell(rij, document.createTextNode(vak.jaar));
-    maak_tcell(rij, document.createTextNode(vak.periode !== null ? vak.periode : ""));
+    maak_tcell(rij, document.createTextNode(vak.periode !== null ? format_periode(vak.periode) : ""));
     maak_tcell(rij, document.createTextNode(vak.gemiddelde !== null ? vak.gemiddelde : ""));
 
     if (!admin) {

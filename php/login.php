@@ -36,10 +36,13 @@ if ($_SESSION[$session] == null) //weergeven als niet is ingelogd
     <html lang="nl">
     <?php htmlcopyright(); ?>
     <head>
+        <meta charset="utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
         <title>Login om cijfers te zien - <?php echo $title; ?></title>
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
         <link rel="stylesheet" href="style.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="color-scheme" content="dark light">
         <script>
             function loginsite() {
                 const pass = document.getElementById("password").value;

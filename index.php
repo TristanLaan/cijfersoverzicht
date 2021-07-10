@@ -31,6 +31,7 @@ $datum = new DateTime();
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <title><?php echo $title; ?></title>
     <meta name="viewport" content="width=1200px, initial-scale=0.86, maximum-scale=3.0, minimum-scale=0.25"/>
+    <meta name="color-scheme" content="dark light">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="style.css">
     <script>

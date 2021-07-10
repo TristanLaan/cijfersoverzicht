@@ -25,9 +25,12 @@ require_once "php/print_copyright.php";
 <html lang="nl">
 <?php htmlcopyright(); ?>
 <head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <title>Bewerk cijfers - <?php echo $title; ?></title>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="style.css">
+    <meta name="color-scheme" content="dark light">
     <script>
         const serverinfo = {
             domein: "<?php echo $domein; ?>",
@@ -158,26 +161,26 @@ require_once "php/print_copyright.php";
         </div>
         <div class="fullwidth downloads">
             <div class="center download-buttons">
-                <button type="button" id="refresh-grafiek-button" class="left w3-btn w3-padding w3-teal download-button">Vernieuw grafiek &nbsp;
+                <button type="button" id="refresh-grafiek-button" class="w3-btn w3-padding w3-teal download-button">Vernieuw grafiek &nbsp;
                     ❯
                 </button>
-                <a class="left" target="_blank" href="afbeelding.php?id=grades-light-latest.svg">
-                    <button type="button" class="left w3-btn w3-padding w3-teal download-button">Download svg (licht) &nbsp;
+                <a target="_blank" href="afbeelding.php?id=grades-light-latest.svg">
+                    <button type="button" class="w3-btn w3-padding w3-teal download-button">Download svg (licht) &nbsp;
                         ❯
                     </button>
                 </a>
-                <a class="left"  target="_blank" href="afbeelding.php?id=grades-light-latest.png">
-                    <button type="button" class="left w3-btn w3-padding w3-teal download-button">Download png (licht) &nbsp;
+                <a target="_blank" href="afbeelding.php?id=grades-light-latest.png">
+                    <button type="button" class="w3-btn w3-padding w3-teal download-button">Download png (licht) &nbsp;
                         ❯
                     </button>
                 </a>
-                <a class="left" target="_blank" href="afbeelding.php?id=grades-dark-latest.svg">
-                    <button type="button" class="left w3-btn w3-padding w3-teal download-button">Download svg (donker)
+                <a target="_blank" href="afbeelding.php?id=grades-dark-latest.svg">
+                    <button type="button" class="w3-btn w3-padding w3-teal download-button">Download svg (donker)
                         &nbsp; ❯
                     </button>
                 </a>
-                <a class="left" target="_blank" href="afbeelding.php?id=grades-dark-latest.png">
-                    <button type="button" class="left w3-btn w3-padding w3-teal download-button">Download png (donker)
+                <a target="_blank" href="afbeelding.php?id=grades-dark-latest.png">
+                    <button type="button" class="w3-btn w3-padding w3-teal download-button">Download png (donker)
                         &nbsp; ❯
                     </button>
                 </a>

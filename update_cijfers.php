@@ -37,7 +37,7 @@ function update_cijfer($array) {
 
     $cijfer = NULL;
 
-    if (isset($array['cijfernummer'])) {
+    if (isset($array['cijfernummer']) && $array['cijfernummer'] !== '') {
         if (!is_numeric($array['cijfernummer'])) {
             return [-2, NULL];
         }
@@ -50,17 +50,17 @@ function update_cijfer($array) {
         }
     }
 
-    if (!isset($array['vaknummer'])) {
+    if (empty($array['vaknummer'])) {
         return [-3, NULL];
     }
 
-    if (!isset($array['naam']) || empty($array['naam']) || $array['naam'] === 'null') {
+    if (empty($array['naam']) || $array['naam'] === 'null') {
         return [-4, NULL];
     }
 
     $naam = $array['naam'];
 
-    if (!isset($array['weging']) || empty($array['weging'])) {
+    if (!isset($array['weging']) || $array['weging'] === '') {
         $weging = NULL;
     } else {
         $weging = $array['weging'];
@@ -69,7 +69,7 @@ function update_cijfer($array) {
         }
     }
 
-    if (!isset($array['datum']) || empty($array['datum'])) {
+    if (empty($array['datum'])) {
         $datum = NULL;
     } else {
         try {
@@ -83,7 +83,7 @@ function update_cijfer($array) {
         }
     }
 
-    if (!isset($array['cijfer']) || empty($array['cijfer'])) {
+    if (!isset($array['cijfer']) || $array['cijfer'] === '') {
         $cijferwaarde = NULL;
     } else {
         $cijferwaarde = $array['cijfer'];

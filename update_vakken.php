@@ -36,7 +36,7 @@ function update_vak($array) {
 
     $vak = NULL;
 
-    if (isset($array['vaknummer'])) {
+    if (isset($array['vaknummer']) && $array['vaknummer'] !== '') {
         if (!is_numeric($array['vaknummer'])) {
             return [-2, NULL];
         }
@@ -49,46 +49,47 @@ function update_vak($array) {
         }
     }
 
-    if (!isset($array['naam']) || empty($array['naam']) || $array['naam'] === 'null') {
+    if (empty($array['naam']) || $array['naam'] === 'null') {
         return [-3, NULL];
     }
 
     $naam = $array['naam'];
 
-    if (!isset($array['jaar']) || empty($array['jaar']) || !is_numeric($array['jaar'])) {
+    if (!isset($array['jaar']) || $array['jaar'] === '' || !is_numeric($array['jaar'])) {
         return [-4, NULL];
     }
 
     $jaar = $array['jaar'];
 
-    if (!isset($array['studiepunten']) || empty($array['studiepunten']) || !is_numeric($array['studiepunten'])) {
+    if (!isset($array['studiepunten']) || $array['studiepunten'] === '' || !is_numeric($array['studiepunten'])) {
         return [-5, NULL];
     }
 
     $studiepunten = $array['studiepunten'];
 
-    if (!isset($array['periode']) || empty($array['periode'])) {
+    if (empty($array['periode'])) {
         $periode = NULL;
     } else {
-        $periode = $array['periode'];
-        if (!is_numeric($periode)) {
-            return [-6, NULL];
+        if (!isset($array['periode']['periode_start']) || $array['periode']['periode_start'] === '' || !is_numeric($array['periode']['periode_start'])
+            || !isset($array['periode']['periode_end']) || $array['periode']['periode_end'] === '' || !is_numeric($array['periode']['periode_end'])) {
+            return [-5, NULL];
         }
+        $periode = new Periode($array['periode']['periode_start'], $array['periode']['periode_end']);
     }
 
-    if (!isset($array['gehaald']) || !filter_var($array['gehaald'], FILTER_VALIDATE_BOOLEAN)) {
+    if (empty($array['gehaald']) || !filter_var($array['gehaald'], FILTER_VALIDATE_BOOLEAN)) {
         $gehaald = false;
     } else {
         $gehaald = true;
     }
 
-    if (!isset($array['toon']) || !filter_var($array['toon'], FILTER_VALIDATE_BOOLEAN)) {
+    if (empty($array['toon']) || !filter_var($array['toon'], FILTER_VALIDATE_BOOLEAN)) {
         $toon = false;
     } else {
         $toon = true;
     }
 
-    if (!isset($array['eindcijfer']) || empty($array['eindcijfer'])) {
+    if (!isset($array['eindcijfer']) || $array['eindcijfer'] === '') {
         $eindcijfer = NULL;
     } else {
         $eindcijfer = $array['eindcijfer'];

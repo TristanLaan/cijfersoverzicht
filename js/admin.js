@@ -15,7 +15,7 @@
  * along with cijfersoverzicht.  If not, see <https://www.gnu.org/licenses/>
  */
 
-import {Cijfer, format_date, get_cijfers, parse_date, parse_get_all_cijfers, Vak} from "./api.mjs";
+import {Cijfer, format_date, get_cijfers, parse_date, parse_get_all_cijfers, Vak, Periode} from "./api.mjs";
 import {compare_hashes, generate_hash} from "./hash.mjs";
 import {createPanel, panelTypesEnum} from "./panel.mjs";
 import * as common from "./common.mjs";
@@ -229,6 +229,10 @@ function update_cijfer_selectie(divs, errorvak, bewerk) {
     for (let div of divs) {
         let form = div.querySelector("form");
         if (!form.dataset.uploaded) {
+            if (!form.reportValidity()) {
+                return;
+            }
+
             let cijfer = get_cijfervak_data(form, bewerk);
             if (cijfer) {
                 cijfers.push(cijfer);
@@ -548,8 +552,10 @@ function get_vakvak_data(form, bewerk) {
     const studiepunten = parseInt(studiepunten_val);
     const gehaald = form.querySelector("input[name='gehaald']").checked;
     const toon = form.querySelector("input[name='toon']").checked;
-    const periode_val = form.querySelector("input[name='periode']").value
-    const periode = periode_val === '' ? null : parseInt(periode_val);
+    const periode_start_val = form.querySelector("input[name='periode-start']").value
+    const periode_start = periode_start_val === '' ? null : parseInt(periode_start_val);
+    const periode_end_val = form.querySelector("input[name='periode-end']").value
+    const periode_end = periode_end_val === '' ? null : parseInt(periode_end_val);
     const eindcijfer_val = form.querySelector("input[name='eindcijfer']").value
     const eindcijfer = eindcijfer_val === '' ? null : parseFloat(eindcijfer_val);
     let errorvak = form.querySelector("div.errorvak");
@@ -571,14 +577,38 @@ function get_vakvak_data(form, bewerk) {
         error = true;
     }
 
-    if (isNaN(periode) || periode < 0) {
-        errorvak.appendChild(createPanel(panelTypesEnum.error, "Periode is ongeldig.", false));
+    if (isNaN(periode_start) || periode_start < 0) {
+        errorvak.appendChild(createPanel(panelTypesEnum.error, "Begin periode is ongeldig.", false));
+        error = true;
+    }
+
+    if (isNaN(periode_end) || periode_end < 0) {
+        errorvak.appendChild(createPanel(panelTypesEnum.error, "Eind periode is ongeldig.", false));
         error = true;
     }
 
     if (isNaN(eindcijfer) || eindcijfer < 0) {
         errorvak.appendChild(createPanel(panelTypesEnum.error, "Eindcijer is ongeldig.", false));
         error = true;
+    }
+
+    if (!isNaN(periode_start) && !isNaN(periode_end)) {
+        if (periode_start === null) {
+            if (periode_end !== null) {
+                errorvak.appendChild(createPanel(panelTypesEnum.error, "Alleen eind periode opgegeven.", false));
+                error = true;
+            }
+        } else {
+            if (periode_end === null) {
+                errorvak.appendChild(createPanel(panelTypesEnum.error, "Alleen begin periode opgegeven.", false));
+                error = true;
+            }
+
+            if (periode_start > periode_end) {
+                errorvak.appendChild(createPanel(panelTypesEnum.error, "De eind periode moet na de begin periode zijn.", false));
+                error = true;
+            }
+        }
     }
 
     if (error) {
@@ -592,7 +622,7 @@ function get_vakvak_data(form, bewerk) {
         studiepunten: studiepunten,
         gehaald: gehaald,
         toon: toon,
-        periode: periode,
+        periode: periode_start === null ? null : {start: periode_start, end: periode_end},
         eindcijfer: eindcijfer
     });
 }
@@ -642,6 +672,10 @@ function update_vak_selectie(divs, errorvak, bewerk) {
     for (let div of divs) {
         let form = div.querySelector("form");
         if (!form.dataset.uploaded) {
+            if (!form.reportValidity()) {
+                return;
+            }
+
             let vak = get_vakvak_data(form, bewerk);
             if (vak) {
                 vakken.push(vak);
@@ -814,15 +848,59 @@ function create_vak_vak(i, bewerk = false, vak = null) {
         class: ['w3-text-grey'],
         children: [document.createTextNode("Periode")]
     }));
-    optie.appendChild(maak_element('input', {
-        name: 'periode',
+
+    let flex = optie.appendChild(maak_element('div', {
+        style: {display: 'flex', justifyContent: 'space-between'}
+    }));
+
+    let periode_start = maak_element('input', {
+        name: 'periode-start',
         type: 'number',
         min: 0,
         step: 1,
         placeholder: '1',
-        value: vak ? vak.periode : '',
-        class: ['w3-input', 'w3-border']
-    }));
+        value: (vak && vak.periode) ? vak.periode.start : '',
+        class: ['w3-input', 'w3-border'],
+        style: {width: 'calc(50% - 15px)'}
+    });
+
+    let periode_end = maak_element('input', {
+        name: 'periode-end',
+        type: 'number',
+        min: 0,
+        step: 1,
+        placeholder: '1',
+        value: (vak && vak.periode) ? vak.periode.end : '',
+        class: ['w3-input', 'w3-border'],
+        style: {width: 'calc(50% - 15px)'}
+    });
+
+    function update_periode_end() {
+        let start = periode_start.value === '' ? null : parseInt(periode_start.value);
+        let end = periode_end.value === '' ? null : parseInt(periode_end.value);
+
+        if (start === null) {
+            periode_end.value = '';
+            periode_end.min = 0;
+            periode_end.required = false;
+        } else {
+            periode_end.min = start;
+            periode_end.required = true;
+            if (end === null || start > end) {
+                periode_end.value = start;
+            }
+        }
+    }
+
+    periode_start.addEventListener('input', update_periode_end);
+
+    flex.appendChild(periode_start);
+    flex.appendChild(maak_element('span', {
+        style: {maxWidth: '20px', margin: 'auto 0'},
+        children: [document.createTextNode("–")]
+    }))
+    flex.appendChild(periode_end);
+    optie.appendChild(flex);
     sec.appendChild(optie);
     row.appendChild(sec);
 

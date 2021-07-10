@@ -53,6 +53,10 @@
 
 /* algemeen */
 
+html, body, h1, h2, h3, h4, h5, h6 {
+    font-family: sans-serif;
+}
+
 html {
     overflow-x: auto;
 }
@@ -150,16 +154,16 @@ td.table-cijfertitel {
 
 .downloads {
     margin-top: 10px;
-    height: 60px;
 }
 
 .download-buttons {
-    height: 100%;
-    width: max-content;
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
 }
 
 .download-button {
-    margin: 0 12px;
+    margin: 6px;
 }
 
 /* admin */

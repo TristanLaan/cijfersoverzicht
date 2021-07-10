@@ -49,6 +49,24 @@ class Error {
     }
 }
 
+class Periode {
+    start;
+    end;
+
+    constructor(start, end) {
+        this.start = start;
+        this.end = end;
+    }
+
+    to_json() {
+        return {start: this.start, end: this.end};
+    }
+
+    static from_json(json) {
+        return new this(json.start, json.end);
+    }
+}
+
 class Vak {
     vaknummer;
     naam;
@@ -78,12 +96,13 @@ class Vak {
 
     to_json() {
         if (this.vaknummer === null) {
-            return {naam: this.naam, jaar: this.jaar, periode: this.periode, studiepunten: this.studiepunten, gehaald: this.gehaald, toon: this.toon, eindcijfer: this.eindcijfer};
+            return {naam: this.naam, jaar: this.jaar, periode: this.periode === null ? null : this.periode.to_json(), studiepunten: this.studiepunten, gehaald: this.gehaald, toon: this.toon, eindcijfer: this.eindcijfer};
         }
-        return {vaknummer: this.vaknummer, naam: this.naam, jaar: this.jaar, periode: this.periode, studiepunten: this.studiepunten, gehaald: this.gehaald, toon: this.toon, eindcijfer: this.eindcijfer};    }
+        return {vaknummer: this.vaknummer, naam: this.naam, jaar: this.jaar, periode: null ? null : this.periode.to_json(), studiepunten: this.studiepunten, gehaald: this.gehaald, toon: this.toon, eindcijfer: this.eindcijfer};
+    }
 
     static from_json(json, gemiddelde=null, totaal=null, cijfers=[]) {
-        return new this(json.vaknummer, json.naam, json.jaar, json.periode, json.studiepunten, json.gehaald, json.eindcijfer, json.toon, gemiddelde, totaal, cijfers);
+        return new this(json.vaknummer, json.naam, json.jaar, json.periode === null ? null : Periode.from_json(json.periode), json.studiepunten, json.gehaald, json.eindcijfer, json.toon, gemiddelde, totaal, cijfers);
     }
 
     static update_vakken(vakken, general_error_function, handle_vak_function, finished_function=null) {
@@ -422,4 +441,4 @@ function get_cijfers(handle_cijfers) {
     xhttp.send();
 }
 
-export {vakMapping, Vak, Cijfer, Error, parse_get_all_cijfers, get_cijfers, parse_date, format_date};
+export {vakMapping, Periode, Vak, Cijfer, Error, parse_get_all_cijfers, get_cijfers, parse_date, format_date};

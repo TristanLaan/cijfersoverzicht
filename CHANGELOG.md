@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Berekend gemiddelde cijfer van vak wordt nu ook in admin interface getoond.
 - Nieuwe cijfers worden alleen opgehaald als het browser-window open staat.
 - Verbeterde error messaging in admin en user interface.
+- Vakken kunnen nu over meerdere periodes spannen.
+  - Begin en eind periode veld aan database en api's toegevoegd.
+  - Vak editor aangepast om begin en eind van periode aan te kunnen geven.
+  - Vakken die over meerdere periodes spannen worden als range aangegeven in de tabel.
+- Ondersteuning voor dark mode aangegeven aan browser voor betere weergave.
 
 ### Changed
 - SQL-database engine en types verbeterd/consistent gemaakt.
