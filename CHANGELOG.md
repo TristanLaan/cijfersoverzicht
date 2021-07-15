@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [1.0.0]
 ### Added
 - Admin interface wordt nu dynamisch geüpdatet na wijzigingen aan
   cijfers/vakken, zonder dat een refresh nodig is.
@@ -153,7 +153,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   opgeschoont door het opsplitsen in functies
 - Project geupgrade van PHP 5.6 > PHP 7.0
 
-## Removed
+### Removed
 - Er is geen support meer voor PHP 5.6
 
 ## [0.1.2] - 2019-06-20
@@ -187,7 +187,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Een login pagina die een wachtwoord vereist voordat de website wordt bezocht
 - Een pagina waar alle cijfers te zien zijn
 
-[Unreleased]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.6.0...HEAD
+[1.0.0]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.6.0...v1.0.0
 [0.6.0]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.4.0...v0.5.0
