@@ -16,6 +16,7 @@
  */
 
 let vakMapping = {};
+let studieMapping = {};
 
 function format_date(date) {
     let y = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(date);
@@ -49,6 +50,174 @@ class Error {
     }
 }
 
+class Studie {
+    studienummer;
+    naam;
+    begin_jaar;
+    eind_jaar;
+    gehaald;
+    bsa;
+    standaard;
+
+    constructor(studienummer, naam, begin_jaar, eind_jaar, gehaald, bsa, standaard) {
+        this.studienummer = studienummer;
+        this.naam = naam;
+        this.begin_jaar = begin_jaar;
+        this.eind_jaar = eind_jaar;
+        this.gehaald = gehaald;
+        this.bsa = bsa;
+        this.standaard = standaard;
+    }
+
+    to_json() {
+        if (this.studienummer === null) {
+            return {naam: this.naam, begin_jaar: this.begin_jaar, eind_jaar: this.eind_jaar, gehaald: this.gehaald, bsa: this.bsa, standaard: this.standaard};
+        }
+        return {studienummer: this.studienummer, naam: this.naam, begin_jaar: this.begin_jaar, eind_jaar: this.eind_jaar, gehaald: this.gehaald, bsa: this.bsa, standaard: this.standaard};
+
+    }
+
+    static from_json(json) {
+        return new this(json.studienummer, json.naam, json.begin_jaar, json.eind_jaar, json.gehaald, json.bsa, json.standaard);
+    }
+
+    format(genummerd = false) {
+        return `${genummerd ? `${this.studienummer}. ` : ''}${this.naam} (${this.begin_jaar}–${this.eind_jaar === null ? 'heden' : this.eind_jaar})`
+    }
+
+    static update_studies(studies, general_error_function, handle_studie_function, finished_function=null) {
+        let data = [];
+        for (let studie of studies) {
+            data.push(studie.to_json());
+        }
+
+        const xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4) {
+                if (this.status === 200) {
+                    let output;
+                    try {
+                        output = JSON.parse(this.responseText);
+                    } catch (SyntaxError) {
+                        console.debug('JSON response: ' + this.responseText);
+                        general_error_function(new Error(null, "Er is een onbekende fout opgetreden bij het updaten van de studies. (JSON parsing)"));
+                        return;
+                    }
+
+                    if (output.returnwaarde !== 0) {
+                        general_error_function(new Error(null, "Er is een onbekende fout opgetreden tijdens het updaten van de studies, probeer het later opnieuw."));
+                    } else {
+                        for (const [i, studie_update] of output.object.entries()) {
+                            let error = null;
+                            switch (studie_update.returnwaarde) {
+                                case 0:
+                                    break;
+                                case -1:
+                                    error = new Error(studie_update.returnwaarde, `Je bent niet ingelogd! Klik <a href="admin.php" target="_blank">hier</a> om opnieuw in te loggen, en probeer het dan opnieuw.`, true);
+                                    break;
+                                case -2:
+                                    error = new Error(studie_update.returnwaarde, "De opgegeven studie bestaat niet.");
+                                    break;
+                                case -3:
+                                    error = new Error(studie_update.returnwaarde, "De naam van de studie is niet opgegeven.");
+                                    break;
+                                case -4:
+                                    error = new Error(studie_update.returnwaarde, "Het begin jaar van de studie is geen geldig getal.");
+                                    break;
+                                case -5:
+                                    error = new Error(studie_update.returnwaarde, "Het begin jaar van de studie is geen geldig getal.");
+                                    break;
+                                case -6:
+                                    error = new Error(studie_update.returnwaarde, "Het bsa van de studie is geen geldig getal.");
+                                    break;
+                                default:
+                                    error = new Error(studie_update.returnwaarde, "Er is een onbekende fout opgetreden tijdens het updaten van de studie, probeer het later opnieuw.");
+                                    break;
+                            }
+
+                            handle_studie_function(i, studie_update.object, error);
+                        }
+
+                        if (finished_function) {
+                            finished_function();
+                        }
+                    }
+                } else {
+                    general_error_function(new Error(null, "Er is een onbekende fout opgetreden tijdens het updaten van de studies, probeer het later opnieuw."));
+                }
+            }
+        }
+
+        xhttp.open("POST", "update_studies.php", true);
+        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xhttp.send(JSON.stringify(data));
+    }
+
+    static verwijder_studies(studies, general_error_function, handle_studie_function) {
+        let data = [];
+        for (let studie of studies) {
+            data.push({studienummer: studie.studienummer});
+        }
+
+        const xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4) {
+                if (this.status === 200) {
+                    let output;
+                    try {
+                        output = JSON.parse(this.responseText);
+                    } catch (SyntaxError) {
+                        console.debug('JSON response: ' + this.responseText);
+                        general_error_function(new Error(null, "Er is een onbekende fout opgetreden bij het verwijderen van de studies. (JSON parsing)"));
+                        return;
+                    }
+
+                    if (output.returnwaarde !== 0) {
+                        general_error_function(new Error(null, "Er is een onbekende fout opgetreden tijdens het verwijderen van de studies, probeer het later opnieuw."));
+                    } else {
+                        let results = [];
+                        for (const [i, cijfer_update] of output.object.entries()) {
+                            let error = null;
+                            switch (cijfer_update.returnwaarde) {
+                                case 0:
+                                    break;
+                                case 1:
+                                    error = new Error(cijfer_update.returnwaarde, "Kan standaard studie niet verwijderen.");
+                                    break;
+                                case -1:
+                                    error = new Error(cijfer_update.returnwaarde, `Je bent niet ingelogd! Klik <a href="admin.php" target="_blank">hier</a> om opnieuw in te loggen, en probeer het dan opnieuw.`, true);
+                                    break;
+                                case -3:
+                                    error = new Error(cijfer_update.returnwaarde, "De opgegeven studie bestaat niet.");
+                                    break;
+                                default:
+                                    error = new Error(cijfer_update.returnwaarde, "Er is een onbekende fout opgetreden tijdens het verwijderen van de studie, probeer het later opnieuw.");
+                                    break;
+                            }
+
+                            results.push({i: i, error: error});
+                        }
+
+                        handle_studie_function(results);
+                    }
+                } else {
+                    general_error_function(new Error(null, "Er is een onbekende fout opgetreden tijdens het verwijderen van de studies, probeer het later opnieuw."));
+                }
+            }
+        }
+
+        xhttp.open("POST", "verwijder_studies.php", true);
+        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xhttp.send(JSON.stringify(data));
+    }
+
+    valueOf() {
+        return this.studienummer;
+    }
+}
+
 class Periode {
     start;
     end;
@@ -69,6 +238,7 @@ class Periode {
 
 class Vak {
     vaknummer;
+    studienummer;
     naam;
     jaar;
     periode;
@@ -80,8 +250,9 @@ class Vak {
     totaal;
     cijfers;
 
-    constructor(vaknummer, naam, jaar, periode, studiepunten, gehaald, eindcijfer, toon, gemiddelde=null, totaal=null, cijfers=[]) {
+    constructor(vaknummer, studienummer, naam, jaar, periode, studiepunten, gehaald, eindcijfer, toon, gemiddelde=null, totaal=null, cijfers=[]) {
         this.vaknummer = vaknummer;
+        this.studienummer = studienummer;
         this.naam = naam;
         this.jaar = jaar;
         this.periode = periode;
@@ -96,13 +267,13 @@ class Vak {
 
     to_json() {
         if (this.vaknummer === null) {
-            return {naam: this.naam, jaar: this.jaar, periode: this.periode === null ? null : this.periode.to_json(), studiepunten: this.studiepunten, gehaald: this.gehaald, toon: this.toon, eindcijfer: this.eindcijfer};
+            return {studienummer: this.studienummer, naam: this.naam, jaar: this.jaar, periode: this.periode === null ? null : this.periode.to_json(), studiepunten: this.studiepunten, gehaald: this.gehaald, toon: this.toon, eindcijfer: this.eindcijfer};
         }
-        return {vaknummer: this.vaknummer, naam: this.naam, jaar: this.jaar, periode: null ? null : this.periode.to_json(), studiepunten: this.studiepunten, gehaald: this.gehaald, toon: this.toon, eindcijfer: this.eindcijfer};
+        return {vaknummer: this.vaknummer, studienummer: this.studienummer, naam: this.naam, jaar: this.jaar, periode: null ? null : this.periode.to_json(), studiepunten: this.studiepunten, gehaald: this.gehaald, toon: this.toon, eindcijfer: this.eindcijfer};
     }
 
     static from_json(json, gemiddelde=null, totaal=null, cijfers=[]) {
-        return new this(json.vaknummer, json.naam, json.jaar, json.periode === null ? null : Periode.from_json(json.periode), json.studiepunten, json.gehaald, json.eindcijfer, json.toon, gemiddelde, totaal, cijfers);
+        return new this(json.vaknummer, json.studienummer, json.naam, json.jaar, json.periode === null ? null : Periode.from_json(json.periode), json.studiepunten, json.gehaald, json.eindcijfer, json.toon, gemiddelde, totaal, cijfers);
     }
 
     static update_vakken(vakken, general_error_function, handle_vak_function, finished_function=null) {
@@ -150,6 +321,9 @@ class Vak {
                                     break;
                                 case -7:
                                     error = new Error(vak_update.returnwaarde, "Het eindcijfer van het vak is geen geldig getal.");
+                                    break;
+                                case -8:
+                                    error = new Error(vak_update.returnwaarde, "De opgegeven studie bestaat niet.");
                                     break;
                                 default:
                                     error = new Error(vak_update.returnwaarde, "Er is een onbekende fout opgetreden tijdens het updaten van het vak, probeer het later opnieuw.");
@@ -230,7 +404,9 @@ class Vak {
         xhttp.send(JSON.stringify(data));
     }
 
-
+    valueOf() {
+        return this.vaknummer;
+    }
 }
 
 function parse_date(date) {
@@ -394,6 +570,69 @@ class Cijfer {
         xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
         xhttp.send(JSON.stringify(data));
     }
+
+    valueOf() {
+        return this.cijfernummer;
+    }
+}
+
+function get_standaard_studie(studies) {
+    let standaard_studie = null;
+
+    if (studies.length < 1) {
+        return null;
+    }
+
+    for (const studie of studies) {
+        if (studie.standaard) {
+            standaard_studie = studie;
+        }
+    }
+
+    if (standaard_studie === null) {
+        standaard_studie = studies[0];
+    }
+
+    return standaard_studie;
+}
+
+function parse_get_studies(response) {
+    vakMapping = {};
+    studieMapping = {};
+    let json;
+    try {
+        json = JSON.parse(response);
+    } catch (SyntaxError) {
+        console.debug('JSON response: ' + response);
+        return {error: new Error(null, "Er is een onbekende fout opgetreden bij het ophalen van de studies. (JSON parsing)")};
+    }
+
+    switch (json.returnwaarde) {
+        case 0:
+            break;
+        case -1:
+            return {error: new Error(-1, "Je bent niet ingelogd! Refresh de pagina.", true)};
+        default:
+            return {error: new Error(json.returnwaarde, "Er is een onbekende fout opgetreden bij het ophalen van de cijfers.")};
+    }
+
+    let studies = [];
+    if (json.object) {
+        for (let studie_json of json.object) {
+            let studie = Studie.from_json(studie_json);
+            studieMapping[studie.studienummer] = studie;
+            studies.push(studie);
+        }
+    }
+
+    return {error: null, studies: studies};
+}
+
+function get_studies(handle_studies) {
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = handle_studies;
+    xhttp.open("GET", "get_studies.php", true);
+    xhttp.send();
 }
 
 function parse_get_all_cijfers(response) {
@@ -434,11 +673,12 @@ function parse_get_all_cijfers(response) {
     return {error: null, vakken: vakken};
 }
 
-function get_cijfers(handle_cijfers) {
+function get_cijfers(studie, handle_cijfers) {
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = handle_cijfers;
-    xhttp.open("GET", "get_cijfers.php", true);
+    xhttp.open("GET", `get_cijfers.php?studieid=${studie.studienummer}`, true);
     xhttp.send();
 }
 
-export {vakMapping, Periode, Vak, Cijfer, Error, parse_get_all_cijfers, get_cijfers, parse_date, format_date};
+export {studieMapping, vakMapping, Periode, Vak, Cijfer, Studie, Error, parse_get_studies, get_studies, get_standaard_studie, parse_get_all_cijfers,
+        get_cijfers, parse_date, format_date};

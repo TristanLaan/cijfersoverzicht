@@ -34,23 +34,26 @@ $datum = new DateTime();
     <meta name="color-scheme" content="dark light">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="style.css">
-    <script>
-        // noinspection JSAnnotator
-        const bsa_benodigd = <?php echo $bsa_benodigd; ?>;
-    </script>
     <script type="module" src="js/user.js" defer></script>
+    <script src="js/browser-error.js" nomodule defer></script>
+    <script>
+        const default_title = "<?php echo $title; ?>";
+    </script>
 </head>
 
 <body>
 <div id="popup" class="popupachtergrond popup"></div>
 <div id="error-popup" class="popupscherm popup"></div>
-<div class="w3-container index-table">
-    <h1 class="w3-center"><?php echo $title; ?></h1>
+<div id="content" class="w3-container index-table">
+    <h1 id="titel" class="w3-center"><?php echo $title; ?></h1>
+    <div id="studie-select-vak" class="studie-select">
+        <p class="load-warning"><em>Studies aan het laden&hellip;</em></p>
+    </div>
     <h2>Cijfers</h2>
 
     <table id="huidige-cijfers" class="w3-table-all w3-hoverable">
         <thead>
-        <tr class="w3-light-grey table-head">
+        <tr class="table-head">
             <th>Vak</th>
             <th class="table-cijfertitel">Titel</th>
             <th>Datum</th>
@@ -59,13 +62,16 @@ $datum = new DateTime();
         </tr>
         </thead>
         <!-- Hier worden de huidige cijfers geplaatst door `user.js` -->
+        <tbody>
+        <tr class="load-warning"><td class="w3-center" colspan="5"><em>Cijfers aan het laden&hellip;</em></td></tr>
+        </tbody>
     </table>
 
     <h2>Vakken</h2>
 
     <table id="vakken" class="w3-table-all w3-hoverable">
         <thead>
-        <tr class="w3-light-grey table-head">
+        <tr class="table-head">
             <th>Vak</th>
             <th>Jaar</th>
             <th>Periode</th>
@@ -76,43 +82,14 @@ $datum = new DateTime();
         </tr>
         </thead>
         <!-- Hier worden de vakken geplaatst door `user.js` -->
+        <tbody>
+        <tr class="load-warning"><td class="w3-center" colspan="7"><em>Vakken aan het laden&hellip;</em></td></tr>
+        </tbody>
     </table>
 
-    <p id="studiepunten"><strong>Totaal aantal studiepunten:</strong><!-- wordt ingevuld door `user.js` --></p>
-    <p id="bsa"><strong>BSA gehaald:</strong><!-- wordt ingevuld door `user.js` --></p>
-    <p id="gemiddelde"><strong>Gemiddelde cijfer:</strong><!-- wordt ingevuld door `user.js` --></p>
-
+    <div id="studie-info"></div>
     <?php if ($grafiek) { ?>
-
-    <picture>
-        <source srcset="afbeelding.php?id=grades-dark-latest.svg" media="(prefers-color-scheme: dark)"/>
-        <img class="graph" src="afbeelding.php?id=grades-light-latest.svg" alt="Grafiek cijfers"/>
-    </picture>
-
-    <div class="fullwidth downloads">
-        <div class="center download-buttons">
-            <a class="left" target="_blank" href="afbeelding.php?id=grades-light-latest.svg">
-                <button type="button" class="left w3-btn w3-padding w3-teal download-button">Download svg (licht) &nbsp;
-                    ❯
-                </button>
-            </a>
-            <a class="left"  target="_blank" href="afbeelding.php?id=grades-light-latest.png">
-                <button type="button" class="left w3-btn w3-padding w3-teal download-button">Download png (licht) &nbsp;
-                    ❯
-                </button>
-            </a>
-            <a class="left" target="_blank" href="afbeelding.php?id=grades-dark-latest.svg">
-                <button type="button" class="left w3-btn w3-padding w3-teal download-button">Download svg (donker)
-                    &nbsp; ❯
-                </button>
-            </a>
-            <a class="left" target="_blank" href="afbeelding.php?id=grades-dark-latest.png">
-                <button type="button" class="left w3-btn w3-padding w3-teal download-button">Download png (donker)
-                    &nbsp; ❯
-                </button>
-            </a>
-        </div>
-    </div>
+    <div id="cijfer-grafiek"></div>
 
     <?php } ?>
 
@@ -120,7 +97,7 @@ $datum = new DateTime();
 
     <table id="oude-cijfers" class="w3-table-all w3-hoverable">
         <thead>
-        <tr class="w3-light-grey table-head">
+        <tr class="table-head">
             <th>Vak</th>
             <th class="table-cijfertitel">Titel</th>
             <th>Datum</th>
@@ -129,11 +106,23 @@ $datum = new DateTime();
         </tr>
         </thead>
         <!-- Hier worden de oude cijfers geplaatst door `user.js` -->
+        <tbody>
+        <tr class="load-warning"><td class="w3-center" colspan="5"><em>Cijfers aan het laden&hellip;</em></td></tr>
+        </tbody>
     </table>
 
 </div>
 
 <br>
 <?php footer(); ?>
+
+<script>
+    setTimeout(function() {
+        let es = Array.prototype.slice.call(document.getElementsByClassName("load-warning"));
+        for (let e of es) {
+            e.classList.remove('load-warning');
+        }
+    }, 500);
+</script>
 </body>
 </html>

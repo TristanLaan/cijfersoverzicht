@@ -17,9 +17,9 @@
  */
 
 require_once "connect.php";
-require_once "php/Cijfer.php";
+require_once "php/Studie.php";
 
-function verwijder_cijfer($array) {
+function verwijder_studie($array) {
     global $session;
 
     if (session_status() == PHP_SESSION_NONE) { //controleren of sessie al is gestart
@@ -34,19 +34,19 @@ function verwijder_cijfer($array) {
         return -1;
     }
 
-    if (!isset($array['cijfernummer']) || !is_numeric($array['cijfernummer'])) {
+    if (!isset($array['studienummer']) || !is_numeric($array['studienummer'])) {
         return -2;
     }
 
-    /* @var Cijfer $cijfer */
-    $cijfer = Cijfer::getCijfer($array['cijfernummer']);
+    /* @var Studie $studie */
+    $studie = Studie::getStudie($array['studienummer']);
 
-    if ($cijfer === NULL) {
+    if ($studie === NULL) {
         return -3;
     }
 
 
-    return (int) (!$cijfer->verwijder());
+    return $studie->verwijder();
 }
 
 // Takes raw data from the request
@@ -60,8 +60,8 @@ if ($data === NULL) {
 } else {
     $return = ["returnwaarde" => 0, "object" => []];
 
-    foreach ($data as $cijfer) {
-        $returnwaarde = verwijder_cijfer($cijfer);
+    foreach ($data as $studie) {
+        $returnwaarde = verwijder_studie($studie);
         $return["object"][] = ["returnwaarde" => $returnwaarde];
     }
 }

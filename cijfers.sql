@@ -26,19 +26,47 @@ SET time_zone = "+00:00";
 
 -- --------------------------------------------------------
 --
+-- Verwijder bestaande tabellen
+--
+
+DROP TABLE IF EXISTS `Cijfers`;
+DROP TABLE IF EXISTS `Vakken`;
+DROP TABLE IF EXISTS `Studies`;
+
+-- --------------------------------------------------------
+--
+-- Tabelstructuur voor tabel `Studies`
+--
+
+CREATE TABLE `Studies` (
+    `studienr` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `naam` VARCHAR(256) NOT NULL,
+    `begin_jaar` YEAR(4) NOT NULL,
+    `eind_jaar` YEAR(4) DEFAULT NULL,
+    `gehaald` BOOLEAN NOT NULL DEFAULT FALSE,
+    `bsa` TINYINT(2) UNSIGNED DEFAULT NULL,
+    `standaard` BOOLEAN NOT NULL DEFAULT FALSE,
+    PRIMARY KEY (`studienr`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+--
 -- Tabelstructuur voor tabel `Vakken`
 --
 
 CREATE TABLE `Vakken` (
-  `vaknr` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `vaknaam` VARCHAR(1024) NOT NULL,
-  `jaar` TINYINT(1) UNSIGNED NOT NULL,
-  `periode` TINYINT(1) UNSIGNED NOT NULL,
-  `studiepunten` TINYINT(2) UNSIGNED NOT NULL DEFAULT '6',
-  `gehaald` BOOLEAN NOT NULL DEFAULT FALSE,
-  `eindcijfer` SMALLINT(4) UNSIGNED DEFAULT NULL,
-  `toon` BOOLEAN NOT NULL DEFAULT TRUE,
-  PRIMARY KEY (`vaknr`)
+    `vaknr` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `studienr` INT UNSIGNED NOT NULL,
+    `vaknaam` VARCHAR(1024) NOT NULL,
+    `jaar` TINYINT(1) UNSIGNED NOT NULL,
+    `periode_start` TINYINT(1) UNSIGNED DEFAULT NULL,
+    `periode_end` TINYINT(1) UNSIGNED DEFAULT NULL,
+    `studiepunten` TINYINT(2) UNSIGNED NOT NULL DEFAULT '6',
+    `gehaald` BOOLEAN NOT NULL DEFAULT FALSE,
+    `eindcijfer` SMALLINT(4) UNSIGNED DEFAULT NULL,
+    `toon` BOOLEAN NOT NULL DEFAULT TRUE,
+    PRIMARY KEY (`vaknr`),
+    FOREIGN KEY (`studienr`) REFERENCES `Studies`(`studienr`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -47,15 +75,22 @@ CREATE TABLE `Vakken` (
 --
 
 CREATE TABLE `Cijfers` (
-  `cijfernr` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `vaknr` INT UNSIGNED NOT NULL,
-  `cijfertitel` VARCHAR(1024) NOT NULL,
-  `weging` SMALLINT(5) UNSIGNED DEFAULT NULL,
-  `datum` date DEFAULT NULL,
-  `cijfer` SMALLINT(4) UNSIGNED DEFAULT NULL,
-  PRIMARY KEY (`cijfernr`),
-  FOREIGN KEY (`vaknr`) REFERENCES `Vakken`(`vaknr`)
+    `cijfernr` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `vaknr` INT UNSIGNED NOT NULL,
+    `cijfertitel` VARCHAR(1024) NOT NULL,
+    `weging` SMALLINT(5) UNSIGNED DEFAULT NULL,
+    `datum` date DEFAULT NULL,
+    `cijfer` SMALLINT(4) UNSIGNED DEFAULT NULL,
+    PRIMARY KEY (`cijfernr`),
+    FOREIGN KEY (`vaknr`) REFERENCES `Vakken`(`vaknr`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+--
+-- Voeg standaard studie toe
+--
+INSERT INTO `Studies` (`naam`, `begin_jaar`, `standaard`)
+VALUES ('Standaard studie', YEAR(CURDATE()), TRUE);
 
 COMMIT;
 

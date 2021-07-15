@@ -27,18 +27,18 @@ function createPanel(type, melding, popup) {
     let span = document.createElement('span');
     span.addEventListener("click", popup ? verbergPopups : () => {div.style.display = 'none'; });
     span.classList.add("w3-button", "w3-large", "w3-display-topright");
-    span.appendChild(document.createTextNode("×"));
-    div.appendChild(span);
+    span.append("×");
+    div.append(span);
     let h3 = document.createElement('h3');
-    h3.appendChild(document.createTextNode(typeNames[type]));
-    div.appendChild(h3);
+    h3.append(typeNames[type]);
+    div.append(h3);
     let p = document.createElement('p');
     if (melding instanceof HTMLElement) {
-        p.appendChild(melding);
+        p.append(melding);
     } else {
         p.innerHTML = melding;
     }
-    div.appendChild(p);
+    div.append(p);
 
     return div;
 }

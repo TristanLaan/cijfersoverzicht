@@ -1,4 +1,5 @@
 credentials.py
+backup_data.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -61,11 +61,7 @@ html {
     overflow-x: auto;
 }
 
-.error {
-    display: none;
-}
-
-.hidden {
+.error, .hidden, .load-warning {
     display: none;
 }
 
@@ -126,12 +122,23 @@ hr {
 
 /* cijfersoverzicht */
 
+.studie-select {
+    display: flex;
+    justify-content: start;
+    flex-wrap: wrap;
+    min-height: 55px;
+}
+
 .index-table {
     min-width: 1200px;
 }
 
 td.table-cijfertitel {
     padding-left: 16px;
+}
+
+.table-head {
+    background-color: #f1f1f1!important;
 }
 
 .table-row-1 {
@@ -162,8 +169,12 @@ td.table-cijfertitel {
     flex-wrap: wrap;
 }
 
-.download-button {
+.download-button, .studie-button {
     margin: 6px;
+}
+
+.studie-selected {
+    background-color: #ccc!important;
 }
 
 /* admin */
@@ -334,5 +345,9 @@ img.loading {
 
     .login-knop-admin:hover {
         background-color: #b9171b !important;
+    }
+
+    .studie-selected {
+        background-color: #333333!important;
     }
 }

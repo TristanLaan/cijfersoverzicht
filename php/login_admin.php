@@ -38,7 +38,7 @@ if ($_SESSION[$session . 'admin'] === null) //weergeven als niet is ingelogd
     <html lang="nl">
     <?php htmlcopyright(); ?>
     <head>
-        <title>Login om cijfers te beheren - <?php echo $title; ?></title>
+        <title>Login om cijfers te beheren – <?php echo $title; ?></title>
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
         <link rel="stylesheet" href="style.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">

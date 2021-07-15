@@ -1,3 +1,5 @@
+import {createPanel, panelTypesEnum} from "./panel.mjs";
+
 /**
  * Copyright (c) Tristan Laan 2018-2021.
  * This file is part of cijfersoverzicht.
@@ -34,9 +36,7 @@ function maak_element(type, opties= {}) {
     let element = document.createElement(type);
     for (let [optie, value] of Object.entries(opties)) {
         if (optie === 'children') {
-            for (let c of value) {
-                element.appendChild(c);
-            }
+            element.append(...value);
         } else if (optie === 'class') {
             for (let c of value) {
                 element.classList.add(c);
@@ -59,23 +59,23 @@ function maak_tcell(row, text, styleclass=null) {
     if (styleclass) {
         cell.classList.add(styleclass);
     }
-    cell.appendChild(text);
+    cell.append(text);
 
     return cell;
 }
 
 function vul_cijfers_rij(rij, cijfer, admin) {
     if (admin) {
-        maak_tcell(rij, document.createTextNode(cijfer.cijfernummer));
+        maak_tcell(rij, cijfer.cijfernummer);
     }
-    maak_tcell(rij, document.createTextNode(cijfer.naam), admin ? null : "table-cijfertitel");
+    maak_tcell(rij, cijfer.naam, admin ? null : "table-cijfertitel");
     if (admin) {
-        maak_tcell(rij, document.createTextNode(cijfer.vak.naam));
+        maak_tcell(rij, cijfer.vak.naam);
     }
-    maak_tcell(rij, document.createTextNode(
-        cijfer.datum !== null ? cijfer.datum.toLocaleDateString(undefined, date_options) : ""));
-    maak_tcell(rij, document.createTextNode(cijfer.weging !== null ? cijfer.weging + "%" : ""));
-    maak_tcell(rij, document.createTextNode(cijfer.cijfer !== null ? cijfer.cijfer : ""));
+    maak_tcell(rij,
+        cijfer.datum !== null ? cijfer.datum.toLocaleDateString(undefined, date_options) : "");
+    maak_tcell(rij, cijfer.weging !== null ? cijfer.weging + "%" : "");
+    maak_tcell(rij, cijfer.cijfer !== null ? cijfer.cijfer : "");
 }
 
 function vul_cijfers_tabel_user(table, data) {
@@ -93,7 +93,7 @@ function vul_cijfers_tabel_user(table, data) {
                 let tr = table.insertRow();
 
                 if (first) {
-                    let tc = maak_tcell(tr, document.createTextNode(vak.naam),
+                    let tc = maak_tcell(tr, vak.naam,
                         kleur % 2 === 0 ? "table-row-1" : "table-row-2");
                     tc.rowSpan = aantal_cijfers;
                     first = false;
@@ -142,12 +142,12 @@ function update_cijfers_tabel(table, data, admin=false) {
     if (table_inhoud.rows.length < 1) {
         let tr = table_inhoud.insertRow();
         let em = document.createElement('em');
-        em.appendChild(document.createTextNode("Geen cijfers om weer te geven…"));
+        em.append("Geen cijfers om weer te geven…");
         let tc = maak_tcell(tr, em, "w3-center");
         tc.colSpan = admin ? 7 : 5;
     }
 
-    table.appendChild(table_inhoud);
+    table.append(table_inhoud);
 }
 
 function format_periode(periode) {
@@ -160,13 +160,13 @@ function format_periode(periode) {
 
 function vul_vakken_rij(rij, vak, admin) {
     if (admin) {
-        maak_tcell(rij, document.createTextNode(vak.vaknummer));
+        maak_tcell(rij, vak.vaknummer);
     }
 
-    maak_tcell(rij, document.createTextNode(vak.naam));
-    maak_tcell(rij, document.createTextNode(vak.jaar));
-    maak_tcell(rij, document.createTextNode(vak.periode !== null ? format_periode(vak.periode) : ""));
-    maak_tcell(rij, document.createTextNode(vak.gemiddelde !== null ? vak.gemiddelde : ""));
+    maak_tcell(rij, vak.naam);
+    maak_tcell(rij, vak.jaar);
+    maak_tcell(rij, vak.periode !== null ? format_periode(vak.periode) : "");
+    maak_tcell(rij, vak.gemiddelde !== null ? vak.gemiddelde : "");
 
     if (!admin) {
         let abbr = document.createElement('abbr');
@@ -174,24 +174,24 @@ function vul_vakken_rij(rij, vak, admin) {
         if (vak.eindcijfer === null) {
             abbr.title = 'voorlopig';
             abbr.style.fontStyle = 'italic';
-            abbr.appendChild(document.createTextNode(vak.totaal !== null ? vak.totaal : ""));
+            abbr.append(vak.totaal !== null ? vak.totaal : "");
         } else {
             abbr.title = 'definitief';
-            abbr.appendChild(document.createTextNode(vak.eindcijfer));
+            abbr.append(vak.eindcijfer);
         }
         maak_tcell(rij, abbr);
     }
 
-    maak_tcell(rij, document.createTextNode(vak.studiepunten));
+    maak_tcell(rij, vak.studiepunten);
 
     if (admin) {
-        maak_tcell(rij, document.createTextNode(vak.eindcijfer !== null ? vak.eindcijfer : ""));
+        maak_tcell(rij, vak.eindcijfer !== null ? vak.eindcijfer : "");
     }
 
-    maak_tcell(rij, document.createTextNode(vak.gehaald ? "ja" : "nee"));
+    maak_tcell(rij, vak.gehaald ? "ja" : "nee");
 
     if (admin) {
-        maak_tcell(rij, document.createTextNode(vak.toon ? "ja" : "nee"));
+        maak_tcell(rij, vak.toon ? "ja" : "nee");
     }
 }
 
@@ -220,12 +220,145 @@ function update_vakken_tabel(table, data, admin=false) {
     if (table_inhoud.rows.length < 1) {
         let tr = table_inhoud.insertRow();
         let em = document.createElement('em');
-        em.appendChild(document.createTextNode("Geen vakken om weer te geven…"));
+        em.append("Geen vakken om weer te geven…");
         let tc = maak_tcell(tr, em, "w3-center");
         tc.colSpan = admin ? 10 : 7;
     }
 
-    table.appendChild(table_inhoud);
+    table.append(table_inhoud);
 }
 
-export {date_options, clear_element, maak_element, maak_tcell, update_cijfers_tabel, update_vakken_tabel};
+function create_cijfer_grafiek(sectie, studienummer, vernieuwknop = false) {
+    function refresh_grafiek() {
+        const xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4) {
+                document.getElementById("loadicon").style.display = "none";
+                clear_element(document.getElementById('refresherror'));
+                let return_value = parseInt(xhttp.responseText);
+
+                if (this.status !== 200 || return_value !== 0) {
+                    let message = "Er is een onbekende fout opgetreden, probeer het later opnieuw;";
+                    if (return_value === -1) {
+                        message = `Je bent niet ingelogd! Klik <a href="admin.php" target="_blank">hier</a> om opnieuw in te loggen, en probeer het dan opnieuw.`;
+                    }
+                    if (return_value === -2) {
+                        message = "De grafiek functionaliteit is uitgeschakeld in de instellingen.";
+                    }
+                    document.getElementById('refresherror').append(createPanel(panelTypesEnum.error, message, false));
+                }
+
+                create_cijfer_grafiek(sectie, studienummer, vernieuwknop);
+            }
+        };
+        xhttp.open("POST", "refresh_grafiek.php", true);
+        xhttp.send();
+        document.getElementById("loadicon").style.display = "block";
+    }
+
+    let div, inner_div, picture, button, link;
+    let elements = [];
+
+    picture = maak_element('picture');
+    picture.append(maak_element('source', {
+        srcset: `afbeelding.php?id=grades-${studienummer}-dark-latest.svg`,
+        id: `test-bla`,
+        media: "(prefers-color-scheme: dark)"
+    }));
+    picture.append(maak_element('img', {
+        src: `afbeelding.php?id=grades-${studienummer}-light-latest.svg`,
+        media: "(prefers-color-scheme: dark)",
+        alt: "Grafiek cijfers",
+        class: ["graph"]
+    }));
+
+    elements.push(picture);
+
+    if (vernieuwknop) {
+        div = maak_element('div', {
+            id: "loadicon",
+            class: ["fullwidth", "hidden"]
+        });
+        inner_div = maak_element('div', {
+            class: ["center", "loading-bar"]
+        })
+        picture = maak_element('picture');
+        picture.append(maak_element('source', {
+            srcset: "icons/purple-spin.svg",
+            media: "(prefers-color-scheme: dark)"
+        }));
+        picture.append(maak_element('img', {
+            src: "icons/black-spin.svg",
+            media: "(prefers-color-scheme: dark)",
+            alt: "Grafiek aan het genereren…",
+            class: ["loading"]
+        }));
+        inner_div.append(picture);
+        div.append(inner_div);
+        elements.push(div);
+
+        div = maak_element('div', {
+            class: ['fullwidth'],
+            children: [
+                maak_element('div', {
+                    class: ['center'],
+                    id: 'refresherror'
+                })
+            ],
+        });
+        elements.push(div);
+    }
+
+    div = maak_element('div', {
+        class: ['fullwidth', 'downloads']
+    });
+
+    inner_div = maak_element('div', {
+        class: ['center', 'download-buttons']
+    });
+
+    if (vernieuwknop) {
+        button = maak_element('button', {
+            type: 'button',
+            class: ['w3-btn', 'w3-padding', 'w3-teal', 'download-button'],
+            children: ["Vernieuw grafiek \xa0 ❯"]
+        });
+
+        button.addEventListener('click', refresh_grafiek);
+        inner_div.append(button);
+    }
+
+    let combinations = [
+        ["svg (licht)", `grades-${studienummer}-light-latest.svg`],
+        ["png (licht)", `grades-${studienummer}-light-latest.png`],
+        ["svg (donker)", `grades-${studienummer}-dark-latest.svg`],
+        ["png (donker)", `grades-${studienummer}-dark-latest.png`],
+    ];
+
+    for (let i = 0; i < combinations.length; ++i) {
+        let naam = combinations[i][0];
+        let file = combinations[i][1];
+        link = maak_element('a', {
+            target: '_blank',
+            href: `afbeelding.php?id=${file}`,
+            download: file
+        });
+        button = maak_element('button', {
+            type: 'button',
+            class: ['w3-btn', 'w3-padding', 'w3-teal', 'download-button'],
+            children: [`Download ${naam} \xa0 ❯`]
+        });
+        link.append(button);
+        inner_div.append(link);
+    }
+
+    div.append(inner_div);
+    elements.push(div);
+
+
+    clear_element(sectie);
+
+    sectie.append(...elements);
+}
+
+export {date_options, clear_element, maak_element, maak_tcell, update_cijfers_tabel, update_vakken_tabel, create_cijfer_grafiek};

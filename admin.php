@@ -27,7 +27,7 @@ require_once "php/print_copyright.php";
 <head>
     <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <title>Bewerk cijfers - <?php echo $title; ?></title>
+    <title>Bewerk cijfers – <?php echo $title; ?></title>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="style.css">
     <meta name="color-scheme" content="dark light">
@@ -39,22 +39,27 @@ require_once "php/print_copyright.php";
             interndomein: "<?php echo $interndomein; ?>",
             titel: "<?php echo $title; ?>"
         };
+        const default_title = "<?php echo $title; ?>";
     </script>
     <script type="module" src="js/admin.js" defer></script>
+    <script src="js/browser-error.js" nomodule defer></script>
 </head>
 <body>
 <div id="popup" class="popupachtergrond popup"></div>
+
+<div id="upload-studie-popup" class="popupscherm popup"></div>
 
 <div id="wijzig-cijfer-popup" class="popupscherm popup"></div>
 
 <div id="wijzig-vak-popup" class="popupscherm popup"></div>
 
-<div id="cijfer-refresh-error" class="w3-container">
+<div id="cijfer-refresh-error" class="w3-container"></div>
 
-</div>
-
-<div class="w3-container">
-    <h1 class="w3-center"><?php echo $title; ?></h1>
+<div id="content" class="w3-container">
+    <h1 id="titel" class="w3-center"><?php echo $title; ?></h1>
+    <div id="studie-select-vak" class="studie-select">
+        <p class="load-warning"><em>Studies aan het laden&hellip;</em></p>
+    </div>
     <form class="fullwidth" action="javascript:void(0)">
         <h2>Cijfers wijzigen</h2>
         <table id="cijfertabel" class="bottom-room w3-table-all w3-hoverable">
@@ -70,6 +75,9 @@ require_once "php/print_copyright.php";
             </tr>
             </thead>
             <!-- Hier worden de cijfers geplaatst door `js/admin.js` -->
+            <tbody>
+            <tr class="load-warning"><td class="w3-center" colspan="7"><em>Cijfers aan het laden&hellip;</em></td></tr>
+            </tbody>
         </table>
         <div id="cijfer-deel-info"></div>
         <div id="cijferverwijdererror"></div>
@@ -101,6 +109,9 @@ require_once "php/print_copyright.php";
             </tr>
             </thead>
             <!-- Hier worden de vakken geplaatst door `js/admin.js` -->
+            <tbody>
+            <tr class="load-warning"><td class="w3-center" colspan="9"><em>Vakken aan het laden&hellip;</em></td></tr>
+            </tbody>
         </table>
         <div id="vakverwijdererror"></div>
         <div class="fullwidth" id="vak-buttons">
@@ -142,53 +153,25 @@ require_once "php/print_copyright.php";
         </div>
     </div>
 
+    <div style="display: flex; justify-content: center">
+        <div class="w3-half">
+            <div id="studievak"></div>
+        </div>
+    </div>
+
     <?php if ($grafiek) { ?>
-
-        <picture>
-            <source srcset="afbeelding.php?id=grades-dark-latest.svg" media="(prefers-color-scheme: dark)"/>
-            <img class="graph" src="afbeelding.php?id=grades-light-latest.svg" alt="Grafiek cijfers"/>
-        </picture>
-        <div class="fullwidth hidden" id="loadicon">
-            <div class="center loading-bar">
-                <picture>
-                    <source srcset="icons/purple-spin.svg" media="(prefers-color-scheme: dark)"/>
-                    <img class="loading" src="icons/black-spin.svg" alt="Grafiek aan het genereren..."/>
-                </picture>
-            </div>
-        </div>
-        <div class="fullwidth">
-            <div class="center" id="refresherror"></div>
-        </div>
-        <div class="fullwidth downloads">
-            <div class="center download-buttons">
-                <button type="button" id="refresh-grafiek-button" class="w3-btn w3-padding w3-teal download-button">Vernieuw grafiek &nbsp;
-                    ❯
-                </button>
-                <a target="_blank" href="afbeelding.php?id=grades-light-latest.svg">
-                    <button type="button" class="w3-btn w3-padding w3-teal download-button">Download svg (licht) &nbsp;
-                        ❯
-                    </button>
-                </a>
-                <a target="_blank" href="afbeelding.php?id=grades-light-latest.png">
-                    <button type="button" class="w3-btn w3-padding w3-teal download-button">Download png (licht) &nbsp;
-                        ❯
-                    </button>
-                </a>
-                <a target="_blank" href="afbeelding.php?id=grades-dark-latest.svg">
-                    <button type="button" class="w3-btn w3-padding w3-teal download-button">Download svg (donker)
-                        &nbsp; ❯
-                    </button>
-                </a>
-                <a target="_blank" href="afbeelding.php?id=grades-dark-latest.png">
-                    <button type="button" class="w3-btn w3-padding w3-teal download-button">Download png (donker)
-                        &nbsp; ❯
-                    </button>
-                </a>
-            </div>
-        </div>
-
+    <div id="cijfer-grafiek"></div>
     <?php } ?>
 </div>
 <?php footer(false, true); ?>
+
+<script>
+    setTimeout(function() {
+        let es = Array.prototype.slice.call(document.getElementsByClassName("load-warning"));
+        for (let e of es) {
+            e.classList.remove('load-warning');
+        }
+    }, 500);
+</script>
 </body>
 </html>

@@ -21,6 +21,7 @@
 
 import datetime
 from typing import Tuple, List, Optional
+
 import matplotlib
 
 # Backend display driver has to be changed before pyplot is imported, because
@@ -49,6 +50,8 @@ class Config:
         self.image_path = image_path
         self.image_name = image_name
         self.title = title
+        self.studynr = None
+        self.study_title = None
 
     def __repr__(self):
         return "({}, {}, {}, {}, {}, {})".format(self.password, self.server,
@@ -56,7 +59,7 @@ class Config:
                                                  self.charset, self.image_path)
 
 
-def get_grades(config: Config) -> List[Tuple[datetime.date, float]]:
+def get_studies(config: Config) -> List[Tuple[int, str]]:
     # Connect to the database
     connection = pymysql.connect(host=config.server,
                                  user=config.username,
@@ -68,8 +71,33 @@ def get_grades(config: Config) -> List[Tuple[datetime.date, float]]:
     try:
         with connection.cursor() as cursor:
             # Read records
-            sql = "SELECT `datum`, `cijfer` FROM `Cijfers` ORDER BY datum"
+            sql = "SELECT `studienr`, `naam` FROM `Studies`"
             cursor.execute(sql)
+            results = cursor.fetchall()
+    finally:
+        connection.close()
+
+    return [(result['studienr'], result['naam']) for result in results]
+
+
+def get_grades(config: Config) \
+        -> List[Tuple[datetime.date, float]]:
+    # Connect to the database
+    connection = pymysql.connect(host=config.server,
+                                 user=config.username,
+                                 password=config.password,
+                                 db=config.database,
+                                 charset=config.charset,
+                                 cursorclass=pymysql.cursors.DictCursor)
+
+    try:
+        with connection.cursor() as cursor:
+            # Read records
+            sql = "SELECT `datum`, `cijfer` FROM `Cijfers` " \
+                  "WHERE `vaknr` IN " \
+                  "(SELECT `vaknr` FROM Vakken WHERE `studienr` = %s) " \
+                  "ORDER BY datum"
+            cursor.execute(sql, (config.studynr,))
             results = cursor.fetchall()
 
     finally:
@@ -81,6 +109,9 @@ def get_grades(config: Config) -> List[Tuple[datetime.date, float]]:
 def interpolate_grades(dates: np.ndarray, grades: np.ndarray, window: int = 15,
                        window_min: int = 5) -> Optional[Tuple[np.ndarray,
                                                               np.ndarray]]:
+    if len(dates) < 1:
+        return None
+
     min = np.min(dates)
     max = np.max(dates)
     days = np.arange(min, max + 1)
@@ -154,28 +185,30 @@ def plot_grades(data: List[Tuple[datetime.date, float]], config: Config,
 
     plt.grid(True)
     f.autofmt_xdate()
-    plt.title(config.title)
+    plt.title("{} – {}".format(config.title, config.study_title))
 
     if len(grades) > 0:
         plt.legend()
 
     if dark:
         f.savefig(
-            "{}/{}-dark-{}.svg".format(config.image_path, config.image_name,
-                                       time), format='svg',
+            "{}/{}-{}-dark-{}.svg".format(config.image_path, config.image_name,
+                                          config.studynr, time), format='svg',
             facecolor=f.get_facecolor())
         f.savefig(
-            "{}/{}-dark-{}.png".format(config.image_path, config.image_name,
-                                       time), format='png',
+            "{}/{}-{}-dark-{}.png".format(config.image_path, config.image_name,
+                                          config.studynr, time), format='png',
             facecolor=f.get_facecolor())
     else:
         f.savefig(
-            "{}/{}-light-{}.svg".format(config.image_path, config.image_name,
-                                        time), format='svg',
+            "{}/{}-{}-light-{}.svg".format(config.image_path,
+                                           config.image_name,
+                                           config.studynr, time), format='svg',
             facecolor=f.get_facecolor())
         f.savefig(
-            "{}/{}-light-{}.png".format(config.image_path, config.image_name,
-                                        time), format='png',
+            "{}/{}-{}-light-{}.png".format(config.image_path,
+                                           config.image_name,
+                                           config.studynr, time), format='png',
             facecolor=f.get_facecolor())
 
     plt.close(f)
@@ -229,9 +262,10 @@ def set_symlink(config: Config, now: str, dark: bool, ext: str):
     else:
         dark_str = "light"
 
-    target = "{}-{}-{}.{}".format(config.image_name, dark_str, now, ext)
-    link = "{}/{}-{}-latest.{}".format(config.image_path, config.image_name,
-                                       dark_str, ext)
+    target = "{}-{}-{}-{}.{}".format(config.image_name, config.studynr,
+                                     dark_str, now, ext)
+    link = "{}/{}-{}-{}-latest.{}".format(config.image_path, config.image_name,
+                                          config.studynr, dark_str, ext)
 
     symlink(target, link, True)
 
@@ -249,9 +283,9 @@ def set_permission(config: Config, gid: int, now: str, dark: bool, ext: str):
     else:
         dark_str = "light"
 
-    file_name = "{}/{}-{}-{}.{}".format(config.image_path,
-                                        config.image_name,
-                                        dark_str, now, ext)
+    file_name = "{}/{}-{}-{}-{}.{}".format(config.image_path,
+                                           config.image_name, config.studynr,
+                                           dark_str, now, ext)
     os.chown(file_name, -1, gid)
     os.chmod(file_name,
              stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP)
@@ -271,14 +305,15 @@ def remove_old_graphs_extension(config: Config, amount: int, dark: bool,
     else:
         dark_str = 'light'
 
-    graphs = glob.glob("{}/{}-{}-*.{}".format(config.image_path,
-                                              config.image_name, dark_str,
-                                              extension))
+    graphs = glob.glob(
+        "{}/{}-{}-{}-*.{}".format(config.image_path, config.image_name,
+                                  config.studynr, dark_str, extension))
 
     try:
-        graphs.remove("{}/{}-{}-latest.{}".format(config.image_path,
-                                                  config.image_name, dark_str,
-                                                  extension))
+        graphs.remove(
+            "{}/{}-{}-{}-latest.{}".format(config.image_path,
+                                           config.image_name, config.studynr,
+                                           dark_str, extension))
     except ValueError:
         pass
 
@@ -316,14 +351,18 @@ if __name__ == '__main__':
     if not os.path.exists(credentials.image_path):
         os.makedirs(credentials.image_path)
 
-    remove_old_graphs(config, credentials.history)
+    studies = get_studies(config)
 
-    grades = get_grades(config)
-    now = datetime.datetime.now().strftime("%Y-%m-%dT%H%M%S%f%z")
-    plot_grades(grades, config, now, False, credentials.window,
-                credentials.window_min)
-    plot_grades(grades, config, now, True, credentials.window,
-                credentials.window_min)
+    for studynr, study_title in studies:
+        config.studynr = studynr
+        config.study_title = study_title
+        grades = get_grades(config)
+        now = datetime.datetime.now().strftime("%Y-%m-%dT%H%M%S%f%z")
+        remove_old_graphs(config, credentials.history)
+        plot_grades(grades, config, now, False, credentials.window,
+                    credentials.window_min)
+        plot_grades(grades, config, now, True, credentials.window,
+                    credentials.window_min)
 
-    set_all_permissions(config, credentials.gid, now)
-    set_all_symlinks(config, now)
+        set_all_permissions(config, credentials.gid, now)
+        set_all_symlinks(config, now)

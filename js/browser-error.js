@@ -1,0 +1,1 @@
+document.getElementById('content').innerHTML = '<div class="w3-display-middle"><div class="w3-card-4 login-box"><div class="w3-container w3-red"><h2>Error</h2></div><div class="w3-container"><p>Uw browser wordt niet ondersteund, omdat hij nieuwere JavaScript functionaliteiten, die gebruikt worden voor deze website, niet heeft geimplementeerd.</p></div></div></div>';

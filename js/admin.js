@@ -15,18 +15,41 @@
  * along with cijfersoverzicht.  If not, see <https://www.gnu.org/licenses/>
  */
 
-import {Cijfer, format_date, get_cijfers, parse_date, parse_get_all_cijfers, Vak, Periode} from "./api.mjs";
+import {
+    Cijfer, format_date, get_cijfers, parse_date, parse_get_all_cijfers, Vak, Periode, parse_get_studies,
+    get_standaard_studie, studieMapping, get_studies, Studie
+} from "./api.mjs";
 import {compare_hashes, generate_hash} from "./hash.mjs";
 import {createPanel, panelTypesEnum} from "./panel.mjs";
 import * as common from "./common.mjs";
-import {clear_element, maak_element} from "./common.mjs";
-import {toonPopup} from "./popup.mjs";
+import {clear_element, create_cijfer_grafiek, maak_element} from "./common.mjs";
+import {toonPopup, verbergPopups} from "./popup.mjs";
 
 let cijfers_hash = null;
+let studies_hash = null;
+let huidige_studie = null;
 let upload_vakken_created = false;
+let studie_wijzig_vak_created = false;
 let vakken = [];
 let cijferMapping = {};
 let vakMapping = {};
+let refresh_interval = null;
+let first_reload = true;
+
+function get_huidige_studie(state=null) {
+    let params = (new URL(document.location)).searchParams;
+    let id = parseInt(params.get('studie'));
+    if (state && 'study' in state) {
+        huidige_studie = state['studie'];
+    } else if (!isNaN(id)) {
+        huidige_studie = id;
+    }
+}
+
+function show_error(div, error) {
+    clear_element(div);
+    div.append(createPanel(panelTypesEnum.error, error.message, false));
+}
 
 function get_selectie(table) {
     let selectie = new Set();
@@ -39,6 +62,55 @@ function get_selectie(table) {
     }
 
     return selectie;
+}
+
+function update_titel(studie) {
+    document.title = `Bewerk ${studie.naam} – ${default_title}`;
+    let titel = document.getElementById('titel');
+    clear_element(titel);
+    titel.append(`${default_title} – Bewerk ${studie.naam}`)
+}
+
+function toon_studies(studies) {
+    let studie_vak = document.getElementById("studie-select-vak");
+    clear_element(studie_vak);
+
+    update_titel(huidige_studie);
+
+    for (let studie of studies) {
+        let button = maak_element('button', {
+            class: ['w3-btn', 'w3-round', 'w3-light-grey', 'w3-border', 'w3-padding', 'studie-button'],
+            children: [studie.format()]
+        });
+
+        if (studie === huidige_studie) {
+            button.classList.add('studie-selected');
+        }
+
+        button.addEventListener('click', function() {
+            huidige_studie = studie;
+            clearInterval(refresh_interval);
+            refresh_interval = setInterval(laad_studies, 60000);
+            history.pushState({studie: studie}, studie.format(), `?studie=${studie.studienummer}`);
+            update_titel(studie);
+            toon_studies(studies);
+            create_studie_bewerk_vak();
+            verbergPopups();
+            laad_cijfers();
+        });
+
+        studie_vak.prepend(button);
+    }
+
+    let button = maak_element('button', {
+        class: ['w3-button', 'w3-circle', 'w3-light-grey', 'w3-xlarge', 'w3-ripple', 'w3-border', 'studie-button'],
+        style: {padding: '0 13.5px', height: '43px', width: '43px'},
+        children: ['+']
+    });
+
+    button.addEventListener('click', create_studie_upload_vak);
+
+    studie_vak.append(button);
 }
 
 function update_cijfers_tabel() {
@@ -60,7 +132,7 @@ function update_vakken_selects() {
         let options = create_vak_selectie(select.value in vakMapping ? parseInt(select.value) : null);
         clear_element(select);
         for (let option of options) {
-            select.appendChild(option);
+            select.append(option);
         }
     }
 }
@@ -73,6 +145,70 @@ function create_mappings() {
         for (let cijfer of vak.cijfers) {
             cijferMapping[cijfer.cijfernummer] = cijfer;
         }
+    }
+}
+
+function laad_studies(cache = true) {
+    async function update_studies_scherm() {
+        if (this.readyState === 4 && this.status === 200) {
+            let new_hash = null;
+            if (cache) {
+                new_hash = await generate_hash(this.responseText);
+                if (compare_hashes(new_hash, studies_hash)) {
+                    if (huidige_studie) {
+                        laad_cijfers();
+                    }
+                    return;
+                }
+            }
+
+            let results = parse_get_studies(this.responseText);
+            if (results.error) {
+                if (results.error.reload_required) {
+                    setTimeout(function () {
+                        location.reload()
+                    }, 500);
+                }
+
+                const errorPanel = createPanel(panelTypesEnum.error, results.error.message, false);
+                toonPopup(document.getElementById("cijfer-refresh-error"), errorPanel);
+                return;
+            }
+
+            if (cache) {
+                studies_hash = new_hash;
+            }
+
+
+            if (huidige_studie === null) {
+                huidige_studie = get_standaard_studie(results.studies);
+            } else if (typeof huidige_studie === 'number') {
+                if (huidige_studie in studieMapping) {
+                    huidige_studie = studieMapping[huidige_studie];
+                } else {
+                    huidige_studie = get_standaard_studie(results.studies);
+                }
+            } else {
+                if (huidige_studie.studienummer in studieMapping) {
+                    huidige_studie = studieMapping[huidige_studie.studienummer];
+                } else {
+                    huidige_studie = get_standaard_studie(results.studies);
+                    studie_wijzig_vak_created = false;
+                }
+            }
+
+            toon_studies(results.studies);
+            if (!studie_wijzig_vak_created) {
+                create_studie_bewerk_vak();
+                studie_wijzig_vak_created = true;
+            }
+            laad_cijfers(cache);
+        }
+    }
+
+    if (first_reload || !document.hidden) {
+        first_reload = false;
+        get_studies(update_studies_scherm);
     }
 }
 
@@ -90,7 +226,7 @@ function laad_cijfers(cache = true) {
             let results = parse_get_all_cijfers(this.responseText);
             if (results.error) {
                 const errorPanel = createPanel(panelTypesEnum.error, results.error.message, false);
-                document.getElementById("cijfer-refresh-error").appendChild(errorPanel);
+                document.getElementById("cijfer-refresh-error").append(errorPanel);
                 return;
             }
 
@@ -104,6 +240,11 @@ function laad_cijfers(cache = true) {
             update_vakken_tabel();
             update_vakken_selects();
 
+            let grafiek = document.getElementById('cijfer-grafiek');
+            if (grafiek !== null) {
+                create_cijfer_grafiek(grafiek, huidige_studie.studienummer, true);
+            }
+
             if (!upload_vakken_created) {
                 create_cijfer_upload_vakken(1);
                 create_vak_upload_vakken(1);
@@ -112,14 +253,322 @@ function laad_cijfers(cache = true) {
         }
     }
 
-    if (!document.hidden) {
-        return get_cijfers(update_cijfers_scherm);
+
+    get_cijfers(huidige_studie, update_cijfers_scherm);
+}
+
+function get_studievak_data(form, bewerk) {
+    const studienummer = bewerk ? huidige_studie.studienummer : null;
+    const naam = form.querySelector("input[name='naam']").value
+    const begin_jaar = parseInt(form.querySelector("input[name='begin_jaar']").value);
+    const eind_jaar_val = form.querySelector("input[name='eind_jaar']").value;
+    const eind_jaar = eind_jaar_val === '' ? null : parseInt(eind_jaar_val);
+    const standaard = form.querySelector("input[name='standaard']").checked;
+    const gehaald = form.querySelector("input[name='gehaald']").checked;
+    const bsa_val = form.querySelector("input[name='bsa']").value
+    const bsa = bsa_val === '' ? null : parseInt(bsa_val);
+    let errorvak = form.querySelector("div.errorvak");
+    let error = false;
+    clear_element(errorvak);
+
+    if (naam === '') {
+        errorvak.append(createPanel(panelTypesEnum.error, "Naam is verplicht.", false));
+        error = true;
+    }
+
+    if (isNaN(begin_jaar)) {
+        errorvak.append(createPanel(panelTypesEnum.error, "Begin jaar is verplicht.", false));
+        error = true;
+    } else if (begin_jaar < 1901 || begin_jaar > 2155) {
+        errorvak.append(createPanel(panelTypesEnum.error, "Begin jaar moet na 1900 en voor 2155 zijn.", false));
+        error = true;
+    }
+
+    if (eind_jaar !== null && (isNaN(eind_jaar) || eind_jaar < 1901 || eind_jaar > 2155)) {
+        errorvak.append(createPanel(panelTypesEnum.error, "Eind jaar is geen getal.", false));
+        error = true;
+    }
+
+    if (bsa !== null && (isNaN(bsa) || bsa < 0)) {
+        errorvak.append(createPanel(panelTypesEnum.error, "Weging is ongeldig.", false));
+        error = true;
+    }
+
+    if (error) {
+        return null;
+    }
+
+    return Studie.from_json({
+        studienummer: studienummer,
+        naam: naam,
+        begin_jaar: begin_jaar,
+        eind_jaar: eind_jaar,
+        standaard: standaard,
+        gehaald: gehaald,
+        bsa: bsa
+    });
+}
+
+function upload_studie(form, bewerk) {
+    function general_error_function(error) {
+        show_error(form.querySelector("div.errorvak"), error);
+    }
+
+    function handle_studie_function(i, studie, error) {
+        if (error) {
+            show_error(form.querySelector("div.errorvak"), error);
+        } else {
+            clear_element(form);
+            form.append(maak_element('p', {children: [`Studie ${bewerk ? "gewijzigd" : "geüpload"}!`]}));
+
+            if (bewerk) {
+                let button = maak_element('button', {
+                    class: ['w3-btn', 'w3-padding', 'w3-teal'],
+                    style: {width: '120px'},
+                    type: 'button',
+                    children: ["OK \xa0 ❯"]
+                });
+                button.addEventListener('click', create_studie_bewerk_vak);
+                form.append(maak_element('p', {children: [button]}));
+            } else {
+                huidige_studie = studie;
+            }
+
+            form.dataset.uploaded = "true";
+            laad_studies();
+        }
+    }
+
+    let studie = get_studievak_data(form, bewerk);
+
+    if (studie) {
+        Studie.update_studies([studie], general_error_function, handle_studie_function);
     }
 }
 
-function show_error(div, error) {
+function verwijder_studie(form) {
+    let errorvak = form.querySelector("div.errorvak");
+    function general_error_function(error) {
+        show_error(errorvak, error);
+    }
+
+    function handle_studie_function(results) {
+        let error = results[0].error;
+
+        if (error) {
+            show_error(errorvak, error);
+        } else {
+            window.alert("De studie is succesvol verwijderd!");
+            location.reload();
+        }
+    }
+
+    if (huidige_studie.standaard) {
+        clear_element(errorvak);
+        errorvak.append(createPanel(panelTypesEnum.error, "Kan standaard studie niet verwijderen.", false));
+        return;
+    }
+
+    if (window.confirm(`Weet je zeker dat je de studie '${huidige_studie.naam}' wilt verwijderen?`)) {
+        Studie.verwijder_studies([huidige_studie], general_error_function, handle_studie_function);
+    }
+}
+
+function create_studie_vak(bewerk, studie = null) {
+    let optie, row, sec;
+    let div = maak_element('div', {id: `${bewerk ? 'wijzig' : 'upload'}-studievak`, class: [`${bewerk ? 'wijzig' : 'upload'}-studievak`]});
+    div.append(maak_element('div', {
+        class: ['w3-container', 'w3-teal'],
+        children: [maak_element('h3', {
+            children: [studie === null ? "Nieuwe studie" :
+                "Studie instellingen"]
+        })]
+    }));
+    let form = maak_element('form', {
+        action: "javascript:void(0)",
+        class: ['w3-white', 'w3-container', 'w3-card-4'],
+        style: {'margin-bottom': '15px'}
+    });
+    form.addEventListener('submit', function () {
+        upload_studie(form, bewerk)
+    });
+    form.append(maak_element('div', {class: ['errorvak']}));
+
+    // Verplichte onderdelen
+    form.append(maak_element('h4', {
+        style: {'margin-bottom': 0},
+        children: ["Verplicht"]
+    }));
+
+    // Titel
+    optie = maak_element('p');
+    optie.append(maak_element('label', {
+        class: ['w3-text-grey'],
+        children: ["Titel"]
+    }));
+    optie.append(maak_element('input', {
+        name: 'naam',
+        type: 'text',
+        placeholder: 'Studie',
+        value: studie ? studie.naam : '',
+        required: true,
+        class: ['w3-input', 'w3-border']
+    }));
+    form.append(optie);
+
+    // Begin jaar
+    optie = maak_element('p');
+    optie.append(maak_element('label', {
+        class: ['w3-text-grey'],
+        children: ["Begonnen in"]
+    }));
+    optie.append(maak_element('input', {
+        name: 'begin_jaar',
+        type: 'number',
+        min: 1901,
+        max: 2155,
+        placeholder: '2020',
+        value: studie ? studie.begin_jaar : '',
+        required: true,
+        class: ['w3-input', 'w3-border']
+    }));
+    form.append(optie);
+
+    row = maak_element('div', {class: ['w3-row']});
+    // Standaard
+    sec = maak_element('div', {class: ['w3-half', 'third-left']});
+    optie = maak_element('p', {style: {margin: 0}});
+    optie.append(maak_element('label', {
+        class: ['w3-text-grey'],
+        children: ["Standaard: "]
+    }));
+    optie.append(maak_element('input', {
+        name: 'standaard',
+        type: 'checkbox',
+        checked: studie ? studie.standaard : false,
+        disabled: studie ? studie.standaard : false,
+        class: ['w3-check']
+    }));
+    sec.append(optie);
+    row.append(sec);
+
+    // Gehaald
+    sec = maak_element('div', {class: ['w3-half', 'third-right']});
+    optie = maak_element('p', {style: {margin: 0}});
+    optie.append(maak_element('label', {
+        class: ['w3-text-grey'],
+        children: ["Gehaald: "]
+    }));
+    optie.append(maak_element('input', {
+        name: 'gehaald',
+        type: 'checkbox',
+        checked: studie ? studie.gehaald : false,
+        class: ['w3-check']
+    }));
+    sec.append(optie);
+    row.append(sec);
+
+    form.append(row);
+
+    // Optionele onderdelen
+    form.append(maak_element('h4', {
+        style: {'margin-bottom': 0},
+        children: ["Optioneel"]
+    }));
+
+    row = maak_element('div', {class: ['w3-row']});
+    // Eind jaar
+    sec = maak_element('div', {class: ['w3-half', 'third-left']});
+    optie = maak_element('p');
+    optie.append(maak_element('label', {
+        class: ['w3-text-grey'],
+        children: ["Gestopt in"]
+    }));
+    optie.append(maak_element('input', {
+        name: 'eind_jaar',
+        type: 'number',
+        min: 1901,
+        max: 2155,
+        placeholder: '2022',
+        value: studie ? studie.eind_jaar : '',
+        class: ['w3-input', 'w3-border']
+    }));
+    sec.append(optie);
+    row.append(sec);
+
+    // BSA
+    sec = maak_element('div', {class: ['w3-half', 'third-right']});
+    optie = maak_element('p');
+    optie.append(maak_element('label', {
+        class: ['w3-text-grey'],
+        children: ["BSA"]
+    }));
+    optie.append(maak_element('input', {
+        name: 'bsa',
+        type: 'number',
+        min: 0,
+        placeholder: '42',
+        value: studie ? studie.bsa : '',
+        class: ['w3-input', 'w3-border']
+    }));
+    sec.append(optie);
+    row.append(sec);
+
+    form.append(row);
+
+    if (bewerk) {
+        row = maak_element('div', {class: ['w3-row']});
+        sec = maak_element('div', {class: ['w3-half', 'third-left']});
+    }
+    // Submit
+    optie = maak_element('p');
+    optie.append(maak_element('input', {
+        type: 'submit',
+        value: `${bewerk ? "Wijzig" : "Upload"} \xa0 ❯`,
+        class: ['w3-btn', 'w3-padding', 'w3-teal'],
+        style: {width: '120px'}
+    }));
+
+    if (bewerk) {
+        sec.append(optie);
+        row.append(sec);
+
+        // Verwijder
+        sec = maak_element('div', {class: ['w3-half', 'third-right']});
+        optie = maak_element('p');
+        let button = maak_element('button', {
+            type: 'button',
+            class: ['w3-btn', 'w3-padding', 'w3-red'],
+            style: {width: '120px'},
+            children: ["Verwijder \xa0 ❯"]
+        });
+        button.addEventListener('click', function () {
+            verwijder_studie(form)
+        });
+        optie.append(button);
+        sec.append(optie);
+        row.append(sec);
+
+        form.append(row);
+    } else {
+        form.append(optie);
+    }
+
+    div.append(form);
+    return div;
+}
+
+function create_studie_upload_vak() {
+    let popup = document.getElementById('upload-studie-popup');
+    let div = document.createElement('div');
+    div.append(create_studie_vak(false));
+    toonPopup(popup, div);
+}
+
+function create_studie_bewerk_vak() {
+    let div = document.getElementById('studievak');
     clear_element(div);
-    div.appendChild(createPanel(panelTypesEnum.error, error.message, false));
+    div.append(create_studie_vak(true, huidige_studie));
 }
 
 function get_cijfervak_data(form, bewerk) {
@@ -137,17 +586,17 @@ function get_cijfervak_data(form, bewerk) {
     clear_element(errorvak);
 
     if (titel === '') {
-        errorvak.appendChild(createPanel(panelTypesEnum.error, "Cijfertitel is verplicht.", false));
+        errorvak.append(createPanel(panelTypesEnum.error, "Cijfertitel is verplicht.", false));
         error = true;
     }
 
     if (isNaN(vaknummer) || vaknummer < 0) {
-        errorvak.appendChild(createPanel(panelTypesEnum.error, "Vak is verplicht.", false));
+        errorvak.append(createPanel(panelTypesEnum.error, "Vak is verplicht.", false));
         error = true;
     }
 
     if (isNaN(weging) || weging < 0) {
-        errorvak.appendChild(createPanel(panelTypesEnum.error, "Weging is ongeldig.", false));
+        errorvak.append(createPanel(panelTypesEnum.error, "Weging is ongeldig.", false));
         error = true;
     }
 
@@ -156,12 +605,12 @@ function get_cijfervak_data(form, bewerk) {
             parse_date(datum);
         }
     } catch {
-        errorvak.appendChild(createPanel(panelTypesEnum.error, `Datum niet in yyyy-mm-dd format (${datum}).`, false));
+        errorvak.append(createPanel(panelTypesEnum.error, `Datum niet in yyyy-mm-dd format (${datum}).`, false));
         error = true;
     }
 
     if (isNaN(cijfer) || cijfer < 0) {
-        errorvak.appendChild(createPanel(panelTypesEnum.error, "Cijfer is ongeldig.", false));
+        errorvak.append(createPanel(panelTypesEnum.error, "Cijfer is ongeldig.", false));
         error = true;
     }
 
@@ -179,7 +628,7 @@ function get_cijfervak_data(form, bewerk) {
             cijfer: cijfer
         });
     } catch {
-        errorvak.appendChild(createPanel(panelTypesEnum.error, "Vak bestaat niet.", false));
+        errorvak.append(createPanel(panelTypesEnum.error, "Vak bestaat niet.", false));
         return null;
     }
 }
@@ -194,7 +643,7 @@ function upload_cijfer(form, bewerk) {
             show_error(form.querySelector("div.errorvak"), error);
         } else {
             clear_element(form);
-            form.appendChild(maak_element('p', {children: [document.createTextNode("Cijfer geüpload!")]}));
+            form.append(maak_element('p', {children: ["Cijfer geüpload!"]}));
             form.dataset.uploaded = "true";
             laad_cijfers();
         }
@@ -221,7 +670,7 @@ function update_cijfer_selectie(divs, errorvak, bewerk) {
             show_error(form.querySelector("div.errorvak"), error);
         } else {
             clear_element(form);
-            form.appendChild(maak_element('p', {children: [document.createTextNode("Cijfer geüpload!")]}));
+            form.append(maak_element('p', {children: ["Cijfer geüpload!"]}));
             form.dataset.uploaded = "true";
         }
     }
@@ -263,13 +712,13 @@ function create_vak_selectie(geselecteerd) {
         value: '',
         disabled: true,
         selected: geselecteerd === null,
-        children: [document.createTextNode("Kies je vak")]
+        children: ["Kies je vak"]
     }));
     for (let vak of vakken) {
         selecties.push(maak_element('option', {
             value: vak.vaknummer,
             selected: geselecteerd === vak.vaknummer,
-            children: [document.createTextNode(vak.naam)]
+            children: [vak.naam]
         }))
     }
     return selecties;
@@ -278,11 +727,11 @@ function create_vak_selectie(geselecteerd) {
 function create_cijfer_vak(i, bewerk = false, cijfer = null) {
     let optie;
     let div = maak_element('div', {id: `${bewerk ? 'wijzig' : 'upload'}-cijfervak-${i}`, class: [`${bewerk ? 'wijzig' : 'upload'}-cijfervak`]});
-    div.appendChild(maak_element('div', {
+    div.append(maak_element('div', {
         class: ['w3-container', 'w3-teal'],
         children: [maak_element('h3', {
-            children: [document.createTextNode(cijfer === null ? `Cijfer ${i + 1}` :
-                `${cijfer.cijfernummer}. ${cijfer.naam} - ${cijfer.vak.naam}`)]
+            children: [cijfer === null ? `Cijfer ${i + 1}` :
+                `${cijfer.cijfernummer}. ${cijfer.naam} - ${cijfer.vak.naam}`]
         })]
     }));
     let form = maak_element('form', {
@@ -293,17 +742,17 @@ function create_cijfer_vak(i, bewerk = false, cijfer = null) {
     form.addEventListener('submit', function () {
         upload_cijfer(form, bewerk)
     });
-    form.appendChild(maak_element('div', {class: ['errorvak']}));
+    form.append(maak_element('div', {class: ['errorvak']}));
 
     // Verplichte onderdelen
-    form.appendChild(maak_element('h4', {
+    form.append(maak_element('h4', {
         style: {'margin-bottom': 0},
-        children: [document.createTextNode("Verplicht")]
+        children: ["Verplicht"]
     }));
 
     // Cijfernummer
     if (cijfer) {
-        form.appendChild(maak_element('input', {
+        form.append(maak_element('input', {
             name: 'cijfernummer',
             type: 'number',
             value: cijfer.cijfernummer,
@@ -316,11 +765,11 @@ function create_cijfer_vak(i, bewerk = false, cijfer = null) {
 
     // Titel
     optie = maak_element('p');
-    optie.appendChild(maak_element('label', {
+    optie.append(maak_element('label', {
         class: ['w3-text-grey'],
-        children: [document.createTextNode("Titel")]
+        children: ["Titel"]
     }));
-    optie.appendChild(maak_element('input', {
+    optie.append(maak_element('input', {
         name: 'titel',
         type: 'text',
         placeholder: 'eindtentamen',
@@ -328,13 +777,13 @@ function create_cijfer_vak(i, bewerk = false, cijfer = null) {
         required: true,
         class: ['w3-input', 'w3-border']
     }));
-    form.appendChild(optie);
+    form.append(optie);
 
     // Vak
     optie = maak_element('p');
-    optie.appendChild(maak_element('label', {
+    optie.append(maak_element('label', {
         class: ['w3-text-grey'],
-        children: [document.createTextNode("Vak")]
+        children: ["Vak"]
     }));
     let select = maak_element('select', {
         class: ['w3-select', 'vak-select'],
@@ -342,15 +791,15 @@ function create_cijfer_vak(i, bewerk = false, cijfer = null) {
     });
     let options = create_vak_selectie(cijfer ? cijfer.vak.vaknummer : null);
     for (let option of options) {
-        select.appendChild(option);
+        select.append(option);
     }
-    optie.appendChild(select);
-    form.appendChild(optie);
+    optie.append(select);
+    form.append(optie);
 
     // Optionele onderdelen
-    form.appendChild(maak_element('h4', {
+    form.append(maak_element('h4', {
         style: {'margin-bottom': 0},
-        children: [document.createTextNode("Optioneel")]
+        children: ["Optioneel"]
     }));
 
     let row = maak_element('div', {class: ['w3-row']});
@@ -358,11 +807,11 @@ function create_cijfer_vak(i, bewerk = false, cijfer = null) {
     // Weging
     let sec = maak_element('div', {class: ['w3-third', 'third-left']});
     optie = maak_element('p');
-    optie.appendChild(maak_element('label', {
+    optie.append(maak_element('label', {
         class: ['w3-text-grey'],
-        children: [document.createTextNode("Weging (in %)")]
+        children: ["Weging (in %)"]
     }));
-    optie.appendChild(maak_element('input', {
+    optie.append(maak_element('input', {
         name: 'weging',
         type: 'number',
         placeholder: 42.0,
@@ -371,28 +820,28 @@ function create_cijfer_vak(i, bewerk = false, cijfer = null) {
         value: cijfer && cijfer.weging ? cijfer.weging : '',
         class: ['w3-input', 'w3-border']
     }));
-    sec.appendChild(optie);
-    row.appendChild(sec);
+    sec.append(optie);
+    row.append(sec);
 
     // Datum
     sec = maak_element('div', {class: ['w3-third', 'third-mid']});
     optie = maak_element('p');
-    optie.appendChild(maak_element('label', {class: ['w3-text-grey'], children: [document.createTextNode("Datum")]}));
-    optie.appendChild(maak_element('input', {
+    optie.append(maak_element('label', {class: ['w3-text-grey'], children: ["Datum"]}));
+    optie.append(maak_element('input', {
         name: 'datum',
         type: 'date',
         placeholder: 'yyyy-mm-dd',
         value: cijfer && cijfer.datum ? format_date(cijfer.datum) : '',
         class: ['w3-input', 'w3-border']
     }));
-    sec.appendChild(optie);
-    row.appendChild(sec);
+    sec.append(optie);
+    row.append(sec);
 
     // Cijfer
     sec = maak_element('div', {class: ['w3-third', 'third-right']});
     optie = maak_element('p');
-    optie.appendChild(maak_element('label', {class: ['w3-text-grey'], children: [document.createTextNode("Cijfer")]}));
-    optie.appendChild(maak_element('input', {
+    optie.append(maak_element('label', {class: ['w3-text-grey'], children: ["Cijfer"]}));
+    optie.append(maak_element('input', {
         name: 'cijfer',
         type: 'number',
         placeholder: 6.66,
@@ -401,22 +850,22 @@ function create_cijfer_vak(i, bewerk = false, cijfer = null) {
         value: cijfer && cijfer.cijfer ? cijfer.cijfer : '',
         class: ['w3-input', 'w3-border']
     }));
-    sec.appendChild(optie);
-    row.appendChild(sec);
+    sec.append(optie);
+    row.append(sec);
 
-    form.appendChild(row);
+    form.append(row);
 
     // Submit
     optie = maak_element('p');
-    optie.appendChild(maak_element('input', {
+    optie.append(maak_element('input', {
         type: 'submit',
         value: `${bewerk ? "Wijzig" : "Upload"} \xa0 ❯`,
         class: ['w3-btn', 'w3-padding', 'w3-teal'],
         style: {width: '120px'}
     }));
-    form.appendChild(optie);
+    form.append(optie);
 
-    div.appendChild(form);
+    div.append(form);
     return div;
 }
 
@@ -424,7 +873,7 @@ function create_cijfer_upload_vakken(aantal) {
     let div = document.getElementById('cijfervakken');
     clear_element(div);
     for (let i = 0; i < aantal; ++i) {
-        div.appendChild(create_cijfer_vak(i, false, null));
+        div.append(create_cijfer_vak(i, false, null));
     }
 }
 
@@ -439,13 +888,13 @@ function create_cijfer_wijzig_vakken() {
     }
 
     for (const [i, cijfer] of selectie.entries()) {
-        div.appendChild(create_cijfer_vak(i, true, cijferMapping[cijfer]));
+        div.append(create_cijfer_vak(i, true, cijferMapping[cijfer]));
     }
 
-    div.appendChild(maak_element('div', {id: 'cijferwijzigerror'}));
-    let button = maak_element('button', {type: 'button', class: ['w3-btn', 'w3-padding', 'w3-teal', 'upload-button'], children: [document.createTextNode("Wijzig alle \xa0 ❯")]});
+    div.append(maak_element('div', {id: 'cijferwijzigerror'}));
+    let button = maak_element('button', {type: 'button', class: ['w3-btn', 'w3-padding', 'w3-teal', 'upload-button'], children: ["Wijzig alle \xa0 ❯"]});
     button.addEventListener('click', wijzig_alle_cijfers);
-    div.appendChild(button);
+    div.append(button);
 
     toonPopup(popup, div);
 }
@@ -467,7 +916,12 @@ async function deel_cijfers() {
         text += `Cijfer:\t\t\t${(cijfer.cijfer === null ? "Onbekend" : `${cijfer.cijfer}`)}\nVak:\t\t\t${cijfer.vak.naam}\nOmschrijving:\t${cijfer.naam}\nWeging:\t\t\t${(cijfer.weging === null ? "Onbekend" : `${cijfer.weging}%`)}\n\n`;
     }
 
-    text += `Bekijk cijfers:${(serverinfo.intern ? `\nExtern:\t\t\t${serverinfo.domein}\nIntern:\t\t\t${serverinfo.interndomein}` : `\t${serverinfo.domein}`)}\nWachtwoord:\t${serverinfo.wachtwoord}`;
+    let url_extension = '';
+    if (!huidige_studie.standaard) {
+        url_extension += `?studie=${huidige_studie.studienummer}`;
+    }
+
+    text += `Bekijk cijfers:${(serverinfo.intern ? `\nExtern:\t\t\t${serverinfo.domein}${url_extension}\nIntern:\t\t\t${serverinfo.interndomein}${url_extension}` : `\t${serverinfo.domein}${url_extension}`)}\nWachtwoord:\t${serverinfo.wachtwoord}`;
 
     try {
         if (navigator && navigator.share) {
@@ -480,14 +934,14 @@ async function deel_cijfers() {
             tekstVak.readOnly = true;
             tekstVak.style.position = 'absolute';
             tekstVak.style.left = '-1000px';
-            document.body.appendChild(tekstVak);
+            document.body.append(tekstVak);
             tekstVak.select();
             document.execCommand('copy');
             document.body.removeChild(tekstVak);
         }
-        info.appendChild(createPanel(panelTypesEnum.info, "Cijfers succesvol gekopieerd!", false));
+        info.append(createPanel(panelTypesEnum.info, "Cijfers succesvol gekopieerd!", false));
     } catch (e) {
-        info.appendChild(createPanel(panelTypesEnum.error, `Kon cijfers niet kopiëren: ${e}.`, false));
+        info.append(createPanel(panelTypesEnum.error, `Kon cijfers niet kopiëren: ${e}.`, false));
     }
 }
 
@@ -509,14 +963,14 @@ function verwijder_cijfers() {
 
                 succes = false;
                 p.innerHTML = `${cijfer.cijfernummer}. ${cijfer.naam}: ${result.error.message}`;
-                div.appendChild(p);
+                div.append(p);
             }
         }
 
         if (succes) {
-            errorvak.appendChild(createPanel(panelTypesEnum.info, "Cijfers succesvol verwijderd!", false));
+            errorvak.append(createPanel(panelTypesEnum.info, "Cijfers succesvol verwijderd!", false));
         } else {
-            errorvak.appendChild(createPanel(panelTypesEnum.error, div, false));
+            errorvak.append(createPanel(panelTypesEnum.error, div, false));
         }
 
         laad_cijfers();
@@ -563,49 +1017,49 @@ function get_vakvak_data(form, bewerk) {
     clear_element(errorvak);
 
     if (titel === '') {
-        errorvak.appendChild(createPanel(panelTypesEnum.error, "Cijfertitel is verplicht.", false));
+        errorvak.append(createPanel(panelTypesEnum.error, "Cijfertitel is verplicht.", false));
         error = true;
     }
 
     if (isNaN(jaar) || jaar < 0) {
-        errorvak.appendChild(createPanel(panelTypesEnum.error, "Jaar is verplicht.", false));
+        errorvak.append(createPanel(panelTypesEnum.error, "Jaar is verplicht.", false));
         error = true;
     }
 
     if (isNaN(studiepunten) || studiepunten < 0) {
-        errorvak.appendChild(createPanel(panelTypesEnum.error, "Studiepunten zijn verplicht.", false));
+        errorvak.append(createPanel(panelTypesEnum.error, "Studiepunten zijn verplicht.", false));
         error = true;
     }
 
     if (isNaN(periode_start) || periode_start < 0) {
-        errorvak.appendChild(createPanel(panelTypesEnum.error, "Begin periode is ongeldig.", false));
+        errorvak.append(createPanel(panelTypesEnum.error, "Begin periode is ongeldig.", false));
         error = true;
     }
 
     if (isNaN(periode_end) || periode_end < 0) {
-        errorvak.appendChild(createPanel(panelTypesEnum.error, "Eind periode is ongeldig.", false));
+        errorvak.append(createPanel(panelTypesEnum.error, "Eind periode is ongeldig.", false));
         error = true;
     }
 
     if (isNaN(eindcijfer) || eindcijfer < 0) {
-        errorvak.appendChild(createPanel(panelTypesEnum.error, "Eindcijer is ongeldig.", false));
+        errorvak.append(createPanel(panelTypesEnum.error, "Eindcijer is ongeldig.", false));
         error = true;
     }
 
     if (!isNaN(periode_start) && !isNaN(periode_end)) {
         if (periode_start === null) {
             if (periode_end !== null) {
-                errorvak.appendChild(createPanel(panelTypesEnum.error, "Alleen eind periode opgegeven.", false));
+                errorvak.append(createPanel(panelTypesEnum.error, "Alleen eind periode opgegeven.", false));
                 error = true;
             }
         } else {
             if (periode_end === null) {
-                errorvak.appendChild(createPanel(panelTypesEnum.error, "Alleen begin periode opgegeven.", false));
+                errorvak.append(createPanel(panelTypesEnum.error, "Alleen begin periode opgegeven.", false));
                 error = true;
             }
 
             if (periode_start > periode_end) {
-                errorvak.appendChild(createPanel(panelTypesEnum.error, "De eind periode moet na de begin periode zijn.", false));
+                errorvak.append(createPanel(panelTypesEnum.error, "De eind periode moet na de begin periode zijn.", false));
                 error = true;
             }
         }
@@ -617,6 +1071,7 @@ function get_vakvak_data(form, bewerk) {
 
     return Vak.from_json({
         vaknummer: vaknummer,
+        studienummer: huidige_studie.studienummer,
         naam: titel,
         jaar: jaar,
         studiepunten: studiepunten,
@@ -637,7 +1092,7 @@ function upload_vak(form, bewerk) {
             show_error(form.querySelector("div.errorvak"), error);
         } else {
             clear_element(form);
-            form.appendChild(maak_element('p', {children: [document.createTextNode("Vak geüpload!")]}));
+            form.append(maak_element('p', {children: ["Vak geüpload!"]}));
             form.dataset.uploaded = "true";
             laad_cijfers();
         }
@@ -664,7 +1119,7 @@ function update_vak_selectie(divs, errorvak, bewerk) {
             show_error(form.querySelector("div.errorvak"), error);
         } else {
             clear_element(form);
-            form.appendChild(maak_element('p', {children: [document.createTextNode("Vak geüpload!")]}));
+            form.append(maak_element('p', {children: ["Vak geüpload!"]}));
             form.dataset.uploaded = "true";
         }
     }
@@ -704,11 +1159,11 @@ function create_vak_vak(i, bewerk = false, vak = null) {
     let optie, row, sec;
     let gemiddelde = vak && vak.gemiddelde;
     let div = maak_element('div', {id: `${bewerk ? 'wijzig' : 'upload'}-vakvak-${i}`, class: [`${bewerk ? 'wijzig' : 'upload'}-vakvak`]});
-    div.appendChild(maak_element('div', {
+    div.append(maak_element('div', {
         class: ['w3-container', 'w3-teal'],
         children: [maak_element('h3', {
-            children: [document.createTextNode(vak === null ? `Vak ${i + 1}` :
-                `${vak.vaknummer}. ${vak.naam}`)]
+            children: [vak === null ? `Vak ${i + 1}` :
+                `${vak.vaknummer}. ${vak.naam}`]
         })]
     }));
     let form = maak_element('form', {
@@ -719,17 +1174,17 @@ function create_vak_vak(i, bewerk = false, vak = null) {
     form.addEventListener('submit', function () {
         upload_vak(form, bewerk)
     });
-    form.appendChild(maak_element('div', {class: ['errorvak']}));
+    form.append(maak_element('div', {class: ['errorvak']}));
 
     // Verplichte onderdelen
-    form.appendChild(maak_element('h4', {
+    form.append(maak_element('h4', {
         style: {'margin-bottom': 0},
-        children: [document.createTextNode("Verplicht")]
+        children: ["Verplicht"]
     }));
 
     // Vaknummer
     if (vak) {
-        form.appendChild(maak_element('input', {
+        form.append(maak_element('input', {
             name: 'vaknummer',
             type: 'number',
             value: vak.vaknummer,
@@ -742,11 +1197,11 @@ function create_vak_vak(i, bewerk = false, vak = null) {
 
     // Titel
     optie = maak_element('p');
-    optie.appendChild(maak_element('label', {
+    optie.append(maak_element('label', {
         class: ['w3-text-grey'],
-        children: [document.createTextNode("Titel")]
+        children: ["Titel"]
     }));
-    optie.appendChild(maak_element('input', {
+    optie.append(maak_element('input', {
         name: 'titel',
         type: 'text',
         placeholder: 'Inleiding studie',
@@ -754,17 +1209,17 @@ function create_vak_vak(i, bewerk = false, vak = null) {
         required: true,
         class: ['w3-input', 'w3-border']
     }));
-    form.appendChild(optie);
+    form.append(optie);
 
     row = maak_element('div', {class: ['w3-row']});
     // Jaar
     sec = maak_element('div', {class: ['w3-half', 'third-left']});
     optie = maak_element('p');
-    optie.appendChild(maak_element('label', {
+    optie.append(maak_element('label', {
         class: ['w3-text-grey'],
-        children: [document.createTextNode("Jaar")]
+        children: ["Jaar"]
     }));
-    optie.appendChild(maak_element('input', {
+    optie.append(maak_element('input', {
         name: 'jaar',
         type: 'number',
         min: 1,
@@ -774,17 +1229,17 @@ function create_vak_vak(i, bewerk = false, vak = null) {
         required: true,
         class: ['w3-input', 'w3-border']
     }));
-    sec.appendChild(optie);
-    row.appendChild(sec);
+    sec.append(optie);
+    row.append(sec);
 
     // Studiepunten
     sec = maak_element('div', {class: ['w3-half', 'third-right']});
     optie = maak_element('p');
-    optie.appendChild(maak_element('label', {
+    optie.append(maak_element('label', {
         class: ['w3-text-grey'],
-        children: [document.createTextNode("Studiepunten")]
+        children: ["Studiepunten"]
     }));
-    optie.appendChild(maak_element('input', {
+    optie.append(maak_element('input', {
         name: 'studiepunten',
         type: 'number',
         min: 0,
@@ -794,64 +1249,64 @@ function create_vak_vak(i, bewerk = false, vak = null) {
         required: true,
         class: ['w3-input', 'w3-border']
     }));
-    sec.appendChild(optie);
-    row.appendChild(sec);
+    sec.append(optie);
+    row.append(sec);
 
-    form.appendChild(row);
+    form.append(row);
 
     row = maak_element('div', {class: ['w3-row']});
     // Gehaald
     sec = maak_element('div', {class: ['w3-half', 'third-left']});
     optie = maak_element('p', {style: {margin: 0}});
-    optie.appendChild(maak_element('label', {
+    optie.append(maak_element('label', {
         class: ['w3-text-grey'],
-        children: [document.createTextNode("Gehaald: ")]
+        children: ["Gehaald: "]
     }));
-    optie.appendChild(maak_element('input', {
+    optie.append(maak_element('input', {
         name: 'gehaald',
         type: 'checkbox',
         checked: vak ? vak.gehaald : false,
         class: ['w3-check']
     }));
-    sec.appendChild(optie);
-    row.appendChild(sec);
+    sec.append(optie);
+    row.append(sec);
 
     // Toon
     sec = maak_element('div', {class: ['w3-half', 'third-right']});
     optie = maak_element('p', {style: {margin: 0}});
-    optie.appendChild(maak_element('label', {
+    optie.append(maak_element('label', {
         class: ['w3-text-grey'],
-        children: [document.createTextNode("Toon: ")]
+        children: ["Toon: "]
     }));
-    optie.appendChild(maak_element('input', {
+    optie.append(maak_element('input', {
         name: 'toon',
         type: 'checkbox',
         checked: vak ? vak.toon : true,
         class: ['w3-check']
     }));
-    sec.appendChild(optie);
-    row.appendChild(sec);
+    sec.append(optie);
+    row.append(sec);
 
-    form.appendChild(row);
+    form.append(row);
 
     // Optionele onderdelen
-    form.appendChild(maak_element('h4', {
+    form.append(maak_element('h4', {
         style: {'margin-bottom': 0},
-        children: [document.createTextNode("Optioneel")]
+        children: ["Optioneel"]
     }));
 
     row = maak_element('div', {class: ['w3-row']});
     // Periode
     sec = maak_element('div', {class: gemiddelde ? ['w3-third', 'third-left'] : ['w3-half', 'third-left']});
     optie = maak_element('p');
-    optie.appendChild(maak_element('label', {
+    optie.append(maak_element('label', {
         class: ['w3-text-grey'],
-        children: [document.createTextNode("Periode")]
+        children: ["Periode"]
     }));
 
-    let flex = optie.appendChild(maak_element('div', {
+    let flex = maak_element('div', {
         style: {display: 'flex', justifyContent: 'space-between'}
-    }));
+    });
 
     let periode_start = maak_element('input', {
         name: 'periode-start',
@@ -894,24 +1349,24 @@ function create_vak_vak(i, bewerk = false, vak = null) {
 
     periode_start.addEventListener('input', update_periode_end);
 
-    flex.appendChild(periode_start);
-    flex.appendChild(maak_element('span', {
+    flex.append(periode_start);
+    flex.append(maak_element('span', {
         style: {maxWidth: '20px', margin: 'auto 0'},
-        children: [document.createTextNode("–")]
+        children: ["–"]
     }))
-    flex.appendChild(periode_end);
-    optie.appendChild(flex);
-    sec.appendChild(optie);
-    row.appendChild(sec);
+    flex.append(periode_end);
+    optie.append(flex);
+    sec.append(optie);
+    row.append(sec);
 
     // Eindcijfer
     sec = maak_element('div', {class: gemiddelde ? ['w3-third', 'third-mid'] : ['w3-half', 'third-right']});
     optie = maak_element('p');
-    optie.appendChild(maak_element('label', {
+    optie.append(maak_element('label', {
         class: ['w3-text-grey'],
-        children: [document.createTextNode("Eindcijfer")]
+        children: ["Eindcijfer"]
     }));
-    optie.appendChild(maak_element('input', {
+    optie.append(maak_element('input', {
         name: 'eindcijfer',
         type: 'number',
         min: 0,
@@ -920,19 +1375,19 @@ function create_vak_vak(i, bewerk = false, vak = null) {
         value: vak ? vak.eindcijfer : '',
         class: ['w3-input', 'w3-border']
     }));
-    sec.appendChild(optie);
-    row.appendChild(sec);
+    sec.append(optie);
+    row.append(sec);
 
     if (gemiddelde) {
         // Gemiddelde cijfer
         sec = maak_element('div', {class: ['w3-third', 'third-right']});
         optie = maak_element('p');
-        optie.appendChild(maak_element('label', {
+        optie.append(maak_element('label', {
             class: ['w3-text-grey'],
             style: {fontStyle: 'italic'},
-            children: [document.createTextNode("Berekend gemiddelde")]
+            children: ["Berekend gemiddelde"]
         }));
-        optie.appendChild(maak_element('input', {
+        optie.append(maak_element('input', {
             name: 'gemiddelde',
             type: 'number',
             min: 0,
@@ -942,23 +1397,23 @@ function create_vak_vak(i, bewerk = false, vak = null) {
             class: ['w3-input', 'w3-border'],
             style: {fontStyle: 'italic'}
         }));
-        sec.appendChild(optie);
-        row.appendChild(sec);
+        sec.append(optie);
+        row.append(sec);
     }
 
-    form.appendChild(row);
+    form.append(row);
 
     // Submit
     optie = maak_element('p');
-    optie.appendChild(maak_element('input', {
+    optie.append(maak_element('input', {
         type: 'submit',
         value: `${bewerk ? "Wijzig" : "Upload"} \xa0 ❯`,
         class: ['w3-btn', 'w3-padding', 'w3-teal'],
         style: {width: '120px'}
     }));
-    form.appendChild(optie);
+    form.append(optie);
 
-    div.appendChild(form);
+    div.append(form);
     return div;
 }
 
@@ -966,7 +1421,7 @@ function create_vak_upload_vakken(aantal) {
     let div = document.getElementById('vakvakken');
     clear_element(div);
     for (let i = 0; i < aantal; ++i) {
-        div.appendChild(create_vak_vak(i, false, null));
+        div.append(create_vak_vak(i, false, null));
     }
 }
 
@@ -981,13 +1436,13 @@ function create_vak_wijzig_vakken() {
     }
 
     for (const [i, vak] of selectie.entries()) {
-        div.appendChild(create_vak_vak(i, true, vakMapping[vak]));
+        div.append(create_vak_vak(i, true, vakMapping[vak]));
     }
 
-    div.appendChild(maak_element('div', {id: 'vakwijzigerror'}));
-    let button = maak_element('button', {type: 'button', class: ['w3-btn', 'w3-padding', 'w3-teal', 'upload-button'], children: [document.createTextNode("Wijzig alle \xa0 ❯")]});
+    div.append(maak_element('div', {id: 'vakwijzigerror'}));
+    let button = maak_element('button', {type: 'button', class: ['w3-btn', 'w3-padding', 'w3-teal', 'upload-button'], children: ["Wijzig alle \xa0 ❯"]});
     button.addEventListener('click', wijzig_alle_vakken);
-    div.appendChild(button);
+    div.append(button);
 
     toonPopup(popup, div);
 }
@@ -1010,14 +1465,14 @@ function verwijder_vakken() {
 
                 succes = false;
                 p.innerHTML = `${vak.vaknummer}. ${vak.naam}: ${result.error.message}`;
-                div.appendChild(p);
+                div.append(p);
             }
         }
 
         if (succes) {
-            errorvak.appendChild(createPanel(panelTypesEnum.info, "Vakken succesvol verwijderd!", false));
+            errorvak.append(createPanel(panelTypesEnum.info, "Vakken succesvol verwijderd!", false));
         } else {
-            errorvak.appendChild(createPanel(panelTypesEnum.error, div, false));
+            errorvak.append(createPanel(panelTypesEnum.error, div, false));
         }
 
         laad_cijfers();
@@ -1044,34 +1499,11 @@ function verwijder_vakken() {
     }
 }
 
-function refresh_grafiek() {
-    const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function () {
-        if (this.readyState === 4) {
-            document.getElementById("loadicon").style.display = "none";
-            clear_element(document.getElementById('refresherror'));
-            let return_value = parseInt(xhttp.responseText);
-
-            if (this.status !== 200 || return_value !== 0) {
-                let message = "Er is een onbekende fout opgetreden, probeer het later opnieuw;";
-                if (return_value === -1) {
-                    message = `Je bent niet ingelogd! Klik <a href="admin.php" target="_blank">hier</a> om opnieuw in te loggen, en probeer het dan opnieuw.`;
-                }
-                if (return_value === -2) {
-                    message = "De grafiek functionaliteit is uitgeschakeld in de instellingen.";
-                }
-                document.getElementById('refresherror').appendChild(createPanel(panelTypesEnum.error, message, false));
-            }
-        }
-    };
-    xhttp.open("POST", "refresh_grafiek.php", true);
-    xhttp.send();
-    document.getElementById("loadicon").style.display = "block";
-}
-
-laad_cijfers();
+get_huidige_studie();
+laad_studies();
+window.laad_studies = laad_studies;
 window.laad_cijfers = laad_cijfers;
-setInterval(laad_cijfers, 60000);
+refresh_interval = setInterval(laad_studies, 60000);
 
 document.getElementById('reset-cijfers-form').addEventListener('submit', function () {
     let input = document.getElementById('reset-cijfers-form').querySelector("input[name='aantal']");
@@ -1094,4 +1526,11 @@ document.getElementById('wijzig-vak-button').addEventListener('click', create_va
 document.getElementById('upload-vakken-button').addEventListener('click', upload_alle_vakken);
 document.getElementById('verwijder-vak-button').addEventListener('click', verwijder_vakken);
 
-document.getElementById('refresh-grafiek-button').addEventListener('click', refresh_grafiek);
+window.onpopstate = function(event) {
+    huidige_studie = null;
+    get_huidige_studie(event.state);
+    studies_hash = null;
+    verbergPopups();
+    studie_wijzig_vak_created = false;
+    laad_studies();
+}

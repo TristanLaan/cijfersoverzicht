@@ -204,12 +204,12 @@ class Cijfer implements JsonSerializable {
         return $cijfers;
     }
 
-    public static function getAllCijfers($vakken = true) {
+    public static function getAllCijfers($studie, $vakken = true) {
         if (!$vakken) {
             return self::getAllCijfersZonderVakken();
         }
 
-        $vakken = Vak::getAllVakken();
+        $vakken = Vak::getAllVakken($studie);
 
         if ($vakken == null) {
             return null;
@@ -273,7 +273,7 @@ class Cijfer implements JsonSerializable {
             return 2;
         }
 
-        if (!$sql->bindValue(':titel', htmlspecialchars($this->naam), PDO::PARAM_STR)) {
+        if (!$sql->bindValue(':titel', $this->naam, PDO::PARAM_STR)) {
             return 3;
         }
 
@@ -346,7 +346,7 @@ class Cijfer implements JsonSerializable {
             return 2;
         }
 
-        if (!$sql->bindValue(':titel', htmlspecialchars($this->naam), PDO::PARAM_STR)) {
+        if (!$sql->bindValue(':titel', $this->naam, PDO::PARAM_STR)) {
             return 3;
         }
 

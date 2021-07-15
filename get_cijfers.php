@@ -38,29 +38,39 @@ if (!isset($_SESSION[$session . 'admin'])) {
 if ($_SESSION[$session] !== "ingelogd" && $_SESSION[$session . 'admin'] !== "ingelogd") {
     $return["returnwaarde"] = -1;
 } else {
-    if (isset($_GET['cijferid']) && $_GET['cijferid'] !== "None" && $_GET['cijferid'] !== "null") {
-        if (!is_numeric($_GET['cijferid'])) {
-            $return["returnwaarde"] = -2;
-        } else {
-            $return["object"] = Cijfer::getCijfer($_GET['cijferid']);
-        }
-    } elseif (isset($_GET['vakid']) && $_GET['vakid'] !== "None" && $_GET['vakid'] !== "null") {
-        if (!is_numeric($_GET['vakid'])) {
-            $return["returnwaarde"] = -2;
-        } else {
-            $vak = Vak::getVak($_GET['vakid']);
-
-            if ($vak === NULL) {
-                $return["returnwaarde"] = -3;
-            } else {
-                $return["object"] = $vak->getCijfers();
-            }
-        }
+    if (!isset($_GET['studieid']) || !is_numeric($_GET['studieid'])) {
+        $return["returnwaarde"] = -4;
     } else {
-        if (isset($_GET["cijfers"]) && $_GET["cijfers"] == "true") {
-            $return["object"] = Cijfer::getAllCijfers(false);
+        $studie = Studie::getStudie($_GET['studieid']);
+
+        if ($studie === null) {
+            $return["returnwaarde"] = -5;
         } else {
-            $return["object"] = Cijfer::getAllCijfers();
+            if (isset($_GET['cijferid']) && $_GET['cijferid'] !== "None" && $_GET['cijferid'] !== "null") {
+                if (!is_numeric($_GET['cijferid'])) {
+                    $return["returnwaarde"] = -2;
+                } else {
+                    $return["object"] = Cijfer::getCijfer($_GET['cijferid']);
+                }
+            } elseif (isset($_GET['vakid']) && $_GET['vakid'] !== "None" && $_GET['vakid'] !== "null") {
+                if (!is_numeric($_GET['vakid'])) {
+                    $return["returnwaarde"] = -2;
+                } else {
+                    $vak = Vak::getVak($_GET['vakid']);
+
+                    if ($vak === NULL) {
+                        $return["returnwaarde"] = -3;
+                    } else {
+                        $return["object"] = $vak->getCijfers();
+                    }
+                }
+            } else {
+                if (isset($_GET["cijfers"]) && $_GET["cijfers"] == "true") {
+                    $return["object"] = Cijfer::getAllCijfers($studie, false);
+                } else {
+                    $return["object"] = Cijfer::getAllCijfers($studie);
+                }
+            }
         }
     }
 }
@@ -68,7 +78,7 @@ if ($_SESSION[$session] !== "ingelogd" && $_SESSION[$session . 'admin'] !== "ing
 $etag = md5(json_encode($return));
 
 // Set etag in header for caching results
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=UTF-8');
 header('ETag: ' . $etag);
 header('Cache-Control: private, must-revalidate');
 

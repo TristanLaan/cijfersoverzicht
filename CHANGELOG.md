@@ -15,6 +15,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Vak editor aangepast om begin en eind van periode aan te kunnen geven.
   - Vakken die over meerdere periodes spannen worden als range aangegeven in de tabel.
 - Ondersteuning voor dark mode aangegeven aan browser voor betere weergave.
+- Ondersteuning toegevoegd voor meerdere studies.
+  - Studies worden nu opgeslagen in de database, met naam, begin/eind jaar, bsa en of de studie gehaald is.
+  - Er kan 1 studie als standaard studie worden ingesteld.
+  - Vakken zijn nu gekoppeld aan een enkele studie.
+  - Het is mogelijk om tussen studies te switchen in het selectie veld.
+  - Studies kunnen worden toegevoegd, gewijzigd en verwijderd in de admin-interface.
+    - De standaard studie kan niet worden verwijderd (er is dus altijd minimaal 1 studie).
+- Migratie tool toegevoegd om bestaande databases om te zetten naar de nieuwe structuur
+  ([migrate-database.py](python/migrate-database.py)).
 
 ### Changed
 - SQL-database engine en types verbeterd/consistent gemaakt.
@@ -26,6 +35,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Alle api's werken nu op meerdere cijfers/vakken.
 - Javascript files verplaatst naar `js` map.
 - JS code compleet herschreven als modules.
+- Periode is optioneel gemaakt, en 0 is een geldige periode.
 
 ## [0.6.0] - 2021-06-15
 ### Added

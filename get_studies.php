@@ -17,11 +17,10 @@
  */
 
 require_once "connect.php";
-require_once "php/Vak.php";
 require_once "php/Studie.php";
 
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
+if (session_status() == PHP_SESSION_NONE) { //controleren of sessie al is gestart
+    session_start(); //sessie starten
 }
 
 $return["returnwaarde"] = 0;
@@ -38,24 +37,7 @@ if (!isset($_SESSION[$session . 'admin'])) {
 if ($_SESSION[$session] !== "ingelogd" && $_SESSION[$session . 'admin'] !== "ingelogd") {
     $return["returnwaarde"] = -1;
 } else {
-    if (!isset($_GET['studieid']) || !is_numeric($_GET['studieid'])) {
-        $return["returnwaarde"] = -3;
-    } else {
-        $studie = Studie::getStudie($_GET['studieid']);
-        if ($studie === null) {
-            $return["returnwaarde"] = -4;
-        } else {
-            if (isset($_GET['vakid']) && $_GET['vakid'] !== "None" && $_GET['vakid'] !== "null") {
-                if (!is_numeric($_GET['vakid'])) {
-                    $return["returnwaarde"] = -2;
-                } else {
-                    $return["object"] = Vak::getVak($_GET['vakid']);
-                }
-            } else {
-                $return["object"] = Vak::getAllVakken($studie);
-            }
-        }
-    }
+    $return["object"] = Studie::getAllStudies();
 }
 
 $etag = md5(json_encode($return));
@@ -65,7 +47,7 @@ header('Content-Type: application/json; charset=UTF-8');
 header('ETag: ' . $etag);
 header('Cache-Control: private, must-revalidate');
 
-if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] === $etag) {
+if(isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] === $etag) {
     http_response_code(304);
 } else {
     echo json_encode($return);

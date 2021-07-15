@@ -17,10 +17,9 @@
  */
 
 require_once "connect.php";
-require_once "php/Vak.php";
 require_once "php/Studie.php";
 
-function update_vak($array) {
+function update_studie($array) {
     global $session;
 
     if (session_status() == PHP_SESSION_NONE) { //controleren of sessie al is gestart
@@ -35,17 +34,17 @@ function update_vak($array) {
         return [-1, NULL];
     }
 
-    $vak = NULL;
+    $studie = NULL;
 
-    if (isset($array['vaknummer']) && $array['vaknummer'] !== '') {
-        if (!is_numeric($array['vaknummer'])) {
+    if (isset($array['studienummer']) && $array['studienummer'] !== '') {
+        if (!is_numeric($array['studienummer'])) {
             return [-2, NULL];
         }
 
-        /* @var Vak $vak */
-        $vak = Vak::getVak($array['vaknummer']);
+        /* @var Studie $studie */
+        $studie = Studie::getStudie($array['studienummer']);
 
-        if ($vak === NULL) {
+        if ($studie === NULL) {
             return [-2, NULL];
         }
     }
@@ -56,26 +55,20 @@ function update_vak($array) {
 
     $naam = $array['naam'];
 
-    if (!isset($array['jaar']) || $array['jaar'] === '' || !is_numeric($array['jaar'])) {
+    if (!isset($array['begin_jaar']) || $array['begin_jaar'] === '' || !is_numeric($array['begin_jaar'])  || $array['begin_jaar'] < 1901 || $array['begin_jaar'] > 2155) {
         return [-4, NULL];
     }
 
-    $jaar = $array['jaar'];
+    $begin_jaar = $array['begin_jaar'];
 
-    if (!isset($array['studiepunten']) || $array['studiepunten'] === '' || !is_numeric($array['studiepunten'])) {
-        return [-5, NULL];
-    }
-
-    $studiepunten = $array['studiepunten'];
-
-    if (empty($array['periode'])) {
-        $periode = NULL;
+    if (!isset($array['eind_jaar']) || $array['eind_jaar'] === '') {
+        $eind_jaar = null;
     } else {
-        if (!isset($array['periode']['start']) || $array['periode']['start'] === '' || !is_numeric($array['periode']['start'])
-            || !isset($array['periode']['end']) || $array['periode']['end'] === '' || !is_numeric($array['periode']['end'])) {
-            return [-6, NULL];
+        if (!is_numeric($array['eind_jaar']) || $array['eind_jaar'] < 1901 || $array['eind_jaar'] > 2155) {
+            return [-5, NULL];
         }
-        $periode = new Periode($array['periode']['start'], $array['periode']['end']);
+
+        $eind_jaar = $array['eind_jaar'];
     }
 
     if (empty($array['gehaald']) || !filter_var($array['gehaald'], FILTER_VALIDATE_BOOLEAN)) {
@@ -84,46 +77,35 @@ function update_vak($array) {
         $gehaald = true;
     }
 
-    if (empty($array['toon']) || !filter_var($array['toon'], FILTER_VALIDATE_BOOLEAN)) {
-        $toon = false;
+    if (empty($array['standaard']) || !filter_var($array['standaard'], FILTER_VALIDATE_BOOLEAN)) {
+        $standaard = false;
     } else {
-        $toon = true;
+        $standaard = true;
     }
 
-    if (!isset($array['eindcijfer']) || $array['eindcijfer'] === '') {
-        $eindcijfer = NULL;
+    if (!isset($array['bsa']) || $array['bsa'] === '') {
+        $bsa = null;
     } else {
-        $eindcijfer = $array['eindcijfer'];
-        if (!is_numeric($eindcijfer)) {
-            return [-7, NULL];
+        if (!is_numeric($array['bsa']) || $array['bsa'] < 0) {
+            return [-6, NULL];
         }
-    }
 
-    if (!isset($array['studienummer']) || !is_numeric($array['studienummer'])) {
-        $studie = NULL;
-    } else {
-        $studie = Studie::getStudie($array['studienummer']);
+        $bsa = $array['bsa'];
     }
 
     if ($studie === NULL) {
-        return [-8, NULL];
+        return Studie::createStudie($naam, $begin_jaar, $eind_jaar, $gehaald, $standaard, $bsa);
     }
 
-    if ($vak === NULL) {
-        return Vak::createVak($studie, $naam, $jaar, $studiepunten, $gehaald, $toon, $periode, $eindcijfer);
-    }
+    $studie->naam = $naam;
+    $studie->begin_jaar = $begin_jaar;
+    $studie->eind_jaar = $eind_jaar;
+    $studie->gehaald = $gehaald;
+    $studie->standaard = $standaard;
+    $studie->bsa = $bsa;
 
-    $vak->studie = $studie;
-    $vak->naam = $naam;
-    $vak->jaar = $jaar;
-    $vak->periode = $periode;
-    $vak->studiepunten = $studiepunten;
-    $vak->gehaald = $gehaald;
-    $vak->toon = $toon;
-    $vak->eindcijfer = $eindcijfer;
-
-    $return = $vak->update();
-    return [$return, $vak];
+    $return = $studie->update();
+    return [$return, $studie];
 }
 
 
@@ -138,8 +120,8 @@ if ($data === NULL) {
 } else {
     $return = ["returnwaarde" => 0, "object" => []];
 
-    foreach ($data as $vak) {
-        list($returnwaarde, $object) = update_vak($vak);
+    foreach ($data as $studie) {
+        list($returnwaarde, $object) = update_studie($studie);
         $return["object"][] = ["returnwaarde" => $returnwaarde, "object" => $object];
     }
 }

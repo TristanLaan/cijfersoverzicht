@@ -18,7 +18,11 @@
 async function generate_hash(message) {
     const encoder = new TextEncoder();
     const data = encoder.encode(message);
-    return await crypto.subtle.digest('SHA-256', data);
+    if (crypto.subtle) {
+        return await crypto.subtle.digest('SHA-256', data);
+    } else {
+        return data;
+    }
 }
 
 function compare_hashes(a, b) {

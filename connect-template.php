@@ -30,7 +30,6 @@
     $adminpass = "";
     $userpass = "";
 
-    $bsa_benodigd = 42;
     $afbeelding_dir = "graphs";
     $grafiek = True;
 ?>
