@@ -98,16 +98,11 @@ def show_command(config: Config):
 if __name__ == '__main__':
     print("Enter the database configuration details. "
           "Read/write permission on the database is required.")
-    # server = input("Enter db server: ")
-    # database = input("Enter db name: ")
-    # username = input("Enter db username: ")
-    # password = input("Enter db password: ")
+    server = input("Enter db server: ")
+    database = input("Enter db name: ")
+    username = input("Enter db username: ")
+    password = input("Enter db password: ")
     print()
-
-    password = "tE-MTCswzK9XJb7MNMtL-YQKv-L-tfWk"
-    server = "localhost"
-    username = "cijfersoverzicht"
-    database = "cijfersoverzicht"
 
     file = Path("backup_data.json")
     config = Config(password, server, username, database)
