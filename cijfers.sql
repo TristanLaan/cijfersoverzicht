@@ -65,6 +65,7 @@ CREATE TABLE `Vakken` (
     `gehaald` BOOLEAN NOT NULL DEFAULT FALSE,
     `eindcijfer` SMALLINT(4) UNSIGNED DEFAULT NULL,
     `toon` BOOLEAN NOT NULL DEFAULT TRUE,
+    `beschrijving` TEXT DEFAULT NULL,
     PRIMARY KEY (`vaknr`),
     FOREIGN KEY (`studienr`) REFERENCES `Studies`(`studienr`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -81,6 +82,7 @@ CREATE TABLE `Cijfers` (
     `weging` SMALLINT(5) UNSIGNED DEFAULT NULL,
     `datum` date DEFAULT NULL,
     `cijfer` SMALLINT(4) UNSIGNED DEFAULT NULL,
+    `beschrijving` TEXT DEFAULT NULL,
     PRIMARY KEY (`cijfernr`),
     FOREIGN KEY (`vaknr`) REFERENCES `Vakken`(`vaknr`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

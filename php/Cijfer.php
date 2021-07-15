@@ -26,6 +26,7 @@ class Cijfer implements JsonSerializable {
     var $weging;
     var $datum;
     var $cijfer;
+    var $beschrijving;
 
     /**
      * Cijfer constructor.
@@ -38,13 +39,14 @@ class Cijfer implements JsonSerializable {
      * @param float|null    $cijfer
      */
     public function __construct(int $cijfernummer, Vak $vak, string $naam, float $weging = null,
-                                DateTime $datum = null, float $cijfer = null) {
+                                DateTime $datum = null, float $cijfer = null, string $beschrijving = null) {
         $this->cijfernummer = $cijfernummer;
         $this->vak = $vak;
         $this->naam = $naam;
         $this->weging = $weging;
         $this->datum = $datum;
         $this->cijfer = $cijfer;
+        $this->beschrijving = $beschrijving;
     }
 
     public function jsonSerialize() {
@@ -54,7 +56,8 @@ class Cijfer implements JsonSerializable {
             'naam' => $this->naam,
             'weging' => $this->weging,
             'datum' => $this->datum === null ? null : $this->datum->format("Y-m-d"),
-            'cijfer' => $this->cijfer
+            'cijfer' => $this->cijfer,
+            'beschrijving' => $this->beschrijving
         ];
     }
 
@@ -69,6 +72,7 @@ class Cijfer implements JsonSerializable {
         $weging = $cijfer["weging"] === null ? null : $cijfer["weging"] / 100;
         $getal = $cijfer["cijfer"] === null ? null : $cijfer["cijfer"] / 100;
         $datum = $cijfer["datum"];
+        $beschrijving = $cijfer["beschrijving"];
 
         try {
             $datum = DateTime::createFromFormat("Y-m-d", $datum);
@@ -80,7 +84,7 @@ class Cijfer implements JsonSerializable {
             return null;
         }
 
-        return new Cijfer($cijfernummer, $internal_vak, $naam, $weging, $datum, $getal);
+        return new Cijfer($cijfernummer, $internal_vak, $naam, $weging, $datum, $getal, $beschrijving);
     }
 
     public static function getCijfer(int $cijfernummer) {
@@ -111,8 +115,8 @@ class Cijfer implements JsonSerializable {
     }
 
     public static function createCijfer(Vak $vak, string $naam, float $weging = null, DateTime $datum = null,
-                                        float $cijfer = null) {
-        $nieuwCijfer = new Cijfer(-1, $vak, $naam, $weging, $datum, $cijfer);
+                                        float $cijfer = null, string $beschrijving = null) {
+        $nieuwCijfer = new Cijfer(-1, $vak, $naam, $weging, $datum, $cijfer, $beschrijving);
 
         $return = $nieuwCijfer->upload();
 
@@ -267,6 +271,11 @@ class Cijfer implements JsonSerializable {
             $values .= ", :cijfer";
         }
 
+        if ($this->beschrijving !== null) {
+            $columns .= ", beschrijving";
+            $values .= ", :beschrijving";
+        }
+
         $sql = $database->prepare("INSERT INTO Cijfers ($columns) VALUES($values)");
 
         if (!$sql->bindValue(':vaknr', $this->vak->vaknummer, PDO::PARAM_INT)) {
@@ -292,6 +301,12 @@ class Cijfer implements JsonSerializable {
         if ($this->cijfer !== null) {
             if (!$sql->bindValue(':cijfer', round($this->cijfer * 100), PDO::PARAM_INT)) {
                 return 6;
+            }
+        }
+
+        if ($this->beschrijving !== null) {
+            if (!$sql->bindValue(':beschrijving', $this->beschrijving, PDO::PARAM_STR)) {
+                return 9;
             }
         }
 
@@ -327,6 +342,7 @@ class Cijfer implements JsonSerializable {
         }
 
         $this->datum = $datum;
+        $this->beschrijving = $result["beschrijving"];
 
         return 0;
     }
@@ -340,7 +356,8 @@ class Cijfer implements JsonSerializable {
         }
 
         $sql = $database->prepare("UPDATE Cijfers set vaknr = :vaknr, cijfertitel = :titel, " .
-            "weging = :weging, datum = :datum, cijfer = :cijfer WHERE cijfernr = :cijfernr");
+            "weging = :weging, datum = :datum, cijfer = :cijfer, beschrijving = :beschrijving " .
+            "WHERE cijfernr = :cijfernr");
 
         if (!$sql->bindValue(':vaknr', $this->vak->vaknummer, PDO::PARAM_INT)) {
             return 2;
@@ -377,6 +394,16 @@ class Cijfer implements JsonSerializable {
         } else {
             if (!$sql->bindValue(':cijfer', null, PDO::PARAM_NULL)) {
                 return 6;
+            }
+        }
+
+        if ($this->beschrijving !== null) {
+            if (!$sql->bindValue(':beschrijving', $this->beschrijving, PDO::PARAM_STR)) {
+                return 9;
+            }
+        } else {
+            if (!$sql->bindValue(':beschrijving', null, PDO::PARAM_NULL)) {
+                return 9;
             }
         }
 

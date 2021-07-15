@@ -581,6 +581,8 @@ function get_cijfervak_data(form, bewerk) {
     const datum = datum_val === '' ? null : datum_val;
     const cijfer_val = form.querySelector("input[name='cijfer']").value
     const cijfer = cijfer_val === '' ? null : parseFloat(cijfer_val);
+    const beschrijving_val = form.querySelector("textarea[name='beschrijving']").value.trim();
+    const beschrijving = beschrijving_val === '' ? null : beschrijving_val;
     let errorvak = form.querySelector("div.errorvak");
     let error = false;
     clear_element(errorvak);
@@ -625,7 +627,8 @@ function get_cijfervak_data(form, bewerk) {
             naam: titel,
             weging: weging,
             datum: datum,
-            cijfer: cijfer
+            cijfer: cijfer,
+            beschrijving: beschrijving
         });
     } catch {
         errorvak.append(createPanel(panelTypesEnum.error, "Vak bestaat niet.", false));
@@ -855,6 +858,19 @@ function create_cijfer_vak(i, bewerk = false, cijfer = null) {
 
     form.append(row);
 
+    // Beschrijving
+    optie = maak_element('p');
+    optie.append(maak_element('label', {class: ['w3-text-grey'], children: ["Beschrijving"]}));
+    optie.append(maak_element('textarea', {
+        name: 'beschrijving',
+        placeholder: 'Informatie over het cijfer',
+        value: cijfer && cijfer.beschrijving ? cijfer.beschrijving : '',
+        style: {whiteSpace: 'pre-wrap', resize: 'vertical'},
+        rows: 5,
+        class: ['w3-input', 'w3-border']
+    }));
+    form.append(optie);
+
     // Submit
     optie = maak_element('p');
     optie.append(maak_element('input', {
@@ -913,7 +929,14 @@ async function deel_cijfers() {
 
     for (const cijfernummer of selectie) {
         let cijfer = cijferMapping[cijfernummer];
-        text += `Cijfer:\t\t\t${(cijfer.cijfer === null ? "Onbekend" : `${cijfer.cijfer}`)}\nVak:\t\t\t${cijfer.vak.naam}\nOmschrijving:\t${cijfer.naam}\nWeging:\t\t\t${(cijfer.weging === null ? "Onbekend" : `${cijfer.weging}%`)}\n\n`;
+        text += `Cijfer:\t\t\t${(cijfer.cijfer === null ? "Onbekend" : `${cijfer.cijfer}`)}\n`;
+        text += `Titel:\t\t\t${cijfer.naam}\n`;
+        if (cijfer.beschrijving) {
+            text += `Beschrijving:\t${cijfer.beschrijving}\n`;
+        }
+        text += `Vak:\t\t\t${cijfer.vak.naam}\n`
+        text += `Weging:\t\t\t${(cijfer.weging === null ? "Onbekend" : `${cijfer.weging}%`)}\n`;
+        text += '\n';
     }
 
     let url_extension = '';
@@ -1012,6 +1035,8 @@ function get_vakvak_data(form, bewerk) {
     const periode_end = periode_end_val === '' ? null : parseInt(periode_end_val);
     const eindcijfer_val = form.querySelector("input[name='eindcijfer']").value
     const eindcijfer = eindcijfer_val === '' ? null : parseFloat(eindcijfer_val);
+    const beschrijving_val = form.querySelector("textarea[name='beschrijving']").value.trim();
+    const beschrijving = beschrijving_val === '' ? null : beschrijving_val;
     let errorvak = form.querySelector("div.errorvak");
     let error = false;
     clear_element(errorvak);
@@ -1078,7 +1103,8 @@ function get_vakvak_data(form, bewerk) {
         gehaald: gehaald,
         toon: toon,
         periode: periode_start === null ? null : {start: periode_start, end: periode_end},
-        eindcijfer: eindcijfer
+        eindcijfer: eindcijfer,
+        beschrijving: beschrijving
     });
 }
 
@@ -1393,7 +1419,7 @@ function create_vak_vak(i, bewerk = false, vak = null) {
             min: 0,
             step: 0.01,
             value: vak.gemiddelde,
-            disabled: true,
+            readOnly: true,
             class: ['w3-input', 'w3-border'],
             style: {fontStyle: 'italic'}
         }));
@@ -1402,6 +1428,19 @@ function create_vak_vak(i, bewerk = false, vak = null) {
     }
 
     form.append(row);
+
+    // Beschrijving
+    optie = maak_element('p');
+    optie.append(maak_element('label', {class: ['w3-text-grey'], children: ["Beschrijving"]}));
+    optie.append(maak_element('textarea', {
+        name: 'beschrijving',
+        placeholder: 'Informatie over het vak',
+        value: vak && vak.beschrijving ? vak.beschrijving : '',
+        style: {whiteSpace: 'pre-wrap', resize: 'vertical'},
+        rows: 5,
+        class: ['w3-input', 'w3-border']
+    }));
+    form.append(optie);
 
     // Submit
     optie = maak_element('p');

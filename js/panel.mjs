@@ -21,7 +21,7 @@ const panelTypesEnum = Object.freeze({error: 0, warning: 1, info: 2});
 const typeNames = Object.freeze({[panelTypesEnum.error]: 'Error', [panelTypesEnum.warning]: 'Waarschuwing', [panelTypesEnum.info]: 'Melding'});
 const typeColors = Object.freeze({[panelTypesEnum.error]: 'w3-red', [panelTypesEnum.warning]: 'w3-amber', [panelTypesEnum.info]: 'w3-light-gray'});
 
-function createPanel(type, melding, popup) {
+function createPanel(type, melding, popup, titel = null) {
     let div = document.createElement('div');
     div.classList.add("w3-panel", typeColors[type], "w3-display-container");
     let span = document.createElement('span');
@@ -30,7 +30,11 @@ function createPanel(type, melding, popup) {
     span.append("×");
     div.append(span);
     let h3 = document.createElement('h3');
-    h3.append(typeNames[type]);
+    if (titel) {
+        h3.append(titel);
+    } else {
+        h3.append(typeNames[type]);
+    }
     div.append(h3);
     let p = document.createElement('p');
     if (melding instanceof HTMLElement) {

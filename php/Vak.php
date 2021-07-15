@@ -47,6 +47,7 @@ class Vak implements JsonSerializable {
     var $gehaald;
     var $eindcijfer;
     var $toon;
+    var $beschrijving;
     var $som = 0;
     var $weging = 0;
 
@@ -64,7 +65,8 @@ class Vak implements JsonSerializable {
      * @param Periode|null $periode
      */
     public function __construct(int $vaknummer, Studie $studie, string $naam, int $jaar, int $studiepunten,
-                                bool $gehaald, bool $toon, float $eindcijfer = NULL, Periode $periode = NULL) {
+                                bool $gehaald, bool $toon, float $eindcijfer = NULL, Periode $periode = NULL,
+                                string $beschrijving = NULL) {
         $this->vaknummer = $vaknummer;
         $this->studie = $studie;
         $this->naam = $naam;
@@ -74,6 +76,7 @@ class Vak implements JsonSerializable {
         $this->gehaald = $gehaald;
         $this->eindcijfer = $eindcijfer;
         $this->toon = $toon;
+        $this->beschrijving = $beschrijving;
     }
 
     public function jsonSerialize() {
@@ -86,7 +89,8 @@ class Vak implements JsonSerializable {
             'studiepunten' => $this->studiepunten,
             'gehaald' => $this->gehaald,
             'eindcijfer' => $this->eindcijfer,
-            'toon' => $this->toon
+            'toon' => $this->toon,
+            'beschrijving' => $this->beschrijving
         ];
     }
 
@@ -104,8 +108,9 @@ class Vak implements JsonSerializable {
         $gehaald = $vak["gehaald"] == 1;
         $eindcijfer = $vak["eindcijfer"] === NULL ? NULL : $vak["eindcijfer"] / 100;
         $toon = $vak["toon"] == 1;
+        $beschrijving = $vak["beschrijving"];
 
-        return new Vak($vaknummer, $studie, $naam, $jaar, $studiepunten, $gehaald, $toon, $eindcijfer, $periode);
+        return new Vak($vaknummer, $studie, $naam, $jaar, $studiepunten, $gehaald, $toon, $eindcijfer, $periode, $beschrijving);
     }
 
     public static function getVak(int $vaknummer) {
@@ -135,8 +140,8 @@ class Vak implements JsonSerializable {
     }
 
     public static function createVak(Studie $studie, string $naam, int $jaar, int $studiepunten, bool $gehaald, bool $toon,
-                                     Periode $periode = NULL, float $eindcijfer = NULL) {
-        $nieuwVak = new Vak(-1, $studie, $naam, $jaar, $studiepunten, $gehaald, $toon, $eindcijfer, $periode);
+                                     Periode $periode = NULL, float $eindcijfer = NULL, string $beschrijving = NULL) {
+        $nieuwVak = new Vak(-1, $studie, $naam, $jaar, $studiepunten, $gehaald, $toon, $eindcijfer, $periode, $beschrijving);
 
         $return = $nieuwVak->upload();
 
@@ -282,6 +287,11 @@ class Vak implements JsonSerializable {
             $values .= ", :eindcijfer";
         }
 
+        if ($this->beschrijving !== NULL) {
+            $columns .= ", beschrijving";
+            $values .= ", :beschrijving";
+        }
+
         $sql = $database->prepare("INSERT INTO Vakken ($columns) VALUES($values)");
         if (!$sql->bindValue(':studienummer', $this->studie->studienummer, PDO::PARAM_INT)) {
             return 12;
@@ -322,6 +332,12 @@ class Vak implements JsonSerializable {
             return 8;
         }
 
+        if ($this->beschrijving !== NULL) {
+            if (!$sql->bindValue(':beschrijving', $this->beschrijving, PDO::PARAM_STR)) {
+                return 11;
+            }
+        }
+
         if (!$sql->execute()) {
             error_log("Execute failed: " . implode($sql->errorInfo()));
             return 9;
@@ -345,6 +361,7 @@ class Vak implements JsonSerializable {
         $this->gehaald = $result["gehaald"] == 1;
         $this->eindcijfer = $result["eindcijfer"] === NULL ? NULL : $result["eindcijfer"] / 100;
         $this->toon = $result["toon"] == 1;
+        $this->beschrijving = $result["beschrijving"];
 
         return 0;
     }
@@ -358,7 +375,7 @@ class Vak implements JsonSerializable {
         }
 
         $values = "studienr = :studienummer, vaknaam = :titel, jaar = :jaar, periode_start = :periode_start, periode_end = :periode_end, " .
-            "studiepunten = :studiepunten, gehaald = :gehaald, eindcijfer = :eindcijfer, toon = :toon";
+            "studiepunten = :studiepunten, gehaald = :gehaald, eindcijfer = :eindcijfer, toon = :toon, beschrijving = :beschrijving";
 
         $sql = $database->prepare("UPDATE Vakken set $values WHERE vaknr = :vaknr");
 
@@ -416,6 +433,16 @@ class Vak implements JsonSerializable {
 
         if (!$sql->bindValue(':studiepunten', $this->studiepunten, PDO::PARAM_INT)) {
             return 8;
+        }
+
+        if ($this->beschrijving !== NULL) {
+            if (!$sql->bindValue(':beschrijving', $this->beschrijving, PDO::PARAM_STR)) {
+                return 5;
+            }
+        } else {
+            if (!$sql->bindValue(':beschrijving', NULL, PDO::PARAM_NULL)) {
+                return 5;
+            }
         }
 
         if (!$sql->execute()) {

@@ -64,11 +64,37 @@ function maak_tcell(row, text, styleclass=null) {
     return cell;
 }
 
+function toggle_beschrijving_popout(element, beschrijving) {
+    let span = element.querySelector("span.popout");
+    if (span) {
+        span.remove();
+    } else {
+
+        span = maak_element('span', {
+            style: {whiteSpace: 'pre-wrap'},
+            class: ['popout'],
+            children: [beschrijving]
+        });
+
+        element.append(span);
+    }
+}
+
 function vul_cijfers_rij(rij, cijfer, admin) {
     if (admin) {
         maak_tcell(rij, cijfer.cijfernummer);
     }
-    maak_tcell(rij, cijfer.naam, admin ? null : "table-cijfertitel");
+    let naam = maak_tcell(rij, cijfer.naam, admin ? null : "table-cijfertitel");
+    if (cijfer.beschrijving) {
+        naam.classList.add('popout-container');
+        let sup = maak_element('sup', {
+            style: {marginLeft: '-6px', fontWeight: '600'},
+            class: ['tooltip'],
+            children: ["ⓘ"]
+        });
+        sup.addEventListener('click', function() {toggle_beschrijving_popout(naam, cijfer.beschrijving)});
+        naam.append(sup);
+    }
     if (admin) {
         maak_tcell(rij, cijfer.vak.naam);
     }
@@ -163,7 +189,19 @@ function vul_vakken_rij(rij, vak, admin) {
         maak_tcell(rij, vak.vaknummer);
     }
 
-    maak_tcell(rij, vak.naam);
+    let naam = maak_tcell(rij, vak.naam);
+
+    if (vak.beschrijving) {
+        naam.classList.add('popout-container');
+        let sup = maak_element('sup', {
+            style: {marginLeft: '-6px', fontWeight: '600'},
+            class: ['tooltip'],
+            children: ["ⓘ"]
+        });
+        sup.addEventListener('click', function() {toggle_beschrijving_popout(naam, vak.beschrijving)});
+        naam.append(sup);
+    }
+
     maak_tcell(rij, vak.jaar);
     maak_tcell(rij, vak.periode !== null ? format_periode(vak.periode) : "");
     maak_tcell(rij, vak.gemiddelde !== null ? vak.gemiddelde : "");

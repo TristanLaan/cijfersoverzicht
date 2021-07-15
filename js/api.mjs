@@ -246,11 +246,12 @@ class Vak {
     gehaald;
     eindcijfer;
     toon;
+    beschrijving;
     gemiddelde;
     totaal;
     cijfers;
 
-    constructor(vaknummer, studienummer, naam, jaar, periode, studiepunten, gehaald, eindcijfer, toon, gemiddelde=null, totaal=null, cijfers=[]) {
+    constructor(vaknummer, studienummer, naam, jaar, periode, studiepunten, gehaald, eindcijfer, toon, beschrijving=null, gemiddelde=null, totaal=null, cijfers=[]) {
         this.vaknummer = vaknummer;
         this.studienummer = studienummer;
         this.naam = naam;
@@ -260,6 +261,7 @@ class Vak {
         this.gehaald = gehaald;
         this.eindcijfer = eindcijfer;
         this.toon = toon;
+        this.beschrijving = beschrijving;
         this.gemiddelde = gemiddelde;
         this.totaal = totaal;
         this.cijfers = cijfers;
@@ -267,13 +269,13 @@ class Vak {
 
     to_json() {
         if (this.vaknummer === null) {
-            return {studienummer: this.studienummer, naam: this.naam, jaar: this.jaar, periode: this.periode === null ? null : this.periode.to_json(), studiepunten: this.studiepunten, gehaald: this.gehaald, toon: this.toon, eindcijfer: this.eindcijfer};
+            return {studienummer: this.studienummer, naam: this.naam, jaar: this.jaar, periode: this.periode === null ? null : this.periode.to_json(), studiepunten: this.studiepunten, gehaald: this.gehaald, toon: this.toon, eindcijfer: this.eindcijfer, beschrijving: this.beschrijving};
         }
-        return {vaknummer: this.vaknummer, studienummer: this.studienummer, naam: this.naam, jaar: this.jaar, periode: null ? null : this.periode.to_json(), studiepunten: this.studiepunten, gehaald: this.gehaald, toon: this.toon, eindcijfer: this.eindcijfer};
+        return {vaknummer: this.vaknummer, studienummer: this.studienummer, naam: this.naam, jaar: this.jaar, periode: this.periode === null ? null : this.periode.to_json(), studiepunten: this.studiepunten, gehaald: this.gehaald, toon: this.toon, eindcijfer: this.eindcijfer, beschrijving: this.beschrijving};
     }
 
     static from_json(json, gemiddelde=null, totaal=null, cijfers=[]) {
-        return new this(json.vaknummer, json.studienummer, json.naam, json.jaar, json.periode === null ? null : Periode.from_json(json.periode), json.studiepunten, json.gehaald, json.eindcijfer, json.toon, gemiddelde, totaal, cijfers);
+        return new this(json.vaknummer, json.studienummer, json.naam, json.jaar, json.periode === null ? null : Periode.from_json(json.periode), json.studiepunten, json.gehaald, json.eindcijfer, json.toon, json.beschrijving, gemiddelde, totaal, cijfers);
     }
 
     static update_vakken(vakken, general_error_function, handle_vak_function, finished_function=null) {
@@ -421,8 +423,9 @@ class Cijfer {
     naam;
     datum;
     cijfer;
+    beschrijving;
 
-    constructor(cijfernummer, vak, naam, weging, datum, cijfer) {
+    constructor(cijfernummer, vak, naam, weging, datum, cijfer, beschrijving) {
         this.cijfernummer = cijfernummer;
         if (!(vak instanceof Vak)) {
             throw TypeError;
@@ -432,17 +435,18 @@ class Cijfer {
         this.weging = weging;
         this.datum = datum;
         this.cijfer = cijfer;
+        this.beschrijving = beschrijving;
     }
 
     to_json() {
         if (this.cijfernummer === null) {
-            return {vaknummer: this.vak.vaknummer, naam: this.naam, weging: this.weging, datum: this.datum ? format_date(this.datum) : null, cijfer: this.cijfer};
+            return {vaknummer: this.vak.vaknummer, naam: this.naam, weging: this.weging, datum: this.datum ? format_date(this.datum) : null, cijfer: this.cijfer, beschrijving: this.beschrijving};
         }
-        return {cijfernummer: this.cijfernummer, vaknummer: this.vak.vaknummer, naam: this.naam, weging: this.weging, datum: this.datum ? format_date(this.datum) : null, cijfer: this.cijfer};
+        return {cijfernummer: this.cijfernummer, vaknummer: this.vak.vaknummer, naam: this.naam, weging: this.weging, datum: this.datum ? format_date(this.datum) : null, cijfer: this.cijfer, beschrijving: this.beschrijving};
     }
 
     static from_json(json) {
-        return new this(json.cijfernummer, vakMapping[json.vaknummer], json.naam, json.weging, json.datum ? parse_date(json.datum) : null, json.cijfer);
+        return new this(json.cijfernummer, vakMapping[json.vaknummer], json.naam, json.weging, json.datum ? parse_date(json.datum) : null, json.cijfer, json.beschrijving);
     }
 
     static update_cijfers(cijfers, general_error_function, handle_cijfer_function, finished_function=null) {

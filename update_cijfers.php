@@ -92,6 +92,12 @@ function update_cijfer($array) {
         }
     }
 
+    if (!isset($array['beschrijving']) || $array['beschrijving'] === '') {
+        $beschrijving = NULL;
+    } else {
+        $beschrijving = $array['beschrijving'];
+    }
+
     if (!is_numeric($array['vaknummer'])) {
         $vak = NULL;
     } else {
@@ -103,7 +109,7 @@ function update_cijfer($array) {
     }
 
     if ($cijfer === NULL) {
-        return Cijfer::createCijfer($vak, $naam, $weging, $datum, $cijferwaarde);
+        return Cijfer::createCijfer($vak, $naam, $weging, $datum, $cijferwaarde, $beschrijving);
     }
 
     $cijfer->vak = $vak;
@@ -111,6 +117,7 @@ function update_cijfer($array) {
     $cijfer->weging = $weging;
     $cijfer->naam = $naam;
     $cijfer->cijfer = $cijferwaarde;
+    $cijfer->beschrijving = $beschrijving;
 
     $return = $cijfer->update();
 

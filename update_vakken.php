@@ -99,6 +99,12 @@ function update_vak($array) {
         }
     }
 
+    if (!isset($array['beschrijving']) || $array['beschrijving'] === '') {
+        $beschrijving = NULL;
+    } else {
+        $beschrijving = $array['beschrijving'];
+    }
+
     if (!isset($array['studienummer']) || !is_numeric($array['studienummer'])) {
         $studie = NULL;
     } else {
@@ -110,7 +116,7 @@ function update_vak($array) {
     }
 
     if ($vak === NULL) {
-        return Vak::createVak($studie, $naam, $jaar, $studiepunten, $gehaald, $toon, $periode, $eindcijfer);
+        return Vak::createVak($studie, $naam, $jaar, $studiepunten, $gehaald, $toon, $periode, $eindcijfer, $beschrijving);
     }
 
     $vak->studie = $studie;
@@ -121,6 +127,7 @@ function update_vak($array) {
     $vak->gehaald = $gehaald;
     $vak->toon = $toon;
     $vak->eindcijfer = $eindcijfer;
+    $vak->beschrijving = $beschrijving;
 
     $return = $vak->update();
     return [$return, $vak];

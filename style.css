@@ -107,6 +107,52 @@ hr {
     width: 0 !important
 }
 
+.popout-container {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip {
+    cursor: pointer;
+    font-size: 90%;
+    margin: -8px;
+    padding: 8px;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+
+.popout {
+    max-width: 100%;
+    background-color: #555;
+    color: #fff;
+    border-radius: 6px;
+    padding: 8px 8px;
+    position: absolute;
+    z-index: 1;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -50%;
+    animation: fade-in 0.125s;
+}
+
+.popout::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+}
+
+@keyframes fade-in {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
 /* footer */
 .spacing {
     margin: 0 5px;
@@ -253,11 +299,6 @@ img.loading {
 
     .login-box {
         background: #1F1B24;
-    }
-
-    input, select {
-        color: white;
-        background: #423e48;
     }
 
     .w3-select {
