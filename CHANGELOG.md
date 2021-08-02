@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+### Changed
+- Share api wordt niet meer gebruikt om cijfers te delen omdat browsers het
+  `text` attribuut negeren.
+
 ## [1.0.0]
 ### Added
 - Admin interface wordt nu dynamisch geüpdatet na wijzigingen aan
@@ -187,6 +192,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Een login pagina die een wachtwoord vereist voordat de website wordt bezocht
 - Een pagina waar alle cijfers te zien zijn
 
+[Unreleased]: https://github.com/TristanLaan/cijfersoverzicht/compare/v1.0.0...HEAD
 [1.0.0]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.6.0...v1.0.0
 [0.6.0]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.5.0...v0.5.1

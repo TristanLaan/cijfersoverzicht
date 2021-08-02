@@ -35,6 +35,7 @@ let cijferMapping = {};
 let vakMapping = {};
 let refresh_interval = null;
 let first_reload = true;
+window.use_share_api = false;
 
 function get_huidige_studie(state=null) {
     let params = (new URL(document.location)).searchParams;
@@ -947,7 +948,7 @@ async function deel_cijfers() {
     text += `Bekijk cijfers:${(serverinfo.intern ? `\nExtern:\t\t\t${serverinfo.domein}${url_extension}\nIntern:\t\t\t${serverinfo.interndomein}${url_extension}` : `\t${serverinfo.domein}${url_extension}`)}\nWachtwoord:\t${serverinfo.wachtwoord}`;
 
     try {
-        if (navigator && navigator.share) {
+        if (window.use_share_api && navigator && navigator.share) {
             await navigator.share({title: serverinfo.titel, text: text, url: serverinfo.domein});
         } else {
             // Fallback if sharing is not supported
