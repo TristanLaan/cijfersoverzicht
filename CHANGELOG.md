@@ -7,8 +7,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - Share api wordt niet meer gebruikt om cijfers te delen omdat browsers het
   `text` attribuut negeren.
+- Vak-beschrijvingen worden ook weergeven in de cijfer-tabellen.
 
-## [1.0.0]
+### Fixed
+- Beschrijving popups kunnen niet meer overflowen buiten het scherm.
+
+## [1.0.0] - 2021-07-15
 ### Added
 - Admin interface wordt nu dynamisch geüpdatet na wijzigingen aan
   cijfers/vakken, zonder dat een refresh nodig is.

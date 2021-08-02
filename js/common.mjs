@@ -1,5 +1,3 @@
-import {createPanel, panelTypesEnum} from "./panel.mjs";
-
 /**
  * Copyright (c) Tristan Laan 2018-2021.
  * This file is part of cijfersoverzicht.
@@ -16,6 +14,8 @@ import {createPanel, panelTypesEnum} from "./panel.mjs";
  * You should have received a copy of the GNU Affero General Public License
  * along with cijfersoverzicht.  If not, see <https://www.gnu.org/licenses/>
  */
+
+import {createPanel, panelTypesEnum} from "./panel.mjs";
 
 const date_options = { year: 'numeric', month: 'short', day: 'numeric' };
 
@@ -64,20 +64,45 @@ function maak_tcell(row, text, styleclass=null) {
     return cell;
 }
 
-function toggle_beschrijving_popout(element, beschrijving) {
-    let span = element.querySelector("span.popout");
-    if (span) {
-        span.remove();
-    } else {
+function maak_tooltip(element, inhoud) {
+    function toggle_beschrijving_popout() {
+        let div = element.querySelector("div.popout");
+        if (div) {
+            div.remove();
+        } else {
+            let content = maak_element('div', {
+                style: {whiteSpace: 'pre-wrap'},
+                class: ['popout-content'],
+                children: [inhoud]
+            })
 
-        span = maak_element('span', {
-            style: {whiteSpace: 'pre-wrap'},
-            class: ['popout'],
-            children: [beschrijving]
-        });
+            div = maak_element('div', {
+                class: ['popout'],
+                children: [content]
+            });
 
-        element.append(span);
+            element.append(div);
+            const pos = div.getBoundingClientRect();
+            const body_pos = document.body.getBoundingClientRect();
+            const screen_height = window.innerHeight - 100;
+
+            let max_height = pos.bottom - 26 - body_pos.top;
+            if (max_height > screen_height) {
+                max_height = screen_height;
+            }
+
+            content.style.maxHeight = max_height.toString() + 'px';
+        }
     }
+
+    element.classList.add('popout-container');
+    let sup = maak_element('sup', {
+        style: {marginLeft: '-6px', fontWeight: '600'},
+        class: ['tooltip'],
+        children: ["ⓘ"]
+    });
+    sup.addEventListener('click', toggle_beschrijving_popout);
+    element.append(sup);
 }
 
 function vul_cijfers_rij(rij, cijfer, admin) {
@@ -86,14 +111,7 @@ function vul_cijfers_rij(rij, cijfer, admin) {
     }
     let naam = maak_tcell(rij, cijfer.naam, admin ? null : "table-cijfertitel");
     if (cijfer.beschrijving) {
-        naam.classList.add('popout-container');
-        let sup = maak_element('sup', {
-            style: {marginLeft: '-6px', fontWeight: '600'},
-            class: ['tooltip'],
-            children: ["ⓘ"]
-        });
-        sup.addEventListener('click', function() {toggle_beschrijving_popout(naam, cijfer.beschrijving)});
-        naam.append(sup);
+        maak_tooltip(naam, cijfer.beschrijving);
     }
     if (admin) {
         maak_tcell(rij, cijfer.vak.naam);
@@ -123,6 +141,10 @@ function vul_cijfers_tabel_user(table, data) {
                         kleur % 2 === 0 ? "table-row-1" : "table-row-2");
                     tc.rowSpan = aantal_cijfers;
                     first = false;
+
+                    if (vak.beschrijving) {
+                        maak_tooltip(tc, vak.beschrijving);
+                    }
                 }
 
                 vul_cijfers_rij(tr, cijfer, false);
@@ -192,14 +214,7 @@ function vul_vakken_rij(rij, vak, admin) {
     let naam = maak_tcell(rij, vak.naam);
 
     if (vak.beschrijving) {
-        naam.classList.add('popout-container');
-        let sup = maak_element('sup', {
-            style: {marginLeft: '-6px', fontWeight: '600'},
-            class: ['tooltip'],
-            children: ["ⓘ"]
-        });
-        sup.addEventListener('click', function() {toggle_beschrijving_popout(naam, vak.beschrijving)});
-        naam.append(sup);
+        maak_tooltip(naam, vak.beschrijving);
     }
 
     maak_tcell(rij, vak.jaar);

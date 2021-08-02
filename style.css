@@ -123,6 +123,12 @@ hr {
     -ms-user-select: none;
 }
 
+.popout-content {
+    overflow-wrap: break-word;
+    overflow-y: auto;
+    height: 100%;
+}
+
 .popout {
     max-width: 100%;
     background-color: #555;
