@@ -3,7 +3,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [1.1.0]
+## [Unreleased]
+### Changed
+- Tooltip komt nu uit ⓘ-symbool.
+- ⓘ-symbool heeft een nieuwe kleur.
+
+## [1.1.0] - 2021-08-02
 ### Changed
 - Share api wordt niet meer gebruikt om cijfers te delen omdat browsers het
   `text` attribuut negeren.
@@ -196,6 +201,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Een login pagina die een wachtwoord vereist voordat de website wordt bezocht
 - Een pagina waar alle cijfers te zien zijn
 
+[Unreleased]: https://github.com/TristanLaan/cijfersoverzicht/compare/v1.1.0...HEAD
 [1.1.0]: https://github.com/TristanLaan/cijfersoverzicht/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.6.0...v1.0.0
 [0.6.0]: https://github.com/TristanLaan/cijfersoverzicht/compare/v0.5.1...v0.6.0

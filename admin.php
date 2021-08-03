@@ -64,7 +64,7 @@ require_once "php/print_copyright.php";
         <h2>Cijfers wijzigen</h2>
         <table id="cijfertabel" class="bottom-room w3-table-all w3-hoverable">
             <thead>
-            <tr class="w3-light-grey table-head">
+            <tr class="table-head">
                 <th></th>
                 <th>No.</th>
                 <th>Titel</th>
@@ -95,7 +95,7 @@ require_once "php/print_copyright.php";
         <h2 id="wijzig-vak">Vakken wijzigen</h2>
         <table id="vaktabel" class="w3-table-all w3-hoverable bottom-room">
             <thead>
-            <tr class="w3-light-grey table-head">
+            <tr class="table-head">
                 <th></th>
                 <th>No.</th>
                 <th>Titel</th>

@@ -117,6 +117,7 @@ hr {
     font-size: 90%;
     margin: -8px;
     padding: 8px;
+    color: darkslategray;
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
@@ -135,15 +136,14 @@ hr {
     color: #fff;
     border-radius: 6px;
     padding: 8px 8px;
+    left: 0;
     position: absolute;
     z-index: 1;
     bottom: 100%;
-    left: 50%;
-    margin-left: -50%;
     animation: fade-in 0.125s;
 }
 
-.popout::after {
+.popout-after {
     content: "";
     position: absolute;
     top: 100%;
@@ -152,6 +152,7 @@ hr {
     border-width: 5px;
     border-style: solid;
     border-color: #555 transparent transparent transparent;
+    pointer-events: none;
 }
 
 @keyframes fade-in {
@@ -301,6 +302,10 @@ img.loading {
 
     .url {
         color: cornflowerblue;
+    }
+
+    .tooltip {
+        color: #84909b;
     }
 
     .login-box {

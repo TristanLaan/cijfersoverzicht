@@ -65,6 +65,8 @@ function maak_tcell(row, text, styleclass=null) {
 }
 
 function maak_tooltip(element, inhoud) {
+    let sup;
+
     function toggle_beschrijving_popout() {
         let div = element.querySelector("div.popout");
         if (div) {
@@ -76,13 +78,17 @@ function maak_tooltip(element, inhoud) {
                 children: [inhoud]
             })
 
+            let arrow = maak_element('div', {class: ['popout-after']});
+
             div = maak_element('div', {
                 class: ['popout'],
-                children: [content]
+                children: [content, arrow]
             });
 
             element.append(div);
-            const pos = div.getBoundingClientRect();
+
+            // Maximale hoogte valt binnen body en past volledig in beeld.
+            let pos = div.getBoundingClientRect();
             const body_pos = document.body.getBoundingClientRect();
             const screen_height = window.innerHeight - 100;
 
@@ -92,11 +98,31 @@ function maak_tooltip(element, inhoud) {
             }
 
             content.style.maxHeight = max_height.toString() + 'px';
+
+            // Popout komt vanuit ⓘ-symbool.
+            // Centreer div boven ⓘ-symbool, en binnen boundaries van het element.
+            const el_pos = element.getBoundingClientRect();
+            const sup_pos = sup.getBoundingClientRect();
+            const sup_x = sup_pos.left + sup_pos.width / 2;
+            let left = sup_x - el_pos.left - pos.width / 2;
+
+            if (left < 0) {
+                left = 0;
+            } else if (left + pos.width > el_pos.width) {
+                left = el_pos.width - pos.width;
+            }
+
+            div.style.left = left.toString() + 'px';
+
+            // Centreer pijl boven ⓘ-symbool.
+            pos = div.getBoundingClientRect();
+            left = sup_x - pos.left;
+            arrow.style.left = left.toString() + 'px';
         }
     }
 
     element.classList.add('popout-container');
-    let sup = maak_element('sup', {
+    sup = maak_element('sup', {
         style: {marginLeft: '-6px', fontWeight: '600'},
         class: ['tooltip'],
         children: ["ⓘ"]
