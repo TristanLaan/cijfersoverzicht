@@ -62,10 +62,10 @@ $etag = md5(json_encode($return));
 
 // Set etag in header for caching results
 header('Content-Type: application/json; charset=UTF-8');
-header('ETag: ' . $etag);
+header("ETag: \"$etag\"");
 header('Cache-Control: private, must-revalidate');
 
-if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] === $etag) {
+if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && ($_SERVER['HTTP_IF_NONE_MATCH'] === $etag || $_SERVER['HTTP_IF_NONE_MATCH'] === "W/\"$etag\"")) {
     http_response_code(304);
 } else {
     echo json_encode($return);
