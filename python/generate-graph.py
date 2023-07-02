@@ -168,7 +168,9 @@ def plot_grades(data: List[Tuple[datetime.date, float]], config: Config,
     if len(grades) > 0:
         plt.plot_date(dates, grades, label='Behaald cijfer')
         if interpolated:
-            plt.plot_date(*interpolated, linestyle='--', marker=None,
+            # Set fmt to empty string to bypass warning:
+            # https://stackoverflow.com/a/69135438
+            plt.plot_date(*interpolated, fmt='', linestyle='--', marker=None,
                           label='Voortschrijdend gemiddelde '
                                 'over {} dagen'.format(window))
 
